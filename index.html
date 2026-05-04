@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PH Law Firm Manager</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root{--p:#0d47a1;--bg:#f5f7fb;--t:#1a1a1a;--s:#5f6368;--b:#e0e0e0;--sidebar-w:250px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        .auth-wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#f0f4ff,#e8edf5);padding:20px}
+        .auth-card{background:#fff;width:100%;max-width:400px;padding:30px 20px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);text-align:center}
+        .auth-logo{font-size:24px;font-weight:700;color:var(--p);margin-bottom:8px}
+        .auth-sub{color:var(--s);font-size:13px;margin-bottom:24px}
+        .inp{margin-bottom:14px;text-align:left}
+        .inp label{display:block;font-size:12px;font-weight:600;color:var(--t);margin-bottom:6px;text-transform:uppercase}
+        .inp input,.inp select,.inp textarea{width:100%;padding:10px 12px;border:1px solid var(--b);border-radius:8px;font-size:14px;background:#fff;transition:border-color .2s}
+        .inp input:focus,.inp select:focus,.inp textarea:focus{outline:0;border-color:var(--p);box-shadow:0 0 0 3px rgba(13,71,161,.1)}
+        .btn{padding:10px 18px;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+        .btn-p{background:var(--p);color:#fff;width:100%}.btn-p:hover{background:#0a3a7e}
+        .btn-o{background:#fff;border:1px solid var(--b);color:var(--t)}.btn-o:hover{background:#f8f9fa}
+        .btn-d{background:#dc2626;color:#fff}.btn-d:hover{background:#b91c1c}
+        .btn-sm{padding:6px 12px;font-size:12px;width:auto}
+        .btn-google{background:#fff;border:1px solid var(--b);color:var(--t);width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.btn-google:hover{background:#f8f9fa}
+        .tabs{display:flex;gap:15px;margin-bottom:22px;justify-content:center}
+        .tab{font-size:13px;font-weight:600;color:var(--s);cursor:pointer;padding:6px 10px;border-bottom:2px solid transparent;transition:.2s}
+        .tab.active{color:var(--p);border-bottom-color:var(--p)}
+        .err{background:#fee2e2;color:#b91c1c;padding:10px;border-radius:8px;margin-bottom:14px;font-size:12px}
+        .suc{background:#d1fae5;color:#065f46;padding:10px;border-radius:8px;margin-bottom:14px;font-size:12px}
+        .divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--s);font-size:12px}.divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid var(--b)}
+        .layout{display:flex;min-height:100vh}
+        .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100%;background:#fff;border-right:1px solid var(--b);z-index:200;transform:translateX(-100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+        .sidebar.open{transform:translateX(0)}
+        .sidebar-backdrop{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:150}
+        .sidebar-backdrop.show{display:block}
+        .sidebar-head{padding:16px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+        .sidebar-logo{font-size:18px;font-weight:700;color:var(--p)}
+        .sidebar-close{background:0 0;border:0;font-size:20px;cursor:pointer;color:var(--s)}
+        .sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:14px;font-weight:500;color:var(--s);cursor:pointer;transition:.15s;border-left:3px solid transparent}
+        .nav-item:hover{background:#f0f4ff;color:var(--p)}
+        .nav-item.active{background:#e8f0fe;color:var(--p);border-left-color:var(--p)}
+        .nav-item i{width:24px;text-align:center}
+        .sidebar-footer{padding:16px;border-top:1px solid var(--b);font-size:12px;color:var(--s)}
+        .main-content{flex:1;padding:16px;min-height:100vh}
+        .topbar{background:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+        .hamburger{background:0 0;border:0;font-size:22px;cursor:pointer}
+        .user-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .sync-badge{padding:4px 10px;border-radius:20px;font-size:11px;display:flex;align-items:center;gap:4px;background:#e8f0fe;color:var(--p)}
+        .sync-badge.online{background:#d1fae5;color:#065f46}.sync-badge.offline{background:#fee2e2;color:#b91c1c}
+        .firm-id{background:#f0f4ff;padding:4px 8px;border-radius:6px;font-family:monospace;font-size:12px}
+        .logout-btn{padding:6px 12px;background:0 0;border:1px solid var(--b);border-radius:8px;font-size:13px;cursor:pointer}
+        .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+        .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:4px solid var(--p);cursor:pointer;transition:.2s}.card:hover{transform:translateY(-2px)}
+        .card.green{border-left-color:#10b981}.card.orange{border-left-color:#f59e0b}.card.purple{border-left-color:#8b5cf6}
+        .card-val{font-size:24px;font-weight:700;line-height:1.2}
+        .card-label{font-size:11px;color:var(--s);margin-top:4px;text-transform:uppercase}
+        .table-wrap{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow-x:auto}
+        .task-table{width:100%;min-width:500px;border-collapse:collapse}
+        .task-table th{text-align:left;padding:10px 12px;background:#f8fafd;color:var(--s);font-weight:600;font-size:11px;text-transform:uppercase}
+        .task-table td{padding:10px 12px;border-bottom:1px solid var(--b);font-size:13px}
+        .task-table tr:hover{background:#f0f7ff;cursor:pointer}
+        .badge-p{display:inline-block;padding:2px 6px;border-radius:12px;font-size:10px;font-weight:600;color:#fff}
+        .badge-s{display:inline-block;padding:2px 6px;border-radius:12px;font-size:10px;font-weight:600;background:#e5e7eb;color:#374151}
+        .badge-s.completed{background:#d1fae5;color:#065f46}.badge-s.in_progress{background:#dbeafe;color:#1e40af}
+        .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;justify-content:center;align-items:center;z-index:1000;padding:16px}
+        .modal{background:#fff;width:100%;max-width:600px;max-height:90vh;border-radius:12px;overflow-y:auto}.modal-head{padding:12px 16px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center}.modal-head h2{font-size:16px}.modal-close{background:0 0;border:0;font-size:20px;cursor:pointer}.modal-body{padding:16px}.modal-foot{padding:12px 16px;border-top:1px solid var(--b);display:flex;gap:8px;justify-content:flex-end}
+        .chat-layout{display:flex;background:#fff;border-radius:12px;overflow:hidden;height:calc(100vh - 180px);min-height:350px}
+        .chat-rooms{width:200px;border-right:1px solid var(--b);overflow-y:auto;flex-shrink:0}.room{padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:500;border-bottom:1px solid var(--b)}.room:hover{background:#f0f4ff}.room.active{background:#e8f0fe;color:var(--p)}.chat-main{flex:1;display:flex;flex-direction:column}.msgs{flex:1;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}.msg{max-width:80%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4;word-wrap:break-word}.msg.sent{align-self:flex-end;background:var(--p);color:#fff}.msg.received{align-self:flex-start;background:#f0f4ff}.msg-meta{font-size:10px;opacity:.8;margin-top:4px}.chat-input-area{display:flex;padding:10px;border-top:1px solid var(--b)}.chat-input-area textarea{flex:1;padding:10px;border:1px solid var(--b);border-radius:8px;resize:none;font-size:14px;min-height:42px}.send-btn{background:var(--p);color:#fff;border:0;border-radius:50%;width:42px;height:42px;margin-left:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        @media(min-width:769px){.sidebar{transform:translateX(0);position:static;width:var(--sidebar-w);height:auto;min-height:100vh}.main-content{margin-left:0}.hamburger{display:none}.sidebar-backdrop{display:none!important}.sidebar-close{display:none}}
+    </style>
+<link rel="manifest" href="manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+</script>
+
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+const fbConfig={apiKey:"AIzaSyA1ptQA0We00UCjzY6NbK_ePHNEUMKxfV0",authDomain:"deep-seek-law-task-manager.firebaseapp.com",databaseURL:"https://deep-seek-law-task-manager-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"deep-seek-law-task-manager",storageBucket:"deep-seek-law-task-manager.firebasestorage.app",messagingSenderId:"349212320419",appId:"1:349212320419:web:5ab238257571ec5b925516"};
+let useFB=false;try{firebase.initializeApp(fbConfig);useFB=true}catch(e){}
+const db=useFB?firebase.database():null;
+const auth=useFB?firebase.auth():null;
+const LS={U:'u',F:'f',T:'t',C:'c',TE:'e',CUR:'cur',CH:'ch'};
+function g(k){return JSON.parse(localStorage.getItem(k)||'[]')}
+function s(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+const DS={
+genId:()=>'LF-'+Math.random().toString(36).substr(2,8).toUpperCase(),
+async uprofile(uid){if(useFB){const sn=await db.ref(`users/${uid}`).once('value');return sn.val()}return g(LS.U).find(x=>x.id===uid)},
+async sprofile(uid,d){d.id=uid;if(useFB)await db.ref(`users/${uid}`).set(d);else{const u=g(LS.U);const i=u.findIndex(x=>x.id===uid);if(i>=0)u[i]=d;else u.push(d);s(LS.U,u)}},
+async allU(){if(useFB){const sn=await db.ref('users').once('value');return sn.val()?Object.values(sn.val()):[]}return g(LS.U)},
+async firms(){if(useFB){const sn=await db.ref('firms').once('value');return sn.val()?Object.values(sn.val()):[]}return g(LS.F)},
+async sFirm(d){if(useFB)await db.ref(`firms/${d.firmId}`).set(d);else{const f=g(LS.F);const i=f.findIndex(x=>x.firmId===d.firmId);if(i>=0)f[i]=d;else f.push(d);s(LS.F,f)}},
+async findFirm(id){const f=await this.firms();return f.find(x=>x.firmId===id)},
+async addFirm(d){const n={...d,createdAt:new Date().toISOString()};await this.sFirm(n);return n},
+async tasks(fid){if(useFB){const sn=await db.ref('tasks').orderByChild('lawFirmId').equalTo(fid).once('value');return sn.val()?Object.values(sn.val()):[]}return g(LS.T).filter(t=>t.lawFirmId===fid)},
+async addTask(t){t.id='T'+Date.now();t.createdAt=t.updatedAt=new Date().toISOString();if(useFB)await db.ref(`tasks/${t.id}`).set(t);else{const a=g(LS.T);a.push(t);s(LS.T,a)}return t},
+async updTask(id,u){u.updatedAt=new Date().toISOString();if(useFB){await db.ref(`tasks/${id}`).update(u);const sn=await db.ref(`tasks/${id}`).once('value');return sn.val()}else{const a=g(LS.T);const i=a.findIndex(x=>x.id===id);if(i>=0){a[i]={...a[i],...u};s(LS.T,a);return a[i]}return null}},
+async delTask(id){if(useFB){const sn=await db.ref('tasks').once('value');const all=sn.val()?Object.values(sn.val()):[];const subs=all.filter(t=>t.parentTaskId===id).map(t=>t.id);const up={};up[`tasks/${id}`]=null;subs.forEach(s=>up[`tasks/${s}`]=null);await db.ref().update(up)}else{let a=g(LS.T);const subs=a.filter(t=>t.parentTaskId===id).map(t=>t.id);a=a.filter(t=>t.id!==id&&!subs.includes(t.id));s(LS.T,a)}},
+async cases(fid){if(useFB){const sn=await db.ref('cases').orderByChild('lawFirmId').equalTo(fid).once('value');return sn.val()?Object.values(sn.val()):[]}return g(LS.C).filter(c=>c.lawFirmId===fid)},
+async addCase(c){c.id='C'+Date.now();c.createdAt=new Date().toISOString();if(useFB)await db.ref(`cases/${c.id}`).set(c);else{const a=g(LS.C);a.push(c);s(LS.C,a)}return c},
+async updCase(id,u){if(useFB){await db.ref(`cases/${id}`).update(u);const sn=await db.ref(`cases/${id}`).once('value');return sn.val()}else{const a=g(LS.C);const i=a.findIndex(x=>x.id===id);if(i>=0){a[i]={...a[i],...u};s(LS.C,a);return a[i]}return null}},
+async delCase(id){if(useFB)await db.ref(`cases/${id}`).remove();else{let a=g(LS.C);a=a.filter(c=>c.id!==id);s(LS.C,a)}},
+async teams(fid){if(useFB){const sn=await db.ref('teams').orderByChild('lawFirmId').equalTo(fid).once('value');return sn.val()?Object.values(sn.val()):[]}return g(LS.TE).filter(t=>t.lawFirmId===fid)},
+async addTeam(t){t.id='E'+Date.now();t.createdAt=new Date().toISOString();if(useFB)await db.ref(`teams/${t.id}`).set(t);else{const a=g(LS.TE);a.push(t);s(LS.TE,a)}return t},
+async updTeam(id,u){if(useFB){await db.ref(`teams/${id}`).update(u);const sn=await db.ref(`teams/${id}`).once('value');return sn.val()}else{const a=g(LS.TE);const i=a.findIndex(x=>x.id===id);if(i>=0){a[i]={...a[i],...u};s(LS.TE,a);return a[i]}return null}},
+async delTeam(id){if(useFB)await db.ref(`teams/${id}`).remove();else{let a=g(LS.TE);a=a.filter(t=>t.id!==id);s(LS.TE,a)}},
+initChat(fid){if(!useFB)return;db.ref(`chat/${fid}/general`).on('value',()=>{if(ST.view==='chat')refreshChat()});db.ref(`chat/${fid}/teams`).on('value',()=>{if(ST.view==='chat')refreshChat()})},
+async getMsgs(room,tid){const fid=ST.user.lawFirmId;if(useFB){const ref=tid?db.ref(`chat/${fid}/teams/${tid}`):db.ref(`chat/${fid}/general`);const sn=await ref.once('value');return sn.val()?Object.values(sn.val()):[]}return g(LS.CH).filter(m=>m.room===room&&m.teamId===tid)},
+async addMsg(room,tid,msg){msg.room=room;msg.teamId=tid;msg.id='M'+Date.now();if(useFB){const fid=ST.user.lawFirmId;const ref=tid?db.ref(`chat/${fid}/teams/${tid}`):db.ref(`chat/${fid}/general`);await ref.push(msg)}else{const a=g(LS.CH);a.push(msg);s(LS.CH,a);window.dispatchEvent(new Event('storage'))}}
+};
+
+let ST={user:null,view:'dashboard',selT:null,selC:null,selE:null,editT:null,modal:false,modalMode:'task',err:null,suc:null,filt:{status:''},online:useFB,chatRoom:'general',chatTeam:null,chatMsgs:[]};
+
+async function render(){
+    try{
+        const app=document.getElementById('app');
+        if(!ST.user){app.innerHTML=aScr();bind();return}
+        const firm=await DS.findFirm(ST.user.lawFirmId);
+        app.innerHTML=mainApp(firm?firm.firmName:'Unknown');
+        document.getElementById('main-area').innerHTML=await curView();
+        if(window.innerWidth>=769){document.getElementById('sidebar').classList.add('open')}
+        if(ST.view==='chat')refreshChat();
+        bind();
+    }catch(e){console.error(e);document.getElementById('app').innerHTML='<div class="err">Error loading dashboard. Check console.</div>';bind();}
+}
+function aScr(){return `<div class="auth-wrap"><div class="auth-card"><div class="auth-logo"><i class="fas fa-balance-scale"></i> Law Firm</div><div class="auth-sub">Modern practice management</div>${ST.err?`<div class="err">${ST.err}</div>`:''}${ST.suc?`<div class="suc">${ST.suc}</div>`:''}<div class="tabs"><div class="tab active" data-tab="login">Sign In</div><div class="tab" data-tab="register">Register</div><div class="tab" data-tab="join">Join</div></div><div id="auth-form">${lForm()}</div></div></div>`}
+function lForm(){return `<form id="lf"><div class="inp"><label>EMAIL</label><input type="email" id="le" required></div><div class="inp"><label>PASSWORD</label><input type="password" id="lp" required></div><button class="btn btn-p" type="button" id="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button><div class="divider">OR</div><button class="btn btn-google" type="button" id="google-btn"><i class="fab fa-google"></i> Sign in with Google</button></form>`}
+function rForm(){return `<form id="rf"><div class="inp"><label>FIRM NAME</label><input type="text" id="rfn" required></div><div style="display:flex;gap:10px"><div class="inp" style="flex:1"><label>FIRST</label><input type="text" id="rfi" required></div><div class="inp" style="flex:1"><label>LAST</label><input type="text" id="rla" required></div></div><div class="inp"><label>EMAIL</label><input type="email" id="re" required></div><div class="inp"><label>PASSWORD (min 6)</label><input type="password" id="rp" required minlength="6"></div><button class="btn btn-p" type="button" id="reg-btn"><i class="fas fa-building"></i> Register</button></form>`}
+function jForm(){return `<form id="jf"><div class="inp"><label>FIRM ID</label><input type="text" id="jfi" required></div><div style="display:flex;gap:10px"><div class="inp" style="flex:1"><label>FIRST</label><input type="text" id="jfn" required></div><div class="inp" style="flex:1"><label>LAST</label><input type="text" id="jln" required></div></div><div class="inp"><label>EMAIL</label><input type="email" id="je" required></div><div class="inp"><label>PASSWORD (min 6)</label><input type="password" id="jp" required minlength="6"></div><div class="inp"><label>ROLE</label><select id="jr"><option value="associate">Associate</option><option value="partner">Partner</option><option value="paralegal">Paralegal</option><option value="admin">Admin</option></select></div><button class="btn btn-p" type="button" id="join-btn"><i class="fas fa-user-plus"></i> Join</button></form>`}
+function mainApp(fn){const u=ST.user;return `<div class="layout"><div class="sidebar-backdrop" id="bd"></div><div class="sidebar" id="sidebar"><div class="sidebar-head"><span class="sidebar-logo"><i class="fas fa-balance-scale"></i> PH Law</span><button class="sidebar-close" id="sb-close"><i class="fas fa-times"></i></button></div><nav class="sidebar-nav"><div class="nav-item ${ST.view==='dashboard'?'active':''}" data-view="dashboard"><i class="fas fa-chart-bar"></i><span>Dashboard</span></div><div class="nav-item ${ST.view==='tasks'?'active':''}" data-view="tasks"><i class="fas fa-tasks"></i><span>Tasks</span></div><div class="nav-item ${ST.view==='createTask'?'active':''}" data-view="createTask"><i class="fas fa-plus-circle"></i><span>New Task</span></div><div class="nav-item ${ST.view==='cases'?'active':''}" data-view="cases"><i class="fas fa-folder-open"></i><span>Cases</span></div><div class="nav-item ${ST.view==='createCase'?'active':''}" data-view="createCase"><i class="fas fa-folder-plus"></i><span>New Case</span></div><div class="nav-item ${ST.view==='teams'?'active':''}" data-view="teams"><i class="fas fa-users"></i><span>Teams</span></div><div class="nav-item ${ST.view==='createTeam'?'active':''}" data-view="createTeam"><i class="fas fa-user-cog"></i><span>New Team</span></div><div class="nav-item ${ST.view==='members'?'active':''}" data-view="members"><i class="fas fa-address-book"></i><span>Members</span></div><div class="nav-item ${ST.view==='chat'?'active':''}" data-view="chat"><i class="fas fa-comments"></i><span>Chat</span></div></nav><div class="sidebar-footer"><i class="far fa-building"></i> ${fn}</div></div><div class="main-content"><div class="topbar"><button class="hamburger" id="menu-btn"><i class="fas fa-bars"></i></button><div><i class="fas fa-hand-sparkles"></i> Welcome, ${u.firstName} ${u.lastName}</div><div class="user-info"><span class="sync-badge ${ST.online?'online':'offline'}">${ST.online?'🟢 Online':'🔴 Offline'}</span><span class="firm-id">🏢 ${u.lawFirmId}</span><button class="logout-btn" id="lo-btn">Logout</button></div></div><div id="main-area"></div></div>${ST.modal?modal():''}</div>`}
+async function curView(){switch(ST.view){case 'dashboard':return await dv();case 'tasks':return await tlv();case 'createTask':return await ctv();case 'cases':return await clv();case 'createCase':return ccv();case 'teams':return await elv();case 'createTeam':return etv();case 'members':return await mlv();case 'chat':return await chv();default:return await dv()}}
+async function dv(){const tasks=await DS.tasks(ST.user.lawFirmId);const cases=await DS.cases(ST.user.lawFirmId);const p=tasks.filter(t=>t.status!=='completed').length;return `<div class="cards"><div class="card" data-card="all"><div class="card-val">${tasks.length}</div><div class="card-label">ACTIVE TASKS</div></div><div class="card orange" data-card="pending"><div class="card-val">${p}</div><div class="card-label">PENDING</div></div><div class="card green" data-card="cases"><div class="card-val">${cases.length}</div><div class="card-label">CASES</div></div></div>`}
+async function tlv(){let tasks=await DS.tasks(ST.user.lawFirmId);if(ST.filt.status)tasks=tasks.filter(t=>t.status===ST.filt.status);if(ST.filt.priority)tasks=tasks.filter(t=>t.priority===ST.filt.priority);return `<div style="margin-bottom:8px"><select id="fs"><option value="">All</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Task</th><th>Priority</th><th>Status</th></tr></thead><tbody>${tasks.length?tasks.map(t=>`<tr data-tid="${t.id}"><td>${t.title}</td><td><span class="badge-p" style="background:${t.priority==='urgent'?'#dc2626':'#3b82f6'}">${t.priority}</span></td><td><span class="badge-s ${t.status}">${t.status}</span></td></tr>`).join(''):'<tr><td colspan="3">None</td></tr>'}</tbody></table></div>`}
+async function clv(){const cases=await DS.cases(ST.user.lawFirmId);return `<div><button class="btn btn-p btn-sm" id="bnc">+ New Case</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Case</th><th>Client</th><th>Actions</th></tr></thead><tbody>${cases.map(c=>`<tr><td data-cid="${c.id}">${c.caseName}</td><td>${c.clientName}</td><td><button class="btn btn-o btn-sm vcb" data-cid="${c.id}">View</button></td></tr>`).join('')||'<tr><td colspan="3">None</td></tr>'}</tbody></table></div>`}
+function ccv(){return `<div><h2>New Case</h2><form id="ccf"><div class="inp"><label>Name</label><input id="ccn" required></div><div class="inp"><label>Client</label><input id="ccl"></div><div class="inp"><label>Lawyer</label><select id="cclw"></select></div><button class="btn btn-p" type="button" id="case-btn">Create</button></form></div>`}
+async function elv(){const teams=await DS.teams(ST.user.lawFirmId);return `<div><button class="btn btn-p btn-sm" id="bnt">+ New Team</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Team</th><th>Members</th></tr></thead><tbody>${teams.map(t=>`<tr><td>${t.name}</td><td style="font-size:12px">${(t.memberIds||[]).length} members</td></tr>`).join('')||'<tr><td colspan="2">None</td></tr>'}</tbody></table></div>`}
+function etv(){return `<div><h2>New Team</h2><form id="etf"><div class="inp"><label>Name</label><input id="etn" required></div><div class="inp"><label>Members</label><select id="etm" multiple style="min-height:80px"></select></div><button class="btn btn-p" type="button" id="team-btn">Create</button></form></div>`}
+async function mlv(){const users=(await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);return `<div class="table-wrap"><table class="task-table"><thead><tr><th>Name</th><th>Role</th></tr></thead><tbody>${users.map(u=>`<tr><td>${u.firstName} ${u.lastName}</td><td>${u.role}</td></tr>`).join('')}</tbody></table></div>`}
+async function chv(){const teams=await DS.teams(ST.user.lawFirmId);const msgs=ST.chatMsgs;const cr=ST.chatRoom==='general'?'General':(teams.find(t=>t.id===ST.chatTeam)?.name||'?');return `<div class="chat-layout"><div class="chat-rooms"><div class="room ${ST.chatRoom==='general'?'active':''}" data-room="general"><i class="fas fa-globe"></i> General</div>${teams.map(t=>`<div class="room ${ST.chatRoom==='team'&&ST.chatTeam===t.id?'active':''}" data-room="team" data-tid="${t.id}"><i class="fas fa-users"></i> ${t.name}</div>`).join('')}</div><div class="chat-main"><div class="msgs" id="cmsgs">${msgs.map(m=>`<div class="msg ${m.senderId===ST.user.id?'sent':'received'}"><div>${m.text}</div><div class="msg-meta">${m.senderName}</div></div>`).join('')||'<div class="empty">No messages</div>'}</div><div class="chat-input-area"><textarea id="ci" placeholder="Message..."></textarea><button class="send-btn" id="scb"><i class="fas fa-paper-plane"></i></button></div></div></div>`}
+function modal(){let t=ST.editT?'Edit Task':'Task Details';if(ST.modalMode==='case')t='Case Details';return `<div class="modal-overlay" id="mo"><div class="modal"><div class="modal-head"><h2>${t}</h2><button class="modal-close" id="mclose">✕</button></div><div class="modal-body" id="mbd"></div><div class="modal-foot"><button class="btn btn-o" id="mclose2">Close</button></div></div></div>`}
+function refreshChat(){const c=document.getElementById('cmsgs');if(!c)return;c.innerHTML=ST.chatMsgs.map(m=>`<div class="msg ${m.senderId===ST.user.id?'sent':'received'}"><div>${m.text}</div><div class="msg-meta">${m.senderName}</div></div>`).join('')||'<div class="empty">No messages</div>';c.scrollTop=c.scrollHeight}
+async function ctv(){const members=(await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);return `<div><h2>New Task</h2><form id="ctf"><div class="inp"><label>Title</label><input id="ctn" required></div><div class="inp"><label>Assignees</label><select id="cta" multiple>${members.map(m=>`<option value="${m.id}">${m.firstName} ${m.lastName}</option>`).join('')}</select></div><button class="btn btn-p" type="button" id="task-btn">Create</button></form></div>`}
+
+// ==================== AUTH HANDLERS ====================
+async function handleEmailLogin(){
+    const em=document.getElementById('le')?.value?.trim();
+    const pw=document.getElementById('lp')?.value?.trim();
+    if(!em||!pw){ST.err='Please fill in all fields';render();return;}
+    ST.err=null; ST.suc=null;
+    if(useFB){
+        try{
+            const cred=await auth.signInWithEmailAndPassword(em,pw);
+            const profile=await DS.uprofile(cred.user.uid);
+            if(!profile){ST.err='Account not found in database. Please register first.'; await auth.signOut(); render(); return;}
+            ST.user=profile;
+            DS.initChat(ST.user.lawFirmId);
+            ST.view='dashboard';
+            render();
+        }catch(err){ST.err=err.message;render();}
+    }else{
+        const users=await DS.allU();
+        const u=users.find(x=>x.email===em&&x.password===pw);
+        if(u){ST.user=u;s(LS.CUR,u);ST.view='dashboard';render();}
+        else{ST.err='Invalid credentials';render();}
+    }
+}
+
+async function handleGoogleLogin(){
+    if(!useFB){ST.err='Firebase not available';render();return;}
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try{
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        const profile = await DS.uprofile(user.uid);
+        if(!profile){
+            ST.err='No account found with this Google account. Please register first using your email and password, then you can sign in with Google.';
+            await auth.signOut();
+            render();
+            return;
+        }
+        ST.user = profile;
+        DS.initChat(ST.user.lawFirmId);
+        ST.err = null;
+        ST.suc = null;
+        ST.view = 'dashboard';
+        render();
+    }catch(err){
+        if(err.code !== 'auth/popup-closed-by-user'){
+            ST.err = err.message;
+        }
+        render();
+    }
+}
+
+async function handleRegister(){
+    const fn=document.getElementById('rfn')?.value?.trim();
+    const fi=document.getElementById('rfi')?.value?.trim();
+    const la=document.getElementById('rla')?.value?.trim();
+    const em=document.getElementById('re')?.value?.trim();
+    const pw=document.getElementById('rp')?.value?.trim();
+    if(!fn||!fi||!la||!em||pw.length<6){ST.err='All fields required (password min 6)';render();return;}
+    ST.err=null; ST.suc=null;
+    if(useFB){
+        try{
+            const cred=await auth.createUserWithEmailAndPassword(em,pw);
+            const fid=DS.genId();
+            const profile={email:em,firstName:fi,lastName:la,role:'managing_partner',lawFirmId:fid};
+            await DS.sprofile(cred.user.uid,profile);
+            await DS.addFirm({firmId:fid,firmName:fn,createdBy:cred.user.uid});
+            ST.user={id:cred.user.uid,...profile};
+            DS.initChat(fid);
+            ST.suc='Firm created! ID: '+fid;
+            render();
+        }catch(err){ST.err=err.message;render();}
+    }else{
+        const fid=DS.genId();
+        const u={id:'U'+Date.now(),email:em,password:pw,firstName:fi,lastName:la,role:'managing_partner',lawFirmId:fid};
+        const users=g(LS.U);users.push(u);s(LS.U,users);
+        await DS.addFirm({firmId:fid,firmName:fn,createdBy:u.id});
+        ST.user=u;s(LS.CUR,u);ST.view='dashboard';render();
+    }
+}
+async function handleJoin(){
+    const fid=document.getElementById('jfi')?.value?.trim();
+    const fi=document.getElementById('jfn')?.value?.trim();
+    const la=document.getElementById('jln')?.value?.trim();
+    const em=document.getElementById('je')?.value?.trim();
+    const pw=document.getElementById('jp')?.value?.trim();
+    const role=document.getElementById('jr')?.value;
+    if(!fid||!fi||!la||!em||pw.length<6){ST.err='All fields required (password min 6)';render();return;}
+    const firm=await DS.findFirm(fid);if(!firm){ST.err='Firm not found';render();return;}
+    ST.err=null; ST.suc=null;
+    if(useFB){
+        try{
+            const cred=await auth.createUserWithEmailAndPassword(em,pw);
+            const profile={email:em,firstName:fi,lastName:la,role,lawFirmId:fid};
+            await DS.sprofile(cred.user.uid,profile);
+            ST.user={id:cred.user.uid,...profile};
+            DS.initChat(fid);
+            ST.suc='Joined!';
+            render();
+        }catch(err){ST.err=err.message;render();}
+    }else{
+        const u={id:'U'+Date.now(),email:em,password:pw,firstName:fi,lastName:la,role,lawFirmId:fid};
+        const users=g(LS.U);users.push(u);s(LS.U,users);
+        ST.user=u;s(LS.CUR,u);render();
+    }
+}
+
+// ==================== EVENT BINDING ====================
+function bind(){
+    // Sidebar
+    document.getElementById('menu-btn')?.addEventListener('click',()=>{document.getElementById('sidebar').classList.add('open');document.getElementById('bd').classList.add('show')});
+    document.getElementById('sb-close')?.addEventListener('click',closeSidebar);
+    document.getElementById('bd')?.addEventListener('click',closeSidebar);
+    function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('bd').classList.remove('show')}
+
+    // Auth tabs
+    document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));this.classList.add('active');const f=document.getElementById('auth-form');if(this.dataset.tab==='login')f.innerHTML=lForm();else if(this.dataset.tab==='register')f.innerHTML=rForm();else f.innerHTML=jForm();bind()}));
+
+    // Auth buttons
+    const loginBtn=document.getElementById('login-btn');if(loginBtn)loginBtn.addEventListener('click',handleEmailLogin);
+    const googleBtn=document.getElementById('google-btn');if(googleBtn)googleBtn.addEventListener('click',handleGoogleLogin);
+    const regBtn=document.getElementById('reg-btn');if(regBtn)regBtn.addEventListener('click',handleRegister);
+    const joinBtn=document.getElementById('join-btn');if(joinBtn)joinBtn.addEventListener('click',handleJoin);
+
+    // Logout
+    document.getElementById('lo-btn')?.addEventListener('click',()=>{if(useFB)auth.signOut();else{s(LS.CUR,null);ST.user=null}render()});
+
+    // Navigation
+    document.querySelectorAll('.nav-item[data-view]').forEach(item=>item.addEventListener('click',function(){ST.view=this.dataset.view;ST.modal=false;clS();render()}));
+    function clS(){if(window.innerWidth<769){document.getElementById('sidebar').classList.remove('open');document.getElementById('bd').classList.remove('show')}}
+
+    // Task row clicks
+    document.querySelectorAll('tr[data-tid]').forEach(row=>row.addEventListener('click',async function(){const tasks=await DS.tasks(ST.user.lawFirmId);const t=tasks.find(x=>x.id===this.dataset.tid);if(t){ST.selT=t;ST.editT=null;ST.modalMode='task';ST.modal=true;render()}}));
+
+    // Dashboard cards
+    document.querySelectorAll('.card[data-card]').forEach(card=>card.addEventListener('click',function(){const a=this.dataset.card;if(a==='cases'){ST.view='cases'}else{ST.view='tasks';if(a==='all')ST.filt={};if(a==='pending')ST.filt={status:'pending'}}ST.modal=false;render()}));
+
+    // Cases
+    document.getElementById('bnc')?.addEventListener('click',()=>{ST.view='createCase';render()});
+    document.querySelectorAll('.vcb').forEach(b=>b.addEventListener('click',async function(e){e.stopPropagation();const cs=await DS.cases(ST.user.lawFirmId);const c=cs.find(x=>x.id===this.dataset.cid);if(c){ST.selC=c;ST.modalMode='case';ST.modal=true;render()}}));
+
+    // Teams
+    document.getElementById('bnt')?.addEventListener('click',()=>{ST.view='createTeam';render()});
+
+    // Chat rooms
+    document.querySelectorAll('.room').forEach(room=>room.addEventListener('click',async function(){ST.chatRoom=this.dataset.room;ST.chatTeam=this.dataset.room==='team'?this.dataset.tid:null;ST.chatMsgs=await DS.getMsgs(ST.chatRoom,ST.chatTeam);render()}));
+
+    // Send chat
+    document.getElementById('scb')?.addEventListener('click',sendChat);
+    document.getElementById('ci')?.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}});
+
+    // Modal
+    document.getElementById('mclose')?.addEventListener('click',()=>{ST.modal=false;render()});
+    document.getElementById('mclose2')?.addEventListener('click',()=>{ST.modal=false;render()});
+    document.getElementById('mo')?.addEventListener('click',function(e){if(e.target===this){ST.modal=false;render()}});
+
+    // Task form button
+    const taskBtn=document.getElementById('task-btn');if(taskBtn)taskBtn.addEventListener('click',async()=>{const n=document.getElementById('ctn')?.value?.trim();if(!n)return;const as=document.getElementById('cta');const ids=Array.from(as.selectedOptions).map(o=>o.value);await DS.addTask({title:n,assigneeIds:ids,status:'pending',priority:'medium',lawFirmId:ST.user.lawFirmId,createdById:ST.user.id});ST.view='tasks';render()});
+
+    // Case form button
+    const caseBtn=document.getElementById('case-btn');if(caseBtn)caseBtn.addEventListener('click',async()=>{const n=document.getElementById('ccn')?.value?.trim();const cl=document.getElementById('ccl')?.value?.trim();const lw=document.getElementById('cclw')?.value;if(!n)return;await DS.addCase({caseName:n,clientName:cl,handlingLawyer:lw,lawFirmId:ST.user.lawFirmId,createdBy:ST.user.id,status:'active'});ST.view='cases';render()});
+    if(document.getElementById('ccf'))populateLawyers();
+
+    // Team form button
+    const teamBtn=document.getElementById('team-btn');if(teamBtn)teamBtn.addEventListener('click',async()=>{const n=document.getElementById('etn')?.value?.trim();if(!n)return;const ms=document.getElementById('etm');const ids=Array.from(ms.selectedOptions).map(o=>o.value);await DS.addTeam({name:n,memberIds:ids,lawFirmId:ST.user.lawFirmId,createdBy:ST.user.id});ST.view='teams';render()});
+    if(document.getElementById('etf'))populateTeamMembers();
+
+    // Filters
+    document.getElementById('fs')?.addEventListener('change',function(){ST.filt.status=this.value;render()});
+}
+
+async function sendChat(){const i=document.getElementById('ci');if(!i||!i.value.trim())return;const m={text:i.value.trim(),senderId:ST.user.id,senderName:ST.user.firstName+' '+ST.user.lastName,timestamp:Date.now()};await DS.addMsg(ST.chatRoom,ST.chatTeam,m);i.value='';ST.chatMsgs=await DS.getMsgs(ST.chatRoom,ST.chatTeam);refreshChat()}
+
+async function populateLawyers(){const sel=document.getElementById('cclw');if(!sel)return;const users=(await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);sel.innerHTML='<option value="">Select</option>'+users.filter(u=>['managing_partner','partner','associate'].includes(u.role)).map(u=>`<option value="${u.id}">${u.firstName} ${u.lastName}</option>`).join('')}
+async function populateTeamMembers(){const sel=document.getElementById('etm');if(!sel)return;const users=(await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);sel.innerHTML=users.map(u=>`<option value="${u.id}">${u.firstName} ${u.lastName}</option>`).join('')}
+
+render();
+})();
+</script>
+</body>
+</html>
