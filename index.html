@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>PH Law Firm Manager – Complete Practice Management</title>
+  <title>PH Law Firm Manager – Mobile-Friendly Task Management</title>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -87,7 +87,7 @@
     .btn-o:hover { background: #f8f9fa; border-color: var(--primary); }
     .btn-d { background: var(--danger); color: #fff; }
     .btn-d:hover { background: #b91c1c; }
-    .btn-sm { padding: 6px 12px; font-size: 12px; gap: 4px; }
+    .btn-sm { padding: 8px 14px; font-size: 13px; gap: 6px; min-height: 40px; }
     .btn-google { background: #fff; border: 1px solid var(--border); color: var(--text); width: 100%; }
     .tabs { display: flex; gap: 15px; margin-bottom: 22px; justify-content: center; flex-wrap: wrap; }
     .tab { font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; padding: 8px 12px; border-bottom: 2px solid transparent; transition: 0.2s; }
@@ -151,7 +151,7 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 8px; }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 12px; border-radius: 8px; }
     .hamburger:hover { background: #f0f0f0; }
     .user-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .sync-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; display: flex; align-items: center; gap: 6px; background: #e8f0fe; color: var(--primary); }
@@ -190,57 +190,194 @@
     .case-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
     .case-content { background: #fff; border-radius: 20px; padding: clamp(20px, 4vw, 32px); box-shadow: var(--shadow); }
     .two-columns { display: grid; grid-template-columns: 1fr 340px; gap: 28px; }
-    .left-column { min-width: 0; overflow-x: hidden; }
-    .right-column { display: flex; flex-direction: column; gap: 20px; }
-    .info-card { background: #f8fafd; border-radius: 16px; padding: clamp(16px, 3vw, 20px); transition: all 0.2s; }
-    .info-card h3 { font-size: clamp(14px, 3vw, 16px); margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; }
-    .hearing-item { background: #f8fafd; border-radius: 14px; padding: clamp(12px, 3vw, 16px); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .hearing-info { flex: 1; min-width: 180px; }
-    .hearing-date { font-weight: 700; color: var(--primary); font-size: clamp(14px, 3vw, 16px); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .update-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .update-time { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
-    .stat-circle { width: clamp(60px, 12vw, 80px); height: clamp(60px, 12vw, 80px); border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: clamp(20px, 4vw, 24px); font-weight: 700; color: var(--primary); }
-    .progress-bar { flex: 1; background: #e5e7eb; border-radius: 10px; height: 8px; overflow: hidden; }
-    .progress-fill { background: var(--success); height: 100%; border-radius: 10px; transition: width 0.3s ease; }
-    .team-member { display: flex; align-items: center; gap: 12px; padding: 12px; background: #fff; border-radius: 12px; margin-bottom: 8px; }
-    .member-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 14px; flex-shrink: 0; }
-    .task-list { max-height: 400px; overflow-y: auto; }
-    .task-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
-    .task-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 150px; }
-    .task-status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .task-status-dot.completed { background: var(--success); }
-    .task-status-dot.pending { background: var(--warning); }
-    .task-status-dot.in_progress { background: var(--info); }
-    .task-title { font-weight: 500; font-size: 14px; word-break: break-word; }
-    .task-due { font-size: 11px; color: var(--text-secondary); }
-    .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-    .btn-sync-calendar { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
-    .btn-sync-calendar:hover { background: #0a3a7e; transform: translateY(-1px); }
-    .reminder-banner { background: #ffedd5; border-left: 4px solid var(--warning); padding: 14px 18px; border-radius: 12px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    /* Task Detail Modal */
-    .task-detail-modal { max-width: 800px; width: 95%; }
-    .task-detail-section { margin-bottom: 24px; }
-    .task-detail-section h4 { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-left: 3px solid var(--primary); padding-left: 10px; }
-    .time-entry-item, .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; gap: 24px; } }
+    /* TASK DETAIL MODAL - FULLY MOBILE RESPONSIVE */
+    .task-detail-modal { 
+      max-width: 600px; 
+      width: 95%; 
+      margin: 0 auto;
+      border-radius: 24px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .task-detail-modal .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .task-detail-section { 
+      margin-bottom: 24px; 
+      background: #f8fafd;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .task-detail-section h4 { 
+      font-size: 13px; 
+      font-weight: 700; 
+      color: var(--primary); 
+      margin-bottom: 12px; 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .info-label {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 12px;
+      min-width: 90px;
+    }
+    .info-value {
+      font-size: 14px;
+      color: var(--text);
+      word-break: break-word;
+      flex: 1;
+    }
+    .time-entry-item, .subtask-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .time-entry-info, .subtask-info {
+      flex: 1;
+      min-width: 150px;
+    }
+    .action-button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .action-button-group .btn {
+      flex: 1;
+      min-width: 100px;
+    }
     /* Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
-    .modal { background: #fff; width: 100%; max-width: 650px; max-height: 90vh; border-radius: 20px; overflow-y: auto; animation: modalSlideIn 0.2s ease; }
+    .modal-overlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0; 
+      background: rgba(0,0,0,0.5); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 1000; 
+      padding: 16px; 
+    }
+    .modal { 
+      background: #fff; 
+      width: 100%; 
+      max-width: 650px; 
+      max-height: 90vh; 
+      border-radius: 24px; 
+      overflow-y: auto; 
+      animation: modalSlideIn 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
     @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; z-index: 10; }
-    .modal-head h2 { font-size: 18px; font-weight: 600; }
-    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 8px; }
+    .modal-head { 
+      padding: 18px 20px; 
+      border-bottom: 1px solid var(--border); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      position: sticky; 
+      top: 0; 
+      background: #fff; 
+      z-index: 10;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .modal-head h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .modal-close { 
+      background: none; 
+      border: none; 
+      font-size: 24px; 
+      cursor: pointer; 
+      padding: 8px; 
+      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .modal-close:hover { background: #f0f0f0; }
-    .modal-body { padding: 24px; }
-    .modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+    .modal-body { padding: 20px; flex: 1; overflow-y: auto; }
+    .modal-foot { 
+      padding: 16px 20px; 
+      border-top: 1px solid var(--border); 
+      display: flex; 
+      gap: 12px; 
+      justify-content: flex-end; 
+      flex-wrap: wrap;
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+    }
+    .modal-foot .btn {
+      min-width: 100px;
+    }
     .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
     .ffull { grid-column: 1 / -1; }
     .empty { text-align: center; padding: 48px 24px; color: var(--text-secondary); }
-    /* Responsive */
-    @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; gap: 24px; } .right-column { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; } }
-    @media (max-width: 768px) { .sidebar { left: -260px; width: 260px; } .sidebar.open { left: 0; transform: translateX(0); } .sidebar-backdrop.show { display: block; } .hamburger { display: block; } .main-content { padding: 16px; } .topbar { flex-direction: column; align-items: flex-start; } .user-info { width: 100%; justify-content: flex-start; } .cards { grid-template-columns: 1fr; } .case-header { padding: 20px; } .case-tabs { gap: 16px; } .case-tab { font-size: 13px; } .action-buttons { flex-direction: column; } .btn-sync-calendar, .action-buttons .btn { width: 100%; justify-content: center; } .hearing-item { flex-direction: column; align-items: flex-start; } .hearing-item .btn { align-self: stretch; justify-content: center; } .task-item { flex-direction: column; align-items: flex-start; } .task-info { width: 100%; } .modal { max-width: calc(100% - 32px); margin: 0 16px; } }
-    @media (max-width: 480px) { .case-title-section { flex-direction: column; align-items: flex-start; } .case-badge { align-self: flex-start; } .info-card { padding: 16px; } .stat-circle { width: 60px; height: 60px; font-size: 20px; } .team-member { padding: 10px; } .member-avatar { width: 36px; height: 36px; font-size: 12px; } }
-    @media (min-width: 769px) { .sidebar { transform: translateX(0); position: sticky; top: 0; height: 100vh; } .hamburger { display: none; } .sidebar-backdrop { display: none !important; } .sidebar-close { display: none; } }
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar { left: -260px; width: 260px; }
+      .sidebar.open { left: 0; transform: translateX(0); }
+      .sidebar-backdrop.show { display: block; }
+      .hamburger { display: block; }
+      .main-content { padding: 16px; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .user-info { width: 100%; justify-content: flex-start; }
+      .cards { grid-template-columns: 1fr; }
+      .case-header { padding: 20px; }
+      .case-tabs { gap: 16px; }
+      .case-tab { font-size: 13px; }
+      .btn-sm { padding: 10px 14px; font-size: 14px; }
+      .modal-head { padding: 16px; }
+      .modal-body { padding: 16px; }
+      .modal-foot { padding: 16px; }
+      .modal-foot .btn { min-width: 80px; }
+      .info-row { flex-direction: column; gap: 4px; }
+      .info-label { min-width: auto; }
+      .task-detail-section { padding: 14px; }
+      .action-button-group .btn { min-width: 80px; }
+    }
+    @media (max-width: 480px) {
+      .case-title-section { flex-direction: column; align-items: flex-start; }
+      .case-badge { align-self: flex-start; }
+      .modal-head h2 { font-size: 16px; }
+      .btn-sm { padding: 10px 12px; font-size: 13px; }
+      .action-button-group { flex-direction: column; }
+      .action-button-group .btn { width: 100%; }
+    }
+    @media (min-width: 769px) {
+      .sidebar { transform: translateX(0); position: sticky; top: 0; height: 100vh; }
+      .hamburger { display: none; }
+      .sidebar-backdrop { display: none !important; }
+      .sidebar-close { display: none; }
+    }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
@@ -260,7 +397,7 @@ const LS={U:'law_users',F:'law_firms',T:'law_tasks',C:'law_cases',TE:'law_teams'
 function g(k){return JSON.parse(localStorage.getItem(k)||'[]')}
 function s(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
-// Data Service (full implementation)
+// Data Service
 const DS={
 genId:()=>'LF-'+Math.random().toString(36).substr(2,8).toUpperCase(),
 async uprofile(uid){if(useFB){const sn=await db.ref(`users/${uid}`).once('value');return sn.val()}return g(LS.U).find(x=>x.id===uid)},
@@ -408,18 +545,17 @@ async function curView(){
   }
 }
 
-// Dashboard, Cases, Teams, etc. (same as previous working version - included for completeness)
 async function dashboardView(){
   const cases = await DS.cases(ST.user.lawFirmId);
   const tasks = await DS.tasks(ST.user.lawFirmId);
   const pendingTasks = tasks.filter(t=>t.status!=='completed').length;
   const logs = await DS.getTimeLogsByUser(ST.user.id, ST.user.lawFirmId);
   const totalHours = logs.reduce((s,l)=>s+l.durationMinutes/60,0);
-  return `<div class="cards"><div class="card" onclick="ST.view='cases';ST.selC=null;render()"><div class="card-val">${cases.length}</div><div class="card-label">Active Cases</div></div><div class="card orange" onclick="ST.view='tasks';render()"><div class="card-val">${pendingTasks}</div><div class="card-label">Pending Tasks</div></div><div class="card green"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Billable Hours</div></div></div><div class="table-wrap"><h3 style="padding:16px;">Recent Cases</h3><table class="task-table"><thead><tr><th>Case Name</th><th>Client</th><th>Status</th><th>Hearings</th></tr></thead><tbody>${cases.slice(0,5).map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td>${c.caseName}</td><td>${c.clientName||'-'}</td><td><span class="badge-s">${c.status||'active'}</span></td><td>${(c.hearings||[]).length}</td></tr>`).join('')||'<tr><td colspan="4">No cases</tr>'}</tbody></table></div>`;
+  return `<div class="cards"><div class="card" onclick="ST.view='cases';ST.selC=null;render()"><div class="card-val">${cases.length}</div><div class="card-label">Active Cases</div></div><div class="card orange" onclick="ST.view='tasks';render()"><div class="card-val">${pendingTasks}</div><div class="card-label">Pending Tasks</div></div><div class="card green"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Billable Hours</div></div></div><div class="table-wrap"><h3 style="padding:16px;">Recent Cases</h3><table class="task-table"><thead><tr><th>Case Name</th><th>Client</th><th>Status</th><th>Hearings</th></tr></thead><tbody>${cases.slice(0,5).map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td>${c.caseName}</td><td>${c.clientName||'-'}</td><td><span class="badge-s">${c.status||'active'}</span></td><td>${(c.hearings||[]).length}</td></tr>`).join('')||'<tr><td colspan="4">No cases</td></tr>'}</tbody></table></div>`;
 }
 async function casesListView(){
   const cases = await DS.cases(ST.user.lawFirmId);
-  return `<div style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="newCaseBtn"><i class="fas fa-plus"></i> New Case</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Case Name</th><th>Client</th><th>Status</th><th>Hearings</th><th>Created</th></tr></thead><tbody>${cases.map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td><i class="fas fa-folder-open"></i> ${c.caseName}</td><td>${c.clientName||'-'}</td><td><span class="badge-s">${c.status||'active'}</span></td><td>${(c.hearings||[]).length}</td><td>${formatDate(c.createdAt)}</tr>`).join('')||'<tr><td colspan="5">No cases. Click "New Case" to create one.</td></tr>'}</tbody></table></div>`;
+  return `<div style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="newCaseBtn"><i class="fas fa-plus"></i> New Case</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Case Name</th><th>Client</th><th>Status</th><th>Hearings</th><th>Created</th></tr></thead><tbody>${cases.map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td><i class="fas fa-folder-open"></i> ${c.caseName}</td><td>${c.clientName||'-'}</td><td><span class="badge-s">${c.status||'active'}</span></td><td>${(c.hearings||[]).length}</td><td>${formatDate(c.createdAt)}</td></tr>`).join('')||'<tr><td colspan="5">No cases. Click "New Case" to create one.</td></tr>'}</tbody></table></div>`;
 }
 async function caseDetailView(){
   const c = ST.selC;
@@ -447,12 +583,12 @@ async function tasksView(){
   const users = await DS.allU();
   const allTasks = await DS.tasks(ST.user.lawFirmId);
   if(ST.filt.status) tasks = tasks.filter(t=>t.status===ST.filt.status);
-  return `<div style="margin-bottom:16px; display: flex; gap: 12px; flex-wrap: wrap;"><select id="taskFilter" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;"><option value="">All</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select> <button class="btn btn-p btn-sm" id="newTaskBtn"><i class="fas fa-plus"></i> New Task</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Task</th><th>Priority</th><th>Status</th><th>Assignees</th><th>Due</th><th>Sub-tasks</th></tr></thead><tbody>${tasks.length?tasks.map(t=>`<tr onclick="openTaskDetail('${t.id}')" style="cursor:pointer;"><td>${t.title}</td><td><span class="badge-s">${t.priority||'medium'}</span></td><td><span class="badge-s ${t.status}">${t.status||'pending'}</span></td><td>${fmtAssignees(t.assigneeIds,users)}</td><td>${t.dueDate?formatDate(t.dueDate):'-'}</td><td>${allTasks.filter(st=>st.parentTaskId===t.id).length}</td></tr>`).join(''):'<tr><td colspan="6">No tasks</td></tr>'}</tbody></table></div>`;
+  return `<div style="margin-bottom:16px; display: flex; gap: 12px; flex-wrap: wrap;"><select id="taskFilter" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;"><option value="">All</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select> <button class="btn btn-p btn-sm" id="newTaskBtn"><i class="fas fa-plus"></i> New Task</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Task</th><th>Priority</th><th>Status</th><th>Assignees</th><th>Due</th><th>Sub-tasks</th></tr></thead><tbody>${tasks.length?tasks.map(t=>`<tr onclick="openTaskDetail('${t.id}')" style="cursor:pointer;"><td>${t.title}</td><td><span class="badge-s">${t.priority||'medium'}</span></td><td><span class="badge-s ${t.status}">${t.status||'pending'}</span></td><td>${fmtAssignees(t.assigneeIds,users)}</td><td>${t.dueDate?formatDate(t.dueDate):'-'}</td><td>${allTasks.filter(st=>st.parentTaskId===t.id).length}</td></tr>`).join(''):'</tr><td colspan="6">No tasks</tr>'}</tbody></table></div>`;
 }
 async function teamsView(){
   const teams = await DS.teams(ST.user.lawFirmId);
   const users = await DS.allU();
-  return `<div style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="newTeamBtn"><i class="fas fa-plus"></i> New Team</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Team Name</th><th>Members</th><th>Actions</th></tr></thead><tbody>${teams.map(t=>`<tr><td>${t.name}</td><td>${(t.memberIds||[]).map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:''}).join(', ')||'None'}</td><td><button class="btn btn-d btn-sm delete-team" data-id="${t.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="3">No teams</td></tr>'}</tbody><table></div>`;
+  return `<div style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="newTeamBtn"><i class="fas fa-plus"></i> New Team</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Team Name</th><th>Members</th><th>Actions</th></tr></thead><tbody>${teams.map(t=>`<tr><td>${t.name}</td><td>${(t.memberIds||[]).map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:''}).join(', ')||'None'}</td><td><button class="btn btn-d btn-sm delete-team" data-id="${t.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="3">No teams</td></tr>'}</tbody></table></div>`;
 }
 async function membersView(){
   const users = (await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);
@@ -506,7 +642,7 @@ function renderModal(){
     body.innerHTML = `<div class="fgrid"><div class="inp ffull"><label>Title *</label><input type="text" id="editTaskTitle" value="${task.title.replace(/"/g, '&quot;')}" required></div><div class="inp ffull"><label>Description</label><textarea id="editTaskDesc" rows="2">${task.description || ''}</textarea></div><div class="inp"><label>Due Date</label><input type="date" id="editTaskDue" value="${task.dueDate || ''}"></div><div class="inp"><label>Priority</label><select id="editTaskPriority"><option value="low" ${task.priority==='low'?'selected':''}>Low</option><option value="medium" ${task.priority==='medium'?'selected':''}>Medium</option><option value="high" ${task.priority==='high'?'selected':''}>High</option><option value="urgent" ${task.priority==='urgent'?'selected':''}>Urgent</option></select></div><div class="inp"><label>Status</label><select id="editTaskStatus"><option value="pending" ${task.status==='pending'?'selected':''}>Pending</option><option value="in_progress" ${task.status==='in_progress'?'selected':''}>In Progress</option><option value="completed" ${task.status==='completed'?'selected':''}>Completed</option></select></div><div class="inp"><label>Case</label><select id="editTaskCase"><option value="">None</option>${cases.map(c=>`<option value="${c.id}" ${task.caseId===c.id?'selected':''}>${c.caseName}</option>`).join('')}</select></div><div class="inp ffull"><label>Assignees</label><select id="editTaskAssignees" multiple style="min-height:100px;">${users.map(u=>`<option value="${u.id}" ${(task.assigneeIds||[]).includes(u.id)?'selected':''}>${u.firstName} ${u.lastName}</option>`).join('')}</select></div><div class="inp ffull"><label>Tags (comma separated)</label><input type="text" id="editTaskTags" value="${(task.tags||[]).join(', ')}"></div><div class="inp ffull"><label>Notes</label><textarea id="editTaskNotes" rows="2">${task.notes||''}</textarea></div></div>`;
   }
 }
-// Task Detail Modal (view only, edit button opens edit modal)
+// TASK DETAIL MODAL - FULLY MOBILE RESPONSIVE with INFO ROWS
 function taskDetailModalHtml(){return `<div class="modal-overlay" id="taskModalOverlay"><div class="modal task-detail-modal"><div class="modal-head"><h2><i class="fas fa-tasks"></i> Task Details</h2><button class="modal-close" id="closeTaskModalBtn">✕</button></div><div class="modal-body" id="taskModalBody"></div><div class="modal-foot"><button class="btn btn-o" id="editTaskFromDetailBtn"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-d" id="deleteTaskBtn"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-p" id="closeTaskModalFootBtn">Close</button></div></div></div>`;}
 async function renderTaskDetailModal(){
   const body = document.getElementById('taskModalBody');
@@ -519,21 +655,86 @@ async function renderTaskDetailModal(){
   const allTasks = await DS.tasks(ST.user.lawFirmId);
   const subtasks = allTasks.filter(st=>st.parentTaskId===task.id);
   const caseInfo = task.caseId ? (await DS.cases(ST.user.lawFirmId)).find(c=>c.id===task.caseId) : null;
+  
   body.innerHTML = `
-    <div class="task-detail-section"><h4>Basic Information</h4><div class="grid-2"><div><strong>Title:</strong> ${task.title}</div><div><strong>Status:</strong> <span class="badge-s ${task.status}">${task.status||'pending'}</span></div><div><strong>Priority:</strong> <span class="badge-s">${task.priority||'medium'}</span></div><div><strong>Due Date:</strong> ${task.dueDate ? formatDate(task.dueDate) : 'Not set'}</div><div><strong>Created:</strong> ${formatDate(task.createdAt)}</div><div><strong>Last Updated:</strong> ${formatDate(task.updatedAt)}</div></div></div>
-    <div class="task-detail-section"><h4>Description</h4><p>${task.description || 'No description provided.'}</p></div>
-    <div class="task-detail-section"><h4>Assignees</h4><div>${assignees.length ? assignees.map(a=>`${a.firstName} ${a.lastName}`).join(', ') : 'None'}</div></div>
-    ${caseInfo ? `<div class="task-detail-section"><h4>Related Case</h4><div><a href="#" onclick="selectCase('${caseInfo.id}'); return false;">${caseInfo.caseName}</a></div></div>` : ''}
-    <div class="task-detail-section"><h4>Tags</h4><div>${(task.tags||[]).join(', ') || 'None'}</div></div>
-    <div class="task-detail-section"><h4>Notes</h4><div>${task.notes || 'None'}</div></div>
-    <div class="task-detail-section"><h4>Time Logged <button class="btn btn-o btn-sm" id="addTimeToTaskBtn" style="margin-left:8px;"><i class="fas fa-clock"></i> Log Time</button></h4><div>Total: ${Math.floor(totalMinutes/60)}h ${totalMinutes%60}m</div>${timeLogs.length ? `<div style="margin-top:8px;">${timeLogs.map(l=>`<div class="time-entry-item"><span>${l.date} - ${l.durationMinutes} min</span>${l.billable?'<span class="badge-s">Billable</span>':''}<button class="btn btn-d btn-sm delete-time-log-task" data-id="${l.id}">✕</button></div>`).join('')}</div>` : '<div>No time entries yet.</div>'}</div>
-    <div class="task-detail-section"><h4>Subtasks <button class="btn btn-o btn-sm" id="addSubtaskBtn"><i class="fas fa-plus"></i> Add Subtask</button></h4>${subtasks.length ? subtasks.map(st=>`<div class="subtask-item"><div><span class="subtask-status" style="background:${st.status==='completed'?'#10b981':'#f59e0b'}"></span> ${st.title} <span class="badge-s">${st.status||'pending'}</span></div><button class="btn btn-o btn-sm view-subtask" data-id="${st.id}">View</button></div>`).join('') : '<div>No subtasks.</div>'}</div>
+    <div class="task-detail-section">
+      <h4>Basic Information</h4>
+      <div class="info-row"><span class="info-label">Title:</span><span class="info-value">${task.title}</span></div>
+      <div class="info-row"><span class="info-label">Status:</span><span class="info-value"><span class="badge-s ${task.status}">${task.status||'pending'}</span></span></div>
+      <div class="info-row"><span class="info-label">Priority:</span><span class="info-value"><span class="badge-s">${task.priority||'medium'}</span></span></div>
+      <div class="info-row"><span class="info-label">Due Date:</span><span class="info-value">${task.dueDate ? formatDate(task.dueDate) : 'Not set'}</span></div>
+      <div class="info-row"><span class="info-label">Created:</span><span class="info-value">${formatDate(task.createdAt)}</span></div>
+      <div class="info-row"><span class="info-label">Last Updated:</span><span class="info-value">${formatDate(task.updatedAt)}</span></div>
+    </div>
+    <div class="task-detail-section">
+      <h4>Description</h4>
+      <div class="info-value">${task.description || 'No description provided.'}</div>
+    </div>
+    <div class="task-detail-section">
+      <h4>Assignees</h4>
+      <div class="info-value">${assignees.length ? assignees.map(a=>`${a.firstName} ${a.lastName}`).join(', ') : 'None'}</div>
+    </div>
+    ${caseInfo ? `<div class="task-detail-section"><h4>Related Case</h4><div class="info-value"><a href="#" onclick="selectCase('${caseInfo.id}'); return false;">${caseInfo.caseName}</a></div></div>` : ''}
+    <div class="task-detail-section">
+      <h4>Tags</h4>
+      <div class="info-value">${(task.tags||[]).join(', ') || 'None'}</div>
+    </div>
+    <div class="task-detail-section">
+      <h4>Notes</h4>
+      <div class="info-value">${task.notes || 'None'}</div>
+    </div>
+    <div class="task-detail-section">
+      <h4>Time Logged <button class="btn btn-o btn-sm" id="addTimeToTaskBtn" style="margin-left:8px;"><i class="fas fa-clock"></i> Log Time</button></h4>
+      <div class="info-row"><span class="info-label">Total:</span><span class="info-value">${Math.floor(totalMinutes/60)}h ${totalMinutes%60}m</span></div>
+      ${timeLogs.length ? `<div style="margin-top:12px;">${timeLogs.map(l=>`<div class="time-entry-item"><div class="time-entry-info"><strong>${l.date}</strong> - ${l.durationMinutes} min ${l.billable?'(Billable)':''}</div><button class="btn btn-d btn-sm delete-time-log-task" data-id="${l.id}">✕</button></div>`).join('')}</div>` : '<div class="info-value">No time entries yet.</div>'}
+    </div>
+    <div class="task-detail-section">
+      <h4>Subtasks <button class="btn btn-o btn-sm" id="addSubtaskBtn"><i class="fas fa-plus"></i> Add Subtask</button></h4>
+      ${subtasks.length ? subtasks.map(st=>`<div class="subtask-item"><div class="subtask-info"><span class="subtask-status" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${st.status==='completed'?'#10b981':'#f59e0b'};margin-right:8px;"></span> ${st.title} <span class="badge-s">${st.status||'pending'}</span></div><button class="btn btn-o btn-sm view-subtask" data-id="${st.id}">View</button></div>`).join('') : '<div class="info-value">No subtasks.</div>'}
+    </div>
   `;
-  // Attach dynamic buttons
-  document.getElementById('addTimeToTaskBtn')?.addEventListener('click', async()=>{ const mins=prompt('Enter minutes worked:'); if(mins && !isNaN(parseInt(mins))){ await DS.addTimeLog({taskId:task.id,userId:ST.user.id,lawFirmId:ST.user.lawFirmId,date:new Date().toISOString().slice(0,10),durationMinutes:parseInt(mins),billable:true,notes:''}); ST.taskDetailModal=false; render(); setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); } });
-  document.querySelectorAll('.delete-time-log-task').forEach(btn=>btn.addEventListener('click', async(e)=>{ e.stopPropagation(); if(confirm('Delete this time entry?')){ await DS.deleteTimeLog(btn.dataset.id); ST.taskDetailModal=false; render(); setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); } }));
-  document.getElementById('addSubtaskBtn')?.addEventListener('click', async()=>{ const title=prompt('Subtask title:'); if(title){ await DS.addTask({title,parentTaskId:task.id,isSubTask:true,lawFirmId:ST.user.lawFirmId,status:'pending',priority:task.priority||'medium',createdById:ST.user.id}); ST.taskDetailModal=false; render(); setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); } });
-  document.querySelectorAll('.view-subtask').forEach(btn=>btn.addEventListener('click', async()=>{ const subtaskId=btn.dataset.id; const subtask=allTasks.find(t=>t.id===subtaskId); if(subtask){ ST.selT=subtask; ST.taskDetailModal=true; render(); } }));
+  
+  // Attach event listeners
+  document.getElementById('addTimeToTaskBtn')?.addEventListener('click', async()=>{ 
+    const mins=prompt('Enter minutes worked:'); 
+    if(mins && !isNaN(parseInt(mins))){ 
+      await DS.addTimeLog({taskId:task.id,userId:ST.user.id,lawFirmId:ST.user.lawFirmId,date:new Date().toISOString().slice(0,10),durationMinutes:parseInt(mins),billable:true,notes:''}); 
+      ST.taskDetailModal=false; 
+      render(); 
+      setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); 
+    } 
+  });
+  
+  document.querySelectorAll('.delete-time-log-task').forEach(btn=>btn.addEventListener('click', async(e)=>{ 
+    e.stopPropagation(); 
+    if(confirm('Delete this time entry?')){ 
+      await DS.deleteTimeLog(btn.dataset.id); 
+      ST.taskDetailModal=false; 
+      render(); 
+      setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); 
+    } 
+  }));
+  
+  document.getElementById('addSubtaskBtn')?.addEventListener('click', async()=>{ 
+    const title=prompt('Subtask title:'); 
+    if(title){ 
+      await DS.addTask({title,parentTaskId:task.id,isSubTask:true,lawFirmId:ST.user.lawFirmId,status:'pending',priority:task.priority||'medium',createdById:ST.user.id}); 
+      ST.taskDetailModal=false; 
+      render(); 
+      setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); 
+    } 
+  });
+  
+  document.querySelectorAll('.view-subtask').forEach(btn=>btn.addEventListener('click', async()=>{ 
+    const subtaskId=btn.dataset.id; 
+    const subtask=allTasks.find(t=>t.id===subtaskId); 
+    if(subtask){ 
+      ST.selT=subtask; 
+      ST.taskDetailModal=true; 
+      render(); 
+    } 
+  }));
+  
   document.getElementById('editTaskFromDetailBtn')?.addEventListener('click', () => {
     ST.taskDetailModal = false;
     ST.editTaskData = task;
@@ -541,11 +742,21 @@ async function renderTaskDetailModal(){
     ST.modal = true;
     render();
   });
-  document.getElementById('deleteTaskBtn')?.addEventListener('click', async()=>{ if(confirm(`Delete task "${task.title}"? This will also delete all subtasks and time entries.`)){ await DS.delTask(task.id); ST.taskDetailModal=false; ST.selT=null; render(); } });
+  
+  document.getElementById('deleteTaskBtn')?.addEventListener('click', async()=>{ 
+    if(confirm(`Delete task "${task.title}"? This will also delete all subtasks and time entries.`)){ 
+      await DS.delTask(task.id); 
+      ST.taskDetailModal=false; 
+      ST.selT=null; 
+      render(); 
+    } 
+  });
 }
+
 // Global functions
 window.selectCase = async function(caseId){ const cases = await DS.cases(ST.user.lawFirmId); ST.selC = cases.find(c => c.id === caseId); ST.activeTab = 'overview'; ST.view = 'cases'; render(); };
 window.openTaskDetail = async function(taskId){ const tasks = await DS.tasks(ST.user.lawFirmId); const task = tasks.find(t=>t.id===taskId); if(task){ ST.selT = task; ST.taskDetailModal = true; render(); } };
+
 // Bind all event listeners
 function bind(){
   document.getElementById('menu-btn')?.addEventListener('click',()=>{document.getElementById('sidebar').classList.add('open');document.getElementById('bd').classList.add('show');});
@@ -593,7 +804,7 @@ function bind(){
   document.getElementById('closeTaskModalFootBtn')?.addEventListener('click',()=>{ST.taskDetailModal=false;render();});
   document.getElementById('taskModalOverlay')?.addEventListener('click',function(e){if(e.target===this){ST.taskDetailModal=false;render();}});
 }
-// Authentication (simplified but functional)
+// Authentication handlers
 async function handleEmailLogin(){
   const em=document.getElementById('le')?.value; const pw=document.getElementById('lp')?.value;
   if(!em||!pw){ST.err='Fill all fields';render();return;}
