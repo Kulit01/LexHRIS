@@ -293,7 +293,19 @@ function bind(){
   document.getElementById('google-btn')?.addEventListener('click',handleGoogleLogin);
   document.getElementById('reg-btn')?.addEventListener('click',handleRegister);
   document.getElementById('join-btn')?.addEventListener('click',handleJoin);
-  document.getElementById('lo-btn')?.addEventListener('click',()=>{if(useFB)auth.signOut();else{s(LS.CUR,null);ST.user=null}DS.detachChatListeners(ST.user?.lawFirmId);render()});
+  document.getElementById('lo-btn')?.addEventListener('click', async () => {
+  if (useFB) {
+    try {
+      DS.detachChatListeners(ST.user?.lawFirmId);
+      await auth.signOut();
+    } catch (e) { /* ignore */ }
+    ST.user = null;
+  } else {
+    s(LS.CUR, null);
+    ST.user = null;
+  }
+  render();
+});
   document.querySelectorAll('.nav-item[data-view]').forEach(item=>item.addEventListener('click',function(){
     const oldView=ST.view; ST.view=this.dataset.view; ST.modal=false; ST.editT=null;
     if(window.innerWidth<769)clS();
