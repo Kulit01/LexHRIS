@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>PH Law Firm Manager – Mobile-Friendly Task Management</title>
+  <title>PH Law Firm Manager | Complete Practice Management</title>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
+    /* ========== ROOT VARIABLES (consistent) ========== */
     :root {
       --primary: #0d47a1;
       --primary-light: #e8f0fe;
@@ -29,7 +30,7 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -160,188 +161,143 @@
     .firm-id { background: #f0f4ff; padding: 4px 10px; border-radius: 8px; font-family: monospace; font-size: 11px; }
     .logout-btn { padding: 6px 14px; background: none; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
     .logout-btn:hover { background: #fee2e2; border-color: var(--danger); color: var(--danger); }
-    /* Cards */
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; margin-bottom: 24px; }
-    .card { background: #fff; padding: clamp(16px, 3vw, 24px); border-radius: 16px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); cursor: pointer; transition: all 0.2s; }
-    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-    .card.green { border-left-color: var(--success); }
-    .card.orange { border-left-color: var(--warning); }
-    .card.purple { border-left-color: #8b5cf6; }
-    .card-val { font-size: clamp(28px, 5vw, 36px); font-weight: 700; line-height: 1.2; }
-    .card-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    /* Tables */
-    .table-wrap { background: #fff; border-radius: 16px; box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 24px; }
-    .task-table { width: 100%; min-width: 500px; border-collapse: collapse; }
-    .task-table th { text-align: left; padding: 14px 16px; background: #f8fafd; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .task-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .task-table tr:hover { background: #f0f7ff; cursor: pointer; }
-    .badge-s { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #e5e7eb; color: #374151; }
-    .badge-s.completed { background: #d1fae5; color: #065f46; }
-    .badge-s.in_progress { background: #dbeafe; color: #1e40af; }
-    .badge-s.pending { background: #fed7aa; color: #9a3412; }
-    /* Case Page */
-    .case-header { background: #fff; border-radius: 20px; padding: clamp(20px, 4vw, 32px); margin-bottom: 24px; box-shadow: var(--shadow); }
-    .case-title-section { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .case-title { font-size: clamp(22px, 5vw, 32px); font-weight: 700; color: var(--primary); word-break: break-word; }
-    .case-badge { display: inline-block; padding: 4px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46; }
-    .case-id { color: var(--text-secondary); font-size: 12px; margin-bottom: 20px; font-family: monospace; word-break: break-all; }
-    .case-tabs { display: flex; gap: clamp(16px, 4vw, 32px); border-bottom: 1px solid var(--border); margin-top: 20px; overflow-x: auto; scrollbar-width: thin; }
-    .case-tab { padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; white-space: nowrap; }
+    /* Dashboard Cards */
+    .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 20px; margin-bottom: 32px; }
+    .dashboard-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: var(--shadow); transition: all 0.2s; cursor: pointer; border-left: 4px solid var(--primary); }
+    .dashboard-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .dashboard-card .card-value { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .dashboard-card .card-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .dashboard-card .card-desc { font-size: 12px; color: var(--text-secondary); }
+    .reminder-banner { background: #ffedd5; border-left: 4px solid var(--warning); padding: 14px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .dashboard-section { background: #fff; border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); }
+    .dashboard-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .recent-list { display: flex; flex-direction: column; gap: 12px; }
+    .recent-item { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .recent-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .recent-meta { font-size: 12px; color: var(--text-secondary); }
+    .recent-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 30px; }
+    .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    /* Cases List (card) */
+    .cases-header { margin-bottom: 24px; }
+    .cases-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .cases-header p { color: var(--text-secondary); font-size: 14px; }
+    .cases-controls { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow); }
+    .case-search { margin-bottom: 16px; }
+    .case-search input { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; }
+    .case-filter-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .case-filter-group select { padding: 8px 16px; border: 1px solid var(--border); border-radius: 30px; background: #fff; font-size: 13px; cursor: pointer; }
+    .cases-grid { display: flex; flex-direction: column; gap: 16px; }
+    .case-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); transition: all 0.2s; cursor: pointer; border-left: 4px solid var(--primary); }
+    .case-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .case-card-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .case-title { font-size: 18px; font-weight: 600; }
+    .case-status { padding: 4px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46; }
+    .case-details { display: flex; flex-wrap: wrap; gap: 24px; margin: 12px 0; font-size: 13px; color: var(--text-secondary); }
+    .case-detail-item { display: flex; align-items: center; gap: 6px; }
+    .case-footer { display: flex; justify-content: flex-end; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    /* Case Detail (full two‑column) */
+    .case-header-detail { background: #fff; border-radius: 20px; padding: clamp(20px, 4vw, 32px); margin-bottom: 24px; box-shadow: var(--shadow); }
+    .case-title-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .case-title-lg { font-size: 26px; font-weight: 600; color: var(--primary); letter-spacing: -0.3px; }
+    .case-badge { display: inline-block; padding: 4px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; background: #e8f0fe; color: var(--primary); text-transform: uppercase; }
+    .case-id { color: #5f6368; font-size: 12px; margin-bottom: 20px; font-family: monospace; }
+    .case-tabs { display: flex; gap: 28px; border-bottom: 1px solid #e0e0e0; margin-top: 20px; overflow-x: auto; }
+    .case-tab { padding: 12px 0; font-size: 14px; font-weight: 600; color: #5f6368; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
     .case-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-    .case-content { background: #fff; border-radius: 20px; padding: clamp(20px, 4vw, 32px); box-shadow: var(--shadow); }
-    .two-columns { display: grid; grid-template-columns: 1fr 340px; gap: 28px; }
-    @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; gap: 24px; } }
-    /* TASK DETAIL MODAL - FULLY MOBILE RESPONSIVE */
-    .task-detail-modal { 
-      max-width: 600px; 
-      width: 95%; 
-      margin: 0 auto;
-      border-radius: 24px;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .task-detail-modal .modal-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-    }
-    .task-detail-section { 
-      margin-bottom: 24px; 
+    .case-content-detail { background: #fff; border-radius: 20px; padding: clamp(20px, 4vw, 32px); box-shadow: var(--shadow); }
+    .two-columns { display: grid; grid-template-columns: 1fr 340px; gap: 32px; }
+    .info-card { background: #f8fafd; border-radius: 16px; padding: 20px; }
+    .info-card h3 { font-size: 13px; font-weight: 600; color: #5f6368; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .hearing-item { background: #f8fafd; border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .hearing-date { font-weight: 600; color: var(--primary); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .update-item { padding: 12px 0; border-bottom: 1px solid #e0e0e0; }
+    .update-time { font-size: 11px; font-weight: 500; color: #5f6368; margin-bottom: 6px; }
+    .stat-circle { width: 70px; height: 70px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: var(--primary); }
+    .progress-bar { flex: 1; background: #e5e7eb; border-radius: 10px; height: 8px; overflow: hidden; }
+    .progress-fill { background: var(--success); height: 100%; width: 0%; border-radius: 10px; }
+    .team-member { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e0e0e0; }
+    .member-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 14px; }
+    .btn-sync-calendar { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .update-input-group { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    /* Task Card Styles */
+    .task-controls { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow); }
+    .search-bar { margin-bottom: 20px; }
+    .search-bar input { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .filter-group select, .filter-group button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 30px; background: #fff; font-size: 13px; cursor: pointer; }
+    .sort-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tasks-grid { display: flex; flex-direction: column; gap: 16px; }
+    .task-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); transition: all 0.2s; cursor: pointer; border-left: 4px solid var(--primary); }
+    .task-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .task-card-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .task-title { font-size: 18px; font-weight: 600; }
+    .task-priority { padding: 4px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; background: #e5e7eb; color: #374151; }
+    .task-details { display: flex; flex-wrap: wrap; gap: 20px; margin: 12px 0; font-size: 13px; color: var(--text-secondary); }
+    .task-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .task-status-btn { padding: 6px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; }
+    /* Teams, Staff, Approvals, Timesheets */
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .page-header p { color: var(--text-secondary); font-size: 14px; }
+    .section-card { background: #fff; border-radius: 20px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .section-title { font-size: 13px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .staff-grid, .teams-grid, .approvals-grid, .timesheets-list { display: flex; flex-direction: column; gap: 12px; }
+    .staff-card, .team-card, .approval-card, .timesheet-entry {
       background: #f8fafd;
       border-radius: 16px;
       padding: 16px;
-    }
-    .task-detail-section h4 { 
-      font-size: 13px; 
-      font-weight: 700; 
-      color: var(--primary); 
-      margin-bottom: 12px; 
-      text-transform: uppercase; 
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .info-label {
-      font-weight: 600;
-      color: var(--text-secondary);
-      font-size: 12px;
-      min-width: 90px;
-    }
-    .info-value {
-      font-size: 14px;
-      color: var(--text);
-      word-break: break-word;
-      flex: 1;
-    }
-    .time-entry-item, .subtask-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
-      gap: 10px;
-    }
-    .time-entry-info, .subtask-info {
-      flex: 1;
-      min-width: 150px;
-    }
-    .action-button-group {
-      display: flex;
       gap: 12px;
-      margin-top: 8px;
-      flex-wrap: wrap;
     }
-    .action-button-group .btn {
-      flex: 1;
-      min-width: 100px;
+    .staff-name, .team-name, .approval-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+    .staff-role, .team-member-count, .approval-email, .staff-email { font-size: 13px; color: #5f6368; }
+    .timesheet-task { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .timesheet-duration { font-family: monospace; font-size: 14px; font-weight: 600; color: var(--primary); }
+    .action-buttons { display: flex; gap: 8px; }
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 16px;
     }
-    /* Modal */
-    .modal-overlay { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      right: 0; 
-      bottom: 0; 
-      background: rgba(0,0,0,0.5); 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      z-index: 1000; 
-      padding: 16px; 
-    }
-    .modal { 
-      background: #fff; 
-      width: 100%; 
-      max-width: 650px; 
-      max-height: 90vh; 
-      border-radius: 24px; 
-      overflow-y: auto; 
-      animation: modalSlideIn 0.2s ease;
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 700px;
+      max-height: 90vh;
+      border-radius: 24px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
+      animation: modalSlideIn 0.2s ease;
     }
     @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-head { 
-      padding: 18px 20px; 
-      border-bottom: 1px solid var(--border); 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      position: sticky; 
-      top: 0; 
-      background: #fff; 
-      z-index: 10;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    .modal-head { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; z-index: 10; flex-wrap: wrap; gap: 10px; }
     .modal-head h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-    .modal-close { 
-      background: none; 
-      border: none; 
-      font-size: 24px; 
-      cursor: pointer; 
-      padding: 8px; 
-      border-radius: 8px;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
     .modal-close:hover { background: #f0f0f0; }
     .modal-body { padding: 20px; flex: 1; overflow-y: auto; }
-    .modal-foot { 
-      padding: 16px 20px; 
-      border-top: 1px solid var(--border); 
-      display: flex; 
-      gap: 12px; 
-      justify-content: flex-end; 
-      flex-wrap: wrap;
-      position: sticky;
-      bottom: 0;
-      background: #fff;
-    }
-    .modal-foot .btn {
-      min-width: 100px;
-    }
+    .modal-foot { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; position: sticky; bottom: 0; background: #fff; }
     .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-    .ffull { grid-column: 1 / -1; }
     .empty { text-align: center; padding: 48px 24px; color: var(--text-secondary); }
-    /* Mobile Responsive */
+    /* Task detail modal */
+    .task-detail-section { margin-bottom: 24px; background: #f8fafd; border-radius: 16px; padding: 16px; }
+    .info-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+    .info-label { font-weight: 600; color: var(--text-secondary); font-size: 12px; min-width: 90px; }
+    .time-entry-item, .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+    /* Responsive */
+    @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; gap: 24px; } .right-column { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; } }
     @media (max-width: 768px) {
       .sidebar { left: -260px; width: 260px; }
       .sidebar.open { left: 0; transform: translateX(0); }
@@ -350,27 +306,15 @@
       .main-content { padding: 16px; }
       .topbar { flex-direction: column; align-items: flex-start; }
       .user-info { width: 100%; justify-content: flex-start; }
-      .cards { grid-template-columns: 1fr; }
-      .case-header { padding: 20px; }
-      .case-tabs { gap: 16px; }
-      .case-tab { font-size: 13px; }
-      .btn-sm { padding: 10px 14px; font-size: 14px; }
-      .modal-head { padding: 16px; }
-      .modal-body { padding: 16px; }
-      .modal-foot { padding: 16px; }
-      .modal-foot .btn { min-width: 80px; }
-      .info-row { flex-direction: column; gap: 4px; }
-      .info-label { min-width: auto; }
-      .task-detail-section { padding: 14px; }
-      .action-button-group .btn { min-width: 80px; }
-    }
-    @media (max-width: 480px) {
-      .case-title-section { flex-direction: column; align-items: flex-start; }
-      .case-badge { align-self: flex-start; }
-      .modal-head h2 { font-size: 16px; }
-      .btn-sm { padding: 10px 12px; font-size: 13px; }
-      .action-button-group { flex-direction: column; }
-      .action-button-group .btn { width: 100%; }
+      .dashboard-cards { gap: 16px; }
+      .dashboard-card .card-value { font-size: 28px; }
+      .grid-2cols { grid-template-columns: 1fr; gap: 20px; }
+      .case-card-header, .task-card-header { flex-direction: column; align-items: flex-start; }
+      .case-details, .task-details { flex-direction: column; gap: 8px; }
+      .case-footer, .task-footer { justify-content: flex-start; }
+      .case-filter-row, .filter-row { flex-direction: column; align-items: stretch; }
+      .staff-card, .team-card, .approval-card, .timesheet-entry { flex-direction: column; align-items: flex-start; }
+      .action-buttons { width: 100%; justify-content: flex-start; }
     }
     @media (min-width: 769px) {
       .sidebar { transform: translateX(0); position: sticky; top: 0; height: 100vh; }
@@ -378,26 +322,22 @@
       .sidebar-backdrop { display: none !important; }
       .sidebar-close { display: none; }
     }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
   </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 (function(){
-// Firebase Config
+// ========== FIREBASE CONFIG ==========
 const fbConfig={apiKey:"AIzaSyA1ptQA0We00UCjzY6NbK_ePHNEUMKxfV0",authDomain:"deep-seek-law-task-manager.firebaseapp.com",databaseURL:"https://deep-seek-law-task-manager-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"deep-seek-law-task-manager",storageBucket:"deep-seek-law-task-manager.firebasestorage.app",messagingSenderId:"349212320419",appId:"1:349212320419:web:5ab238257571ec5b925516"};
 let useFB=false;try{firebase.initializeApp(fbConfig);useFB=true}catch(e){console.warn("Firebase offline mode");}
 const auth=useFB?firebase.auth():null;
 const db=useFB?firebase.database():null;
 const LS={U:'law_users',F:'law_firms',T:'law_tasks',C:'law_cases',TE:'law_teams',CUR:'law_current_user',TL:'law_time_logs'};
-
 function g(k){return JSON.parse(localStorage.getItem(k)||'[]')}
 function s(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
-// Data Service
+// ========== DATA SERVICE (full) ==========
 const DS={
 genId:()=>'LF-'+Math.random().toString(36).substr(2,8).toUpperCase(),
 async uprofile(uid){if(useFB){const sn=await db.ref(`users/${uid}`).once('value');return sn.val()}return g(LS.U).find(x=>x.id===uid)},
@@ -442,61 +382,29 @@ async deleteMsg(){},
 async clearRoom(){}
 };
 
-let ST={user:null,view:'dashboard',selC:null,selT:null,activeTab:'overview',modal:false,modalMode:'',taskDetailModal:false,err:null,suc:null,filt:{},online:useFB,reportChart:null,editTaskData:null};
+// ========== GLOBAL STATE ==========
+let ST={user:null,view:'dashboard',selC:null,selT:null,activeTab:'overview',modal:false,modalMode:'',taskDetailModal:false,err:null,suc:null,filt:{status:'',priority:'',search:'',sortBy:'createdAt',sortDir:'desc',caseStatus:'',caseSearch:''},online:useFB,reportChart:null,editTaskData:null};
 
-// Helper functions
-function formatDate(dateString) {
-  if(!dateString) return '';
-  const d = new Date(dateString);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+// ========== HELPER FUNCTIONS ==========
+function formatDate(d){if(!d)return '';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function formatDateTime(d){if(!d)return '';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
+function fmtAssignees(ids,users){if(!ids||!ids.length)return '-';return ids.map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:'?'}).join(', ');}
+function generateICalendarEvent(caseObj,hearing){
+  const start=new Date(`${hearing.date}T${hearing.time||'09:00'}:00`);const end=new Date(start.getTime()+60*60*1000);
+  const f=d=>d.toISOString().replace(/-|:|\.\d+/g,'');
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//PH Law Firm Manager//EN\nBEGIN:VEVENT\nUID:${Date.now()}-${Math.random().toString(36).substr(2,8)}@phlawmanager.com\nDTSTAMP:${f(new Date())}\nDTSTART:${f(start)}\nDTEND:${f(end)}\nSUMMARY:⚖️ Hearing: ${caseObj.caseName}\nDESCRIPTION:Case: ${caseObj.caseName}\\nClient: ${caseObj.clientName||'N/A'}\\nReference: ${caseObj.caseRef||'N/A'}\\nHearing: ${hearing.description||'Court hearing'}\nLOCATION:Court Hearing\nBEGIN:VALARM\nTRIGGER:-PT${hearing.reminderMinutes||30}M\nACTION:DISPLAY\nDESCRIPTION:Reminder: Hearing in ${caseObj.caseName}\nEND:VALARM\nEND:VEVENT\nEND:VCALENDAR`;
 }
-function formatDateTime(dateString) {
-  if(!dateString) return '';
-  const d = new Date(dateString);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-function fmtAssignees(ids, users) {
-  if(!ids || !ids.length) return '-';
-  return ids.map(id => { const u = users.find(x=>x.id===id); return u ? `${u.firstName} ${u.lastName}` : '?'; }).join(', ');
-}
-function generateICalendarEvent(caseObj, hearing) {
-  const startDateTime = new Date(`${hearing.date}T${hearing.time || '09:00'}:00`);
-  const endDateTime = new Date(startDateTime.getTime() + 60*60*1000);
-  const formatICSDate = (date) => date.toISOString().replace(/-|:|\.\d+/g, '');
-  return `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//PH Law Firm Manager//EN
-BEGIN:VEVENT
-UID:${Date.now()}-${Math.random().toString(36).substr(2,8)}@phlawmanager.com
-DTSTAMP:${formatICSDate(new Date())}
-DTSTART:${formatICSDate(startDateTime)}
-DTEND:${formatICSDate(endDateTime)}
-SUMMARY:⚖️ Hearing: ${caseObj.caseName}
-DESCRIPTION:Case: ${caseObj.caseName}\\nClient: ${caseObj.clientName || 'N/A'}\\nReference: ${caseObj.caseRef || 'N/A'}\\nHearing: ${hearing.description || 'Court hearing'}
-LOCATION:Court Hearing
-BEGIN:VALARM
-TRIGGER:-PT${hearing.reminderMinutes || 30}M
-ACTION:DISPLAY
-DESCRIPTION:Reminder: Hearing in ${caseObj.caseName}
-END:VALARM
-END:VEVENT
-END:VCALENDAR`;
-}
-async function syncToGoogleCalendar(caseObj, hearing) {
-  const icalData = generateICalendarEvent(caseObj, hearing);
-  const blob = new Blob([icalData], { type: 'text/calendar' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `hearing_${caseObj.caseName.replace(/\s/g,'_')}_${hearing.date}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+async function syncToGoogleCalendar(caseObj,hearing){
+  const ical=generateICalendarEvent(caseObj,hearing);
+  const blob=new Blob([ical],{type:'text/calendar'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`hearing_${caseObj.caseName.replace(/\s/g,'_')}_${hearing.date}.ics`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
   return true;
 }
 
-// Render loops
+// ========== RENDER ENGINE ==========
 async function render(){
   try{
     const app=document.getElementById('app');
@@ -514,18 +422,15 @@ async function render(){
     bind();
   }catch(e){console.error(e);}
 }
-
 function aScr(){return `<div class="auth-wrap"><div class="auth-card"><div class="auth-logo"><i class="fas fa-balance-scale"></i> Law Firm</div><div class="auth-sub">Complete Practice Management</div>${ST.err?`<div class="err">${ST.err}</div>`:''}${ST.suc?`<div class="suc">${ST.suc}</div>`:''}<div class="tabs"><div class="tab active" data-tab="login">Sign In</div><div class="tab" data-tab="register">Register</div><div class="tab" data-tab="join">Join</div></div><div id="auth-form">${lForm()}</div></div></div>`;}
 function lForm(){return `<form id="lf"><div class="inp"><label>EMAIL</label><input type="email" id="le" required></div><div class="inp"><label>PASSWORD</label><input type="password" id="lp" required></div><button class="btn btn-p" type="button" id="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button><div class="divider">OR</div><button class="btn btn-google" type="button" id="google-btn"><i class="fab fa-google"></i> Sign in with Google</button></form>`;}
 function rForm(){return `<form id="rf"><div class="inp"><label>FIRM NAME</label><input type="text" id="rfn" required></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><div class="inp" style="flex:1;min-width:120px;"><label>FIRST</label><input type="text" id="rfi" required></div><div class="inp" style="flex:1;min-width:120px;"><label>LAST</label><input type="text" id="rla" required></div></div><div class="inp"><label>EMAIL</label><input type="email" id="re" required></div><div class="inp"><label>PASSWORD (min 6)</label><input type="password" id="rp" required minlength="6"></div><div class="inp"><label>Hourly Rate (₱)</label><input type="number" id="rhr" value="0" step="100"></div><button class="btn btn-p" type="button" id="reg-btn"><i class="fas fa-building"></i> Register</button></form>`;}
 function jForm(){return `<form id="jf"><div class="inp"><label>FIRM ID</label><input type="text" id="jfi" required></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><div class="inp" style="flex:1;min-width:120px;"><label>FIRST</label><input type="text" id="jfn" required></div><div class="inp" style="flex:1;min-width:120px;"><label>LAST</label><input type="text" id="jln" required></div></div><div class="inp"><label>EMAIL</label><input type="email" id="je" required></div><div class="inp"><label>PASSWORD (min 6)</label><input type="password" id="jp" required minlength="6"></div><div class="inp"><label>ROLE</label><select id="jr"><option value="associate">Associate</option><option value="partner">Partner</option><option value="paralegal">Paralegal</option><option value="admin">Admin</option><option value="client">Client</option></select></div><div class="inp"><label>Hourly Rate (₱)</label><input type="number" id="jhr" value="0" step="100"></div><button class="btn btn-p" type="button" id="join-btn"><i class="fas fa-user-plus"></i> Join</button></form>`;}
-
-function mainApp(fn){const u=ST.user;const isClient=u.role==='client';const adminRoles=['managing_partner','partner','admin'];const showApprovals=!isClient&&adminRoles.includes(u.role);
+function mainApp(fn){const u=ST.user,isClient=u.role==='client',adminRoles=['managing_partner','partner','admin'],showApprovals=!isClient&&adminRoles.includes(u.role);
 let nav=`<div class="nav-item ${ST.view==='dashboard'?'active':''}" data-view="dashboard"><i class="fas fa-chart-bar"></i><span>Dashboard</span></div>`;
 if(!isClient){nav+=`<div class="nav-item ${ST.view==='cases'?'active':''}" data-view="cases"><i class="fas fa-folder-open"></i><span>Cases</span></div><div class="nav-item ${ST.view==='tasks'?'active':''}" data-view="tasks"><i class="fas fa-tasks"></i><span>Tasks</span></div><div class="nav-item ${ST.view==='teams'?'active':''}" data-view="teams"><i class="fas fa-users"></i><span>Teams</span></div><div class="nav-item ${ST.view==='members'?'active':''}" data-view="members"><i class="fas fa-address-book"></i><span>Staff</span></div><div class="nav-item ${ST.view==='timesheets'?'active':''}" data-view="timesheets"><i class="fas fa-clock"></i><span>Timesheets</span></div><div class="nav-item ${ST.view==='reports'?'active':''}" data-view="reports"><i class="fas fa-chart-line"></i><span>Reports</span></div>`;if(showApprovals) nav+=`<div class="nav-item ${ST.view==='approvals'?'active':''}" data-view="approvals"><i class="fas fa-check-circle"></i><span>Approvals</span></div>`;}
 nav+=`<div class="nav-item ${ST.view==='profile'?'active':''}" data-view="profile"><i class="fas fa-user-circle"></i><span>Profile</span></div>`;
 return `<div class="layout"><div class="sidebar-backdrop" id="bd"></div><div class="sidebar" id="sidebar"><div class="sidebar-head"><span class="logo"><i class="fas fa-balance-scale"></i> PH Law</span><button class="sidebar-close" id="sb-close"><i class="fas fa-times"></i></button></div><nav class="sidebar-nav">${nav}</nav><div class="sidebar-footer"><i class="far fa-building"></i> ${fn}</div></div><div class="main-content"><div class="topbar"><button class="hamburger" id="menu-btn"><i class="fas fa-bars"></i></button><div><span style="font-weight:600;">Welcome back, ${u.firstName}</span><br><small>${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</small></div><div class="user-info"><span class="sync-badge ${ST.online?'online':'offline'}">${ST.online?'🟢 Online':'🔴 Offline'}</span><span class="firm-id">🏢 ${u.lawFirmId}</span><button class="logout-btn" id="lo-btn">Logout</button></div></div><div id="main-area"></div></div>${ST.modal?modalHtml():''}${ST.taskDetailModal?taskDetailModalHtml():''}</div>`;}
-
 async function curView(){
   if(ST.user.role==='client'){
     if(ST.view==='cases' && ST.selC) return await caseDetailView();
@@ -533,7 +438,7 @@ async function curView(){
   }
   switch(ST.view){
     case 'dashboard': return await dashboardView();
-    case 'cases': return ST.selC ? await caseDetailView() : await casesListView();
+    case 'cases': return ST.selC?await caseDetailView():await casesListView();
     case 'tasks': return await tasksView();
     case 'teams': return await teamsView();
     case 'members': return await membersView();
@@ -544,220 +449,147 @@ async function curView(){
     default: return await dashboardView();
   }
 }
-
+// ========== DASHBOARD ==========
 async function dashboardView(){
-  const cases = await DS.cases(ST.user.lawFirmId);
-  const tasks = await DS.tasks(ST.user.lawFirmId);
-  const pendingTasks = tasks.filter(t=>t.status!=='completed').length;
-  const logs = await DS.getTimeLogsByUser(ST.user.id, ST.user.lawFirmId);
-  const totalHours = logs.reduce((s,l)=>s+l.durationMinutes/60,0);
-  return `<div class="cards"><div class="card" onclick="ST.view='cases';ST.selC=null;render()"><div class="card-val">${cases.length}</div><div class="card-label">Active Cases</div></div><div class="card orange" onclick="ST.view='tasks';render()"><div class="card-val">${pendingTasks}</div><div class="card-label">Pending Tasks</div></div><div class="card green"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Billable Hours</div></div></div><div class="table-wrap"><h3 style="padding:16px;">Recent Cases</h3><table class="task-table"><thead><tr><th>Case Name</th><th>Client</th><th>Status</th><th>Hearings</th></tr></thead><tbody>${cases.slice(0,5).map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td>${c.caseName}</td><td>${c.clientName||'-'}</td><td><span class="badge-s">${c.status||'active'}</span></td><td>${(c.hearings||[]).length}</td></tr>`).join('')||'<tr><td colspan="4">No cases</td></tr>'}</tbody></table></div>`;
+  const cases=await DS.cases(ST.user.lawFirmId);
+  const tasks=await DS.tasks(ST.user.lawFirmId);
+  const users=await DS.allU();
+  const pendingTasks=tasks.filter(t=>t.status!=='completed').length;
+  const logs=await DS.getTimeLogsByUser(ST.user.id,ST.user.lawFirmId);
+  const totalHours=logs.reduce((s,l)=>s+l.durationMinutes/60,0);
+  const now=new Date(), threeDays=now.getTime()+3*24*60*60*1000;
+  const upcomingTasks=tasks.filter(t=>t.dueDate&&t.status!=='completed'&&new Date(t.dueDate)<=threeDays);
+  const recentTasks=tasks.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+  const recentCases=cases.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+  let reminderHtml='';
+  if(upcomingTasks.length) reminderHtml=`<div class="reminder-banner"><i class="fas fa-bell"></i> <span><strong>${upcomingTasks.length}</strong> task(s) due within 3 days</span><button class="btn btn-o btn-sm" onclick="ST.view='tasks';render();" style="margin-left:auto;">View Tasks →</button></div>`;
+  return `<div class="dashboard-cards"><div class="dashboard-card" onclick="ST.view='cases';ST.selC=null;render();"><div class="card-value">${cases.length}</div><div class="card-label">Active Cases</div><div class="card-desc">Total open legal matters</div></div><div class="dashboard-card" onclick="ST.view='tasks';render();"><div class="card-value">${pendingTasks}</div><div class="card-label">Pending Tasks</div><div class="card-desc">Awaiting completion</div></div><div class="dashboard-card" onclick="ST.view='timesheets';render();"><div class="card-value">${totalHours.toFixed(1)}h</div><div class="card-label">Billable Hours</div><div class="card-desc">Logged this month</div></div><div class="dashboard-card" onclick="ST.view='tasks';render();"><div class="card-value">${upcomingTasks.length}</div><div class="card-label">Upcoming Deadlines</div><div class="card-desc">Due in next 3 days</div></div></div>${reminderHtml}<div class="grid-2cols"><div class="dashboard-section"><h3><i class="fas fa-tasks"></i> Recent Tasks</h3><div class="recent-list">${recentTasks.map(t=>{const assigneeNames=(t.assigneeIds||[]).map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:'';}).filter(Boolean).join(', ');return `<div class="recent-item" onclick="openTaskDetail('${t.id}')"><div class="recent-info"><div class="recent-title">${escapeHtml(t.title)}</div><div class="recent-meta">${assigneeNames||'Unassigned'} • Due ${t.dueDate?formatDate(t.dueDate):'No date'}</div></div><span class="recent-badge ${t.status==='completed'?'completed':(t.status==='in_progress'?'in_progress':'pending')}">${(t.status||'pending').replace('_',' ')}</span></div>`}).join('')||'<div class="empty">No tasks yet.</div>'}</div></div><div class="dashboard-section"><h3><i class="fas fa-folder-open"></i> Recent Cases</h3><div class="recent-list">${recentCases.map(c=>`<div class="recent-item" onclick="selectCase('${c.id}')"><div class="recent-info"><div class="recent-title">${escapeHtml(c.caseName)}</div><div class="recent-meta">${c.clientName||'No client'} • Opened ${formatDate(c.createdAt)}</div></div><span class="recent-badge ${c.status==='active'?'active':(c.status==='pending'?'pending':'')}">${(c.status||'active').toUpperCase()}</span></div>`).join('')||'<div class="empty">No cases yet.</div>'}</div></div></div>`;
 }
+// ========== CASES LIST ==========
 async function casesListView(){
-  const cases = await DS.cases(ST.user.lawFirmId);
-  return `<div style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="newCaseBtn"><i class="fas fa-plus"></i> New Case</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Case Name</th><th>Client</th><th>Status</th><th>Hearings</th><th>Created</th></tr></thead><tbody>${cases.map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td><i class="fas fa-folder-open"></i> ${c.caseName}</td><td>${c.clientName||'-'}</td><td><span class="badge-s">${c.status||'active'}</span></td><td>${(c.hearings||[]).length}</td><td>${formatDate(c.createdAt)}</td></tr>`).join('')||'<tr><td colspan="5">No cases. Click "New Case" to create one.</td></tr>'}</tbody></table></div>`;
+  let cases=await DS.cases(ST.user.lawFirmId);
+  if(ST.filt.caseStatus&&ST.filt.caseStatus!=='') cases=cases.filter(c=>c.status===ST.filt.caseStatus);
+  if(ST.filt.caseSearch&&ST.filt.caseSearch.trim()!==''){const s=ST.filt.caseSearch.toLowerCase();cases=cases.filter(c=>c.caseName.toLowerCase().includes(s)||(c.clientName||'').toLowerCase().includes(s));}
+  cases.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const casesHtml=cases.map(c=>`<div class="case-card" data-case-id="${c.id}"><div class="case-card-header"><div class="case-title">${escapeHtml(c.caseName)}</div><div class="case-status ${c.status==='closed'?'closed':(c.status==='pending'?'pending':'')}">${(c.status||'ACTIVE').toUpperCase()}</div></div><div class="case-details"><div class="case-detail-item"><i class="fas fa-user"></i> ${c.clientName||'No client'}</div><div class="case-detail-item"><i class="far fa-calendar-alt"></i> ${formatDate(c.createdAt)}</div></div><div class="case-footer"><button class="btn btn-o btn-sm case-details-btn" data-id="${c.id}">Details →</button></div></div>`).join('');
+  return `<div class="cases-header"><h1>Legal Cases</h1><p>Track and manage active litigation and legal matters.</p></div><div class="cases-controls"><div class="case-search"><input type="text" id="caseSearchInput" placeholder="Search by case title, client, or lawyer..." value="${escapeHtml(ST.filt.caseSearch||'')}"></div><div class="case-filter-row"><div class="case-filter-group"><select id="caseStatusFilter"><option value="">All Status</option><option value="active" ${ST.filt.caseStatus==='active'?'selected':''}>Active</option><option value="pending" ${ST.filt.caseStatus==='pending'?'selected':''}>Pending</option><option value="closed" ${ST.filt.caseStatus==='closed'?'selected':''}>Closed</option></select></div><button class="btn btn-p btn-sm" id="newCaseBtn"><i class="fas fa-plus"></i> New Case</button></div></div><div class="cases-grid" id="casesGrid">${casesHtml||'<div class="empty">No cases found.</div>'}</div>`;
 }
+// ========== CASE DETAIL ==========
 async function caseDetailView(){
-  const c = ST.selC;
-  if(!c) return '<div class="empty">Case not found</div>';
-  const tasks = await DS.tasks(ST.user.lawFirmId);
-  const caseTasks = tasks.filter(t => t.caseId === c.id);
-  const completedTasks = caseTasks.filter(t => t.status === 'completed').length;
-  const completionRate = caseTasks.length ? Math.round((completedTasks / caseTasks.length) * 100) : 0;
-  const users = await DS.allU();
-  const teamMembers = users.filter(u => (c.assignedTeam || []).includes(u.id));
-  const hearings = c.hearings || [];
-  const updates = c.updates || [];
-  return `
-    <div class="case-header">
-      <div class="case-title-section"><span class="case-title">${c.caseName}</span><span class="case-badge">${c.status === 'active' ? 'ACTIVE' : (c.status || 'ACTIVE').toUpperCase()}</span></div>
-      <div class="case-id">📂 Case ID: ${c.id}</div>
-      <div class="case-tabs"><div class="case-tab ${ST.activeTab === 'overview' ? 'active' : ''}" data-tab="overview">Overview</div><div class="case-tab ${ST.activeTab === 'tasks' ? 'active' : ''}" data-tab="tasks">Tasks (${caseTasks.length})</div><div class="case-tab ${ST.activeTab === 'messages' ? 'active' : ''}" data-tab="messages">Messages</div></div>
-    </div>
-    <div class="case-content">
-      ${ST.activeTab === 'overview' ? `<div class="two-columns"><div class="left-column"><div class="info-card" style="background:none;padding:0 0 20px 0;"><h3>CASE DESCRIPTION</h3><p>${c.details || 'No description provided.'}</p></div><div><h3>HEARING DATES</h3><div class="action-buttons"><button class="btn-sync-calendar" id="syncAllHearingsBtn"><i class="fab fa-google"></i> Sync with Google Calendar</button><button class="btn btn-o btn-sm" id="addHearingBtn"><i class="fas fa-plus"></i> Add Hearing</button></div><div id="hearingsList">${hearings.length ? hearings.map((h,idx)=>`<div class="hearing-item"><div class="hearing-info"><div class="hearing-date"><i class="fas fa-calendar-alt"></i> ${h.date} at ${h.time||'09:00'}</div><div class="hearing-description">${h.description||'No description'}</div><div class="hearing-reminder"><i class="fas fa-bell"></i> Reminder: ${h.reminderMinutes||30} min before</div></div><button class="btn btn-o btn-sm sync-hearing" data-idx="${idx}"><i class="fas fa-calendar-plus"></i> Sync</button></div>`).join('') : '<div class="empty">No hearing dates set yet.</div>'}</div></div><div><h3>CASE UPDATES</h3><div id="caseUpdates">${updates.length ? updates.map(u=>`<div class="update-item"><div class="update-time"><i class="far fa-clock"></i> ${formatDateTime(u.date)}</div><div class="update-message">${u.message}</div></div>`).join('') : '<div class="empty">No updates yet.</div>'}</div><div class="update-input-group"><input type="text" id="newUpdateInput" placeholder="Add a case update..."><button class="btn btn-p btn-sm" id="addUpdateBtn">Post Update</button></div></div></div><div class="right-column"><div class="info-card"><h3>CLIENT DETAILS</h3><p><strong>${c.clientName || 'No client assigned'}</strong></p>${c.clientId ? `<p style="font-size:12px;margin-top:4px;">UID: ${c.clientId}</p>` : ''}</div><div class="info-card"><h3>CASE TIMELINE</h3><p>Opened On<br><strong>${formatDate(c.createdAt) || 'N/A'}</strong></p></div><div class="info-card"><h3>QUICK STATS</h3><p>Total Tasks: <strong>${caseTasks.length}</strong></p><p>Completed: <strong>${completedTasks}</strong></p></div><div class="info-card"><h3>COMPLETION RATE</h3><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;"><div class="stat-circle">${completionRate}%</div><div class="progress-bar"><div class="progress-fill" style="width:${completionRate}%;"></div></div></div></div><div class="info-card"><h3>ASSIGNED TEAM</h3>${teamMembers.length ? teamMembers.map(m=>`<div class="team-member"><div class="member-avatar">${m.firstName?.charAt(0)||'?'}${m.lastName?.charAt(0)||''}</div><div class="member-info"><div class="member-name">${m.firstName} ${m.lastName}</div><div class="member-role">${m.role||'Team Member'}</div></div></div>`).join('') : '<div class="empty">No team assigned</div>'}</div></div></div>` : ST.activeTab === 'tasks' ? `<div><button class="btn btn-p btn-sm" id="newTaskForCaseBtn" style="margin-bottom:16px;"><i class="fas fa-plus"></i> Add Task</button><div class="task-list">${caseTasks.length ? caseTasks.map(t=>`<div class="task-item" onclick="openTaskDetail('${t.id}')" style="cursor:pointer;"><div class="task-info"><div class="task-status-dot ${t.status === 'completed' ? 'completed' : (t.status === 'in_progress' ? 'in_progress' : 'pending')}"></div><div class="task-details"><div class="task-title">${t.title}</div><div class="task-due">Due: ${t.dueDate ? formatDate(t.dueDate) : 'No due date'}</div></div></div><span class="badge-s ${t.status}">${t.status||'pending'}</span></div>`).join('') : '<div class="empty">No tasks for this case.</div>'}</div></div>` : `<div style="text-align:center;padding:60px;"><i class="fas fa-comments" style="font-size:48px;color:var(--text-secondary);margin-bottom:16px;"></i><p>Case messages coming soon.</p></div>`}
-    </div>`;
+  const c=ST.selC; if(!c) return '<div class="empty">Case not found</div>';
+  const tasks=await DS.tasks(ST.user.lawFirmId);
+  const caseTasks=tasks.filter(t=>t.caseId===c.id);
+  const completedTasks=caseTasks.filter(t=>t.status==='completed').length;
+  const completionRate=caseTasks.length?Math.round((completedTasks/caseTasks.length)*100):0;
+  const users=await DS.allU();
+  const teamMembers=users.filter(u=>(c.assignedTeam||[]).includes(u.id));
+  const hearings=c.hearings||[];
+  const updates=c.updates||[];
+  return `<div class="case-header-detail"><div class="case-title-section"><div><span class="case-title-lg">${c.caseName}</span><span class="case-badge">${c.status==='active'?'ACTIVE':(c.status||'ACTIVE').toUpperCase()}</span></div><button class="btn btn-o btn-sm" id="editCaseBtn"><i class="fas fa-edit"></i> Edit Case</button></div><div class="case-id">📂 Case ID: ${c.id}</div><div class="case-tabs"><div class="case-tab ${ST.activeTab==='overview'?'active':''}" data-tab="overview">Overview</div><div class="case-tab ${ST.activeTab==='tasks'?'active':''}" data-tab="tasks">Tasks (${caseTasks.length})</div><div class="case-tab ${ST.activeTab==='messages'?'active':''}" data-tab="messages">Messages</div></div></div><div class="case-content-detail">${ST.activeTab==='overview'?`<div class="two-columns"><div class="left-column"><div class="info-card" style="background:none;padding:0 0 20px 0;"><h3><i class="fas fa-file-alt"></i> CASE DESCRIPTION</h3><p>${c.details||'No description provided.'}</p></div><div><h3><i class="fas fa-gavel"></i> HEARING DATES</h3><div class="action-buttons"><button class="btn-sync-calendar" id="syncAllHearingsBtn"><i class="fab fa-google"></i> Sync with Google Calendar</button><button class="btn btn-o btn-sm" id="addHearingBtn"><i class="fas fa-plus"></i> Add Hearing</button></div><div id="hearingsList">${hearings.length?hearings.map((h,idx)=>`<div class="hearing-item"><div class="hearing-info"><div class="hearing-date"><i class="fas fa-calendar-alt"></i> ${h.date} at ${h.time||'09:00'}</div><div class="hearing-description">${h.description||'No description'}</div><div class="hearing-reminder"><i class="fas fa-bell"></i> Reminder: ${h.reminderMinutes||30} min before</div></div><button class="btn btn-o btn-sm sync-hearing" data-idx="${idx}"><i class="fas fa-calendar-plus"></i> Sync</button></div>`).join(''):'<div class="empty">No hearing dates set yet.</div>'}</div></div><div><h3><i class="fas fa-history"></i> CASE UPDATES</h3><div id="caseUpdates">${updates.length?updates.map(u=>`<div class="update-item"><div class="update-time">${formatDateTime(u.date)}</div><div class="update-message">${u.message}</div></div>`).join(''):'<div class="empty">No updates yet.</div>'}</div><div class="update-input-group"><input type="text" id="newUpdateInput" placeholder="Add a case update..."><button class="btn btn-p btn-sm" id="addUpdateBtn">Post Update</button></div></div></div><div class="right-column"><div class="info-card"><h3><i class="fas fa-user"></i> CLIENT DETAILS</h3><p><strong>${c.clientName||'No client assigned'}</strong></p>${c.clientId?`<p style="font-size:12px;margin-top:4px;">UID: ${c.clientId}</p>`:''}</div><div class="info-card"><h3><i class="fas fa-timeline"></i> CASE TIMELINE</h3><p>Opened On<br><strong>${formatDate(c.createdAt)||'N/A'}</strong></p></div><div class="info-card"><h3><i class="fas fa-chart-simple"></i> QUICK STATS</h3><p>Total Tasks: <strong>${caseTasks.length}</strong></p><p>Completed: <strong>${completedTasks}</strong></p></div><div class="info-card"><h3><i class="fas fa-percent"></i> COMPLETION RATE</h3><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;"><div class="stat-circle">${completionRate}%</div><div class="progress-bar"><div class="progress-fill" style="width:${completionRate}%;"></div></div></div></div><div class="info-card"><h3><i class="fas fa-users"></i> ASSIGNED TEAM</h3>${teamMembers.length?teamMembers.map(m=>`<div class="team-member"><div class="member-avatar">${m.firstName?.charAt(0)||'?'}${m.lastName?.charAt(0)||''}</div><div><div class="member-name">${m.firstName} ${m.lastName}</div><div class="member-role">${m.role||'Team Member'}</div></div></div>`).join(''):'<div class="empty">No team assigned</div>'}</div></div></div>`:ST.activeTab==='tasks'?`<div><button class="btn btn-p btn-sm" id="newTaskForCaseBtn" style="margin-bottom:16px;"><i class="fas fa-plus"></i> Add Task</button><div class="task-list">${caseTasks.length?caseTasks.map(t=>`<div class="task-item" onclick="openTaskDetail('${t.id}')" style="cursor:pointer;"><div class="task-info"><div class="task-status-dot ${t.status==='completed'?'completed':(t.status==='in_progress'?'in_progress':'pending')}"></div><div class="task-details"><div class="task-title">${t.title}</div><div class="task-due">Due: ${t.dueDate?formatDate(t.dueDate):'No due date'}</div></div></div><span class="badge-s ${t.status}">${t.status||'pending'}</span></div>`).join(''):'<div class="empty">No tasks for this case.</div>'}</div></div>`:`<div style="text-align:center;padding:60px;"><i class="fas fa-comments" style="font-size:48px;color:var(--text-secondary);margin-bottom:16px;"></i><p>Case messages coming soon.</p></div>`}</div>`;
 }
+// ========== TASKS VIEW ==========
 async function tasksView(){
-  let tasks = await DS.tasks(ST.user.lawFirmId);
-  const users = await DS.allU();
-  const allTasks = await DS.tasks(ST.user.lawFirmId);
-  if(ST.filt.status) tasks = tasks.filter(t=>t.status===ST.filt.status);
-  return `<div style="margin-bottom:16px; display: flex; gap: 12px; flex-wrap: wrap;"><select id="taskFilter" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;"><option value="">All</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select> <button class="btn btn-p btn-sm" id="newTaskBtn"><i class="fas fa-plus"></i> New Task</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Task</th><th>Priority</th><th>Status</th><th>Assignees</th><th>Due</th><th>Sub-tasks</th></tr></thead><tbody>${tasks.length?tasks.map(t=>`<tr onclick="openTaskDetail('${t.id}')" style="cursor:pointer;"><td>${t.title}</td><td><span class="badge-s">${t.priority||'medium'}</span></td><td><span class="badge-s ${t.status}">${t.status||'pending'}</span></td><td>${fmtAssignees(t.assigneeIds,users)}</td><td>${t.dueDate?formatDate(t.dueDate):'-'}</td><td>${allTasks.filter(st=>st.parentTaskId===t.id).length}</td></tr>`).join(''):'</tr><td colspan="6">No tasks</tr>'}</tbody></table></div>`;
+  let tasks=await DS.tasks(ST.user.lawFirmId);
+  const users=await DS.allU();
+  const allCases=await DS.cases(ST.user.lawFirmId);
+  const caseMap=Object.fromEntries(allCases.map(c=>[c.id,c]));
+  let filtered=tasks;
+  if(ST.filt.status&&ST.filt.status!=='') filtered=filtered.filter(t=>t.status===ST.filt.status);
+  if(ST.filt.priority&&ST.filt.priority!=='') filtered=filtered.filter(t=>t.priority===ST.filt.priority);
+  if(ST.filt.search&&ST.filt.search.trim()!==''){const s=ST.filt.search.toLowerCase();filtered=filtered.filter(t=>t.title.toLowerCase().includes(s)||(caseMap[t.caseId]?.caseName||'').toLowerCase().includes(s)||(t.assigneeIds||[]).some(id=>{const u=users.find(u=>u.id===id);return u&&(u.firstName+' '+u.lastName).toLowerCase().includes(s);}));}
+  if(ST.filt.sortBy==='createdAt') filtered.sort((a,b)=>ST.filt.sortDir==='asc'?new Date(a.createdAt)-new Date(b.createdAt):new Date(b.createdAt)-new Date(a.createdAt));
+  else if(ST.filt.sortBy==='dueDate') filtered.sort((a,b)=>ST.filt.sortDir==='asc'?(a.dueDate||'9999')-(b.dueDate||'9999'):(b.dueDate||'9999')-(a.dueDate||'9999'));
+  else if(ST.filt.sortBy==='priority'){const order={urgent:0,high:1,medium:2,low:3};filtered.sort((a,b)=>ST.filt.sortDir==='asc'?(order[a.priority]||99)-(order[b.priority]||99):(order[b.priority]||99)-(order[a.priority]||99));}
+  let html='';
+  for(const t of filtered){
+    const assigneeNames=(t.assigneeIds||[]).map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:'';}).filter(Boolean).join(', ');
+    const caseName=caseMap[t.caseId]?.caseName||'';
+    const logs=await DS.getTimeLogsByTask(t.id);
+    const totalMins=logs.reduce((s,l)=>s+l.durationMinutes,0);
+    const timeStr=`${Math.floor(totalMins/60).toString().padStart(2,'0')}:${(totalMins%60).toString().padStart(2,'0')}`;
+    const subtasks=tasks.filter(st=>st.parentTaskId===t.id);
+    html+=`<div class="task-card" data-task-id="${t.id}"><div class="task-card-header"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-priority ${t.priority||'medium'}">${(t.priority||'MEDIUM').toUpperCase()}</div></div><div class="task-details"><div class="task-detail-item"><i class="far fa-calendar-alt"></i> Due ${t.dueDate?formatDate(t.dueDate):'No due date'}</div><div class="task-detail-item"><i class="fas fa-user"></i> ${assigneeNames||'Unassigned'}</div><div class="task-detail-item"><i class="fas fa-folder"></i> ${caseName||'No case'}</div><div class="task-detail-item"><i class="fas fa-clock"></i> ${timeStr}</div>${subtasks.length?`<div class="task-detail-item"><i class="fas fa-code-branch"></i> ${subtasks.length} Dependencies</div>`:''}</div><div class="task-footer"><button class="task-status-btn ${t.status||'pending'}" data-status="${t.status||'pending'}" data-task-id="${t.id}">${(t.status||'pending').replace('_',' ').toUpperCase()}</button><div class="task-time-log">⏱️ ${timeStr} logged</div></div></div>`;
+  }
+  if(filtered.length===0) html='<div class="empty">No tasks found. Create a new task to get started.</div>';
+  return `<div class="task-controls"><div class="search-bar"><input type="text" id="taskSearchInput" placeholder="Search tasks, cases, or team members..." value="${escapeHtml(ST.filt.search||'')}"></div><div class="filter-row"><div class="filter-group"><select id="filterStatus"><option value="">All Status</option><option value="pending" ${ST.filt.status==='pending'?'selected':''}>Pending</option><option value="in_progress" ${ST.filt.status==='in_progress'?'selected':''}>In Progress</option><option value="completed" ${ST.filt.status==='completed'?'selected':''}>Completed</option></select><select id="filterPriority"><option value="">All Priority</option><option value="low" ${ST.filt.priority==='low'?'selected':''}>Low</option><option value="medium" ${ST.filt.priority==='medium'?'selected':''}>Medium</option><option value="high" ${ST.filt.priority==='high'?'selected':''}>High</option><option value="urgent" ${ST.filt.priority==='urgent'?'selected':''}>Urgent</option></select></div><div class="sort-group"><span>SORT:</span><select id="sortBy"><option value="createdAt" ${ST.filt.sortBy==='createdAt'?'selected':''}>Created Date</option><option value="dueDate" ${ST.filt.sortBy==='dueDate'?'selected':''}>Due Date</option><option value="priority" ${ST.filt.sortBy==='priority'?'selected':''}>Priority</option></select><select id="sortDir"><option value="desc" ${ST.filt.sortDir==='desc'?'selected':''}>Descending</option><option value="asc" ${ST.filt.sortDir==='asc'?'selected':''}>Ascending</option></select></div><button class="btn btn-p btn-sm" id="newTaskBtnHeader"><i class="fas fa-plus"></i> New Task</button></div></div><div class="tasks-grid" id="tasksGrid">${html}</div>`;
 }
+// ========== TEAMS, STAFF, APPROVALS, TIMESHEETS, REPORTS, PROFILE ==========
 async function teamsView(){
-  const teams = await DS.teams(ST.user.lawFirmId);
-  const users = await DS.allU();
-  return `<div style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="newTeamBtn"><i class="fas fa-plus"></i> New Team</button></div><div class="table-wrap"><table class="task-table"><thead><tr><th>Team Name</th><th>Members</th><th>Actions</th></tr></thead><tbody>${teams.map(t=>`<tr><td>${t.name}</td><td>${(t.memberIds||[]).map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:''}).join(', ')||'None'}</td><td><button class="btn btn-d btn-sm delete-team" data-id="${t.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="3">No teams</td></tr>'}</tbody></table></div>`;
+  const teams=await DS.teams(ST.user.lawFirmId);
+  const users=await DS.allU();
+  return `<div class="page-header"><h1>Teams</h1><p>Manage practice groups and departments.</p></div><div class="section-card"><div class="section-title"><i class="fas fa-users"></i> All Teams</div><div class="action-buttons" style="margin-bottom:20px;"><button class="btn btn-p btn-sm" id="newTeamBtn"><i class="fas fa-plus"></i> New Team</button></div><div class="teams-grid">${teams.map(t=>`<div class="team-card"><div class="team-info"><div class="team-name">${escapeHtml(t.name)}</div><div class="team-member-count">${(t.memberIds||[]).length} members — ${(t.memberIds||[]).map(id=>{const u=users.find(x=>x.id===id);return u?`${u.firstName} ${u.lastName}`:'';}).filter(Boolean).join(', ')||'No members'}</div></div><div class="action-buttons"><button class="btn btn-d btn-sm delete-team" data-id="${t.id}">Delete</button></div></div>`).join('')||'<div class="empty">No teams yet.</div>'}</div></div>`;
 }
 async function membersView(){
-  const users = (await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);
-  return `<div class="table-wrap"><table class="task-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Hourly Rate</th></tr></thead><tbody>${users.map(u=>`<tr><td>${u.firstName} ${u.lastName}${u.id===ST.user.id?' ⭐':''}</td><td>${u.email}</td><td><span class="badge-s">${u.role}</span></td><td>₱${u.hourlyRate||0}</td></tr>`).join('')}</tbody></table></div>`;
+  const users=(await DS.allU()).filter(u=>u.lawFirmId===ST.user.lawFirmId);
+  return `<div class="page-header"><h1>Staff Members</h1><p>View all team members and their roles.</p></div><div class="section-card"><div class="section-title"><i class="fas fa-address-book"></i> Firm Roster</div><div class="staff-grid">${users.map(u=>`<div class="staff-card"><div class="staff-info"><div class="staff-name">${u.firstName} ${u.lastName}${u.id===ST.user.id?' ⭐ (You)':''}</div><div class="staff-email">${u.email}</div><div class="staff-role">${u.role}</div></div><div class="staff-rate">₱${u.hourlyRate||0}/hr</div></div>`).join('')||'<div class="empty">No staff members found.</div>'}</div></div>`;
 }
 async function approvalsView(){
-  const reqs = await DS.getFirmRequests(ST.user.lawFirmId);
-  return `<div class="table-wrap"><h3 style="padding:16px;">Pending Approvals (${reqs.length})</h3><table class="task-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Hourly Rate</th><th>Actions</th></tr></thead><tbody>${reqs.map(r=>`<tr><td>${r.firstName} ${r.lastName}</td><td>${r.email}</td><td>${r.role}</td><td>₱${r.hourlyRate||0}</td><td><button class="btn btn-p btn-sm approve-btn" data-uid="${r.uid}">Approve</button> <button class="btn btn-d btn-sm reject-btn" data-uid="${r.uid}">Reject</button></td></tr>`).join('')||'<tr><td colspan="5">No pending requests</td></tr>'}</tbody></table></div>`;
+  const reqs=await DS.getFirmRequests(ST.user.lawFirmId);
+  return `<div class="page-header"><h1>Pending Approvals</h1><p>Review join requests from new team members.</p></div><div class="section-card"><div class="section-title"><i class="fas fa-check-circle"></i> Join Requests (${reqs.length})</div><div class="approvals-grid">${reqs.map(r=>`<div class="approval-card"><div class="approval-info"><div class="approval-name">${r.firstName} ${r.lastName}</div><div class="approval-email">${r.email}</div><div class="staff-role">Role: ${r.role} • Rate: ₱${r.hourlyRate||0}/hr</div></div><div class="action-buttons"><button class="btn btn-p btn-sm approve-btn" data-uid="${r.uid}">Approve</button><button class="btn btn-d btn-sm reject-btn" data-uid="${r.uid}">Reject</button></div></div>`).join('')||'<div class="empty">No pending approvals.</div>'}</div></div>`;
 }
 async function timesheetsView(){
-  const logs = await DS.getTimeLogsByUser(ST.user.id, ST.user.lawFirmId);
-  const tasks = await DS.tasks(ST.user.lawFirmId);
-  const taskMap = Object.fromEntries(tasks.map(t=>[t.id,t]));
+  const logs=await DS.getTimeLogsByUser(ST.user.id,ST.user.lawFirmId);
+  const tasks=await DS.tasks(ST.user.lawFirmId);
+  const taskMap=Object.fromEntries(tasks.map(t=>[t.id,t]));
   let totalHours=0,totalBillable=0;
-  logs.forEach(l=>{ totalHours+=l.durationMinutes/60; if(l.billable) totalBillable+=l.durationMinutes/60*(ST.user.hourlyRate||0); });
-  return `<div style="background:#fff;border-radius:16px;padding:24px;"><h2>My Timesheet</h2><div class="cards"><div class="card"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Total Logged</div></div><div class="card green"><div class="card-val">₱${totalBillable.toFixed(0)}</div><div class="card-label">Billable Amount</div></div></div><button class="btn btn-p btn-sm" id="addTimeBtn">+ Log Time</button><div class="table-wrap" style="margin-top:20px;"><table class="task-table"><thead><tr><th>Task</th><th>Date</th><th>Duration</th><th>Billable</th><th>Notes</th><th></th></tr></thead><tbody>${logs.map(l=>`<tr><td>${taskMap[l.taskId]?.title||'?'}</td><td>${l.date}</td><td>${l.durationMinutes}min</td><td>${l.billable?'✅':'❌'}</td><td>${l.notes||''}</td><td><button class="btn btn-d btn-sm delete-time-log" data-id="${l.id}">Del</button></td></tr>`).join('')||'<tr><td colspan="6">No time entries</td></tr>'}</tbody></table></div></div>`;
+  logs.forEach(l=>{totalHours+=l.durationMinutes/60;if(l.billable)totalBillable+=l.durationMinutes/60*(ST.user.hourlyRate||0);});
+  return `<div class="page-header"><h1>My Timesheet</h1><p>Track your worked hours and billable time.</p></div><div class="cards" style="margin-bottom:24px;"><div class="card"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Total Logged</div></div><div class="card green"><div class="card-val">₱${totalBillable.toFixed(0)}</div><div class="card-label">Billable Amount</div></div></div><div class="section-card"><div class="section-title"><i class="fas fa-clock"></i> Time Entries</div><div class="action-buttons" style="margin-bottom:16px;"><button class="btn btn-p btn-sm" id="addTimeBtn"><i class="fas fa-plus"></i> Log Time</button></div><div class="timesheets-list">${logs.map(l=>`<div class="timesheet-entry"><div class="timesheet-info"><div class="timesheet-task">${taskMap[l.taskId]?.title||'Deleted Task'}</div><div class="timesheet-meta">${l.date} • ${l.billable?'Billable':'Non-billable'} • ${l.notes||''}</div></div><div class="timesheet-duration">${l.durationMinutes} min</div><button class="btn btn-d btn-sm delete-time-log" data-id="${l.id}">✕</button></div>`).join('')||'<div class="empty">No time entries yet.</div>'}</div></div>`;
 }
 async function reportsView(){
-  const cases = await DS.cases(ST.user.lawFirmId);
-  const tasks = await DS.tasks(ST.user.lawFirmId);
-  const logs = await DS.getTimeLogsByUser(ST.user.id, ST.user.lawFirmId);
-  const totalHours = logs.reduce((s,l)=>s+l.durationMinutes/60,0);
-  setTimeout(()=>{ const ctx=document.getElementById('reportChart')?.getContext('2d'); if(ctx && ST.reportChart) ST.reportChart.destroy(); if(ctx && window.Chart){ ST.reportChart=new Chart(ctx,{type:'bar',data:{labels:['Active Cases','Total Tasks','Hours Logged'],datasets:[{label:'Overview',data:[cases.length,tasks.length,totalHours],backgroundColor:'#0d47a1'}]}}); } },100);
-  return `<div style="background:#fff;border-radius:16px;padding:24px;"><h2>Advanced Reporting</h2><canvas id="reportChart" height="200" style="margin-bottom:20px;max-height:300px;"></canvas><div class="cards"><div class="card"><div class="card-val">${cases.length}</div><div class="card-label">Active Cases</div></div><div class="card orange"><div class="card-val">${tasks.filter(t=>t.status!=='completed').length}</div><div class="card-label">Pending Tasks</div></div><div class="card green"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Hours Logged</div></div></div></div>`;
+  const cases=await DS.cases(ST.user.lawFirmId);
+  const tasks=await DS.tasks(ST.user.lawFirmId);
+  const logs=await DS.getTimeLogsByUser(ST.user.id,ST.user.lawFirmId);
+  const totalHours=logs.reduce((s,l)=>s+l.durationMinutes/60,0);
+  setTimeout(()=>{const ctx=document.getElementById('reportChart')?.getContext('2d');if(ctx&&ST.reportChart)ST.reportChart.destroy();if(ctx&&window.Chart){ST.reportChart=new Chart(ctx,{type:'bar',data:{labels:['Active Cases','Total Tasks','Hours Logged'],datasets:[{label:'Overview',data:[cases.length,tasks.length,totalHours],backgroundColor:'#0d47a1'}]}});}},100);
+  return `<div class="page-header"><h1>Reports</h1><p>Firm performance and productivity insights.</p></div><div class="section-card"><canvas id="reportChart" height="200" style="margin-bottom:20px;max-height:300px;"></canvas><div class="cards"><div class="card"><div class="card-val">${cases.length}</div><div class="card-label">Active Cases</div></div><div class="card orange"><div class="card-val">${tasks.filter(t=>t.status!=='completed').length}</div><div class="card-label">Pending Tasks</div></div><div class="card green"><div class="card-val">${totalHours.toFixed(1)}h</div><div class="card-label">Hours Logged</div></div></div></div>`;
 }
 async function profileView(){
-  const u = ST.user;
-  return `<div style="background:#fff;padding:24px;border-radius:16px;max-width:600px;margin:0 auto;"><h2>Edit Profile</h2><form id="profileForm"><div class="fgrid"><div class="inp"><label>First Name</label><input id="pfn" value="${u.firstName||''}"></div><div class="inp"><label>Last Name</label><input id="pln" value="${u.lastName||''}"></div><div class="inp ffull"><label>Email</label><input id="pem" value="${u.email||''}"></div><div class="inp ffull"><label>Phone</label><input id="pph" value="${u.phone||''}"></div><div class="inp ffull"><label>Hourly Rate (₱)</label><input type="number" id="phr" value="${u.hourlyRate||0}" step="100"></div><div class="inp ffull"><label>Description</label><textarea id="pde" rows="3">${u.description||''}</textarea></div></div><button class="btn btn-p" type="button" id="saveProfileBtn">Save Changes</button></form></div>`;
+  const u=ST.user;
+  return `<div class="page-header"><h1>My Profile</h1><p>Update your personal information and hourly rate.</p></div><div class="section-card" style="max-width:600px;"><form id="profileForm"><div class="fgrid"><div class="inp"><label>First Name</label><input id="pfn" value="${u.firstName||''}"></div><div class="inp"><label>Last Name</label><input id="pln" value="${u.lastName||''}"></div><div class="inp ffull"><label>Email</label><input id="pem" value="${u.email||''}"></div><div class="inp ffull"><label>Phone</label><input id="pph" value="${u.phone||''}"></div><div class="inp ffull"><label>Hourly Rate (₱)</label><input type="number" id="phr" value="${u.hourlyRate||0}" step="100"></div><div class="inp ffull"><label>Description</label><textarea id="pde" rows="3">${u.description||''}</textarea></div></div><button class="btn btn-p" type="button" id="saveProfileBtn">Save Changes</button></form></div>`;
 }
 async function clientDashboard(){
-  const cases = await DS.getClientCases(ST.user.id, ST.user.lawFirmId);
-  const tasks = await DS.getClientTasks(ST.user.id, ST.user.lawFirmId);
-  return `<div class="cards"><div class="card orange"><div class="card-val">${cases.length}</div><div class="card-label">My Cases</div></div><div class="card green"><div class="card-val">${tasks.length}</div><div class="card-label">My Tasks</div></div></div><div class="table-wrap"><h3 style="padding:16px;">My Cases</h3><table class="task-table"><thead><tr><th>Case Name</th><th>Status</th><th>Actions</th></tr></thead><tbody>${cases.map(c=>`<tr><td>${c.caseName}</td><td><span class="badge-s">${c.status||'active'}</span></td><td><button class="btn btn-o btn-sm view-case-client" data-id="${c.id}">View</button></td></tr>`).join('')||'<tr><td colspan="3">No cases</td></tr>'}</tbody></table></div>`;
+  const cases=await DS.getClientCases(ST.user.id,ST.user.lawFirmId);
+  const tasks=await DS.getClientTasks(ST.user.id,ST.user.lawFirmId);
+  return `<div class="cards"><div class="card orange"><div class="card-val">${cases.length}</div><div class="card-label">My Cases</div></div><div class="card green"><div class="card-val">${tasks.length}</div><div class="card-label">My Tasks</div></div></div><div class="table-wrap"><h3 style="padding:16px;">My Cases</h3><table class="task-table"><thead><tr><th>Case Name</th><th>Status</th><th>Actions</th></tr></thead><tbody>${cases.map(c=>`<tr onclick="selectCase('${c.id}')" style="cursor:pointer;"><td>${c.caseName}背-scoped<td><span class="badge-s">${c.status||'active'}</span>背-scoped<td><button class="btn btn-o btn-sm view-case-client" data-id="${c.id}">View</button><tr>`).join('')||'<tr><td colspan="3">No cases</td></tr>'}</tbody></table></div>`;
 }
-// Modal for hearing / new case / new task
-function modalHtml(){return `<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-head"><h2>${ST.modalMode === 'hearing' ? 'Add Hearing Date' : ST.modalMode === 'task' ? 'Add Task' : ST.modalMode === 'editTask' ? 'Edit Task' : 'New Case'}</h2><button class="modal-close" id="closeModalBtn">✕</button></div><div class="modal-body" id="modalBody"></div><div class="modal-foot"><button class="btn btn-p" id="modalSaveBtn">Save</button><button class="btn btn-o" id="modalCancelBtn">Cancel</button></div></div></div>`;}
+// ========== MODAL & TASK DETAIL ==========
+function modalHtml(){return `<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-head"><h2>${ST.modalMode==='hearing'?'Add Hearing Date':ST.modalMode==='task'?'Add Task':ST.modalMode==='editTask'?'Edit Task':ST.modalMode==='editCase'?'Edit Case':'New Case'}</h2><button class="modal-close" id="closeModalBtn">✕</button></div><div class="modal-body" id="modalBody"></div><div class="modal-foot"><button class="btn btn-p" id="modalSaveBtn">Save</button><button class="btn btn-o" id="modalCancelBtn">Cancel</button></div></div></div>`;}
 function renderModal(){
-  const body = document.getElementById('modalBody');
-  if(!body) return;
-  if(ST.modalMode === 'hearing'){
-    body.innerHTML = `<div class="inp"><label>Date</label><input type="date" id="hearingDate" required></div><div class="inp"><label>Time</label><input type="time" id="hearingTime" value="09:00"></div><div class="inp"><label>Description</label><input type="text" id="hearingDesc" placeholder="e.g., Pre-trial conference"></div><div class="inp"><label>Reminder (minutes before)</label><input type="number" id="hearingReminder" value="30"></div>`;
-  } else if(ST.modalMode === 'task'){
-    const users = g(LS.U).filter(u=>u.lawFirmId===ST.user.lawFirmId);
-    body.innerHTML = `<div class="inp"><label>Task Title *</label><input type="text" id="taskTitle" required></div><div class="inp"><label>Description</label><textarea id="taskDesc" rows="2"></textarea></div><div class="inp"><label>Due Date</label><input type="date" id="taskDue"></div><div class="inp"><label>Priority</label><select id="taskPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div><div class="inp"><label>Status</label><select id="taskStatus"><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select></div><div class="inp ffull"><label>Assignees</label><select id="taskAssignees" multiple style="min-height:100px;">${users.map(u=>`<option value="${u.id}">${u.firstName} ${u.lastName}</option>`).join('')}</select></div>`;
-  } else if(ST.modalMode === 'newCase'){
-    body.innerHTML = `<div class="inp"><label>Case Name *</label><input type="text" id="caseName" required></div><div class="inp"><label>Client Name</label><input type="text" id="clientName"></div><div class="inp"><label>Reference</label><input type="text" id="caseRef"></div><div class="inp"><label>Status</label><select id="caseStatus"><option value="active">Active</option><option value="pending">Pending</option><option value="closed">Closed</option></select></div><div class="inp"><label>Details</label><textarea id="caseDetails" rows="3"></textarea></div>`;
-  } else if(ST.modalMode === 'editTask' && ST.editTaskData){
-    const task = ST.editTaskData;
-    const users = g(LS.U).filter(u=>u.lawFirmId===ST.user.lawFirmId);
-    const cases = g(LS.C).filter(c=>c.lawFirmId===ST.user.lawFirmId);
-    body.innerHTML = `<div class="fgrid"><div class="inp ffull"><label>Title *</label><input type="text" id="editTaskTitle" value="${task.title.replace(/"/g, '&quot;')}" required></div><div class="inp ffull"><label>Description</label><textarea id="editTaskDesc" rows="2">${task.description || ''}</textarea></div><div class="inp"><label>Due Date</label><input type="date" id="editTaskDue" value="${task.dueDate || ''}"></div><div class="inp"><label>Priority</label><select id="editTaskPriority"><option value="low" ${task.priority==='low'?'selected':''}>Low</option><option value="medium" ${task.priority==='medium'?'selected':''}>Medium</option><option value="high" ${task.priority==='high'?'selected':''}>High</option><option value="urgent" ${task.priority==='urgent'?'selected':''}>Urgent</option></select></div><div class="inp"><label>Status</label><select id="editTaskStatus"><option value="pending" ${task.status==='pending'?'selected':''}>Pending</option><option value="in_progress" ${task.status==='in_progress'?'selected':''}>In Progress</option><option value="completed" ${task.status==='completed'?'selected':''}>Completed</option></select></div><div class="inp"><label>Case</label><select id="editTaskCase"><option value="">None</option>${cases.map(c=>`<option value="${c.id}" ${task.caseId===c.id?'selected':''}>${c.caseName}</option>`).join('')}</select></div><div class="inp ffull"><label>Assignees</label><select id="editTaskAssignees" multiple style="min-height:100px;">${users.map(u=>`<option value="${u.id}" ${(task.assigneeIds||[]).includes(u.id)?'selected':''}>${u.firstName} ${u.lastName}</option>`).join('')}</select></div><div class="inp ffull"><label>Tags (comma separated)</label><input type="text" id="editTaskTags" value="${(task.tags||[]).join(', ')}"></div><div class="inp ffull"><label>Notes</label><textarea id="editTaskNotes" rows="2">${task.notes||''}</textarea></div></div>`;
+  const body=document.getElementById('modalBody'); if(!body) return;
+  if(ST.modalMode==='hearing'){
+    body.innerHTML=`<div class="inp"><label>Date</label><input type="date" id="hearingDate" required></div><div class="inp"><label>Time</label><input type="time" id="hearingTime" value="09:00"></div><div class="inp"><label>Description</label><input type="text" id="hearingDesc" placeholder="e.g., Pre-trial conference"></div><div class="inp"><label>Reminder (minutes before)</label><input type="number" id="hearingReminder" value="30"></div>`;
+  } else if(ST.modalMode==='task'){
+    const users=g(LS.U).filter(u=>u.lawFirmId===ST.user.lawFirmId);
+    body.innerHTML=`<div class="inp"><label>Task Title *</label><input type="text" id="taskTitle" required></div><div class="inp"><label>Description</label><textarea id="taskDesc" rows="2"></textarea></div><div class="inp"><label>Due Date</label><input type="date" id="taskDue"></div><div class="inp"><label>Priority</label><select id="taskPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div><div class="inp"><label>Status</label><select id="taskStatus"><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select></div><div class="inp ffull"><label>Assignees</label><select id="taskAssignees" multiple style="min-height:100px;">${users.map(u=>`<option value="${u.id}">${u.firstName} ${u.lastName}</option>`).join('')}</select></div>`;
+  } else if(ST.modalMode==='newCase'){
+    body.innerHTML=`<div class="inp"><label>Case Name *</label><input type="text" id="caseName" required></div><div class="inp"><label>Client Name</label><input type="text" id="clientName"></div><div class="inp"><label>Reference</label><input type="text" id="caseRef"></div><div class="inp"><label>Status</label><select id="caseStatus"><option value="active">Active</option><option value="pending">Pending</option><option value="closed">Closed</option></select></div><div class="inp"><label>Details</label><textarea id="caseDetails" rows="3"></textarea></div>`;
+  } else if(ST.modalMode==='editCase'&&ST.selC){
+    const c=ST.selC, users=g(LS.U).filter(u=>u.lawFirmId===ST.user.lawFirmId), lawyers=users.filter(u=>['managing_partner','partner','associate'].includes(u.role)), teams=g(LS.TE).filter(t=>t.lawFirmId===ST.user.lawFirmId);
+    body.innerHTML=`<div class="fgrid"><div class="inp ffull"><label>Case Name *</label><input type="text" id="editCaseName" value="${c.caseName.replace(/"/g,'&quot;')}" required></div><div class="inp"><label>Reference</label><input type="text" id="editCaseRef" value="${c.caseRef||''}"></div><div class="inp"><label>Client Name</label><input type="text" id="editClientName" value="${c.clientName||''}"></div><div class="inp"><label>Client ID</label><input type="text" id="editClientId" value="${c.clientId||''}"></div><div class="inp"><label>Handling Lawyer</label><select id="editHandlingLawyer"><option value="">None</option>${lawyers.map(l=>`<option value="${l.id}" ${c.handlingLawyer===l.id?'selected':''}>${l.firstName} ${l.lastName}</option>`).join('')}</select></div><div class="inp"><label>Assigned Team</label><select id="editAssignedTeam" multiple style="min-height:80px;">${teams.map(t=>`<option value="${t.id}" ${(c.assignedTeam||[]).includes(t.id)?'selected':''}>${t.name}</option>`).join('')}</select></div><div class="inp"><label>Status</label><select id="editCaseStatus"><option value="active" ${c.status==='active'?'selected':''}>Active</option><option value="pending" ${c.status==='pending'?'selected':''}>Pending</option><option value="closed" ${c.status==='closed'?'selected':''}>Closed</option></select></div><div class="inp ffull"><label>Details</label><textarea id="editCaseDetails" rows="3">${c.details||''}</textarea></div><div class="inp"><label>Billing Amount (₱)</label><input type="number" id="editBillingAmount" value="${c.billingAmount||0}" step="0.01"></div><div class="inp ffull"><label>Billing Notes</label><input type="text" id="editBillingNotes" value="${c.billingNotes||''}"></div></div>`;
+  } else if(ST.modalMode==='editTask'&&ST.editTaskData){
+    const task=ST.editTaskData, users=g(LS.U).filter(u=>u.lawFirmId===ST.user.lawFirmId), cases=g(LS.C).filter(c=>c.lawFirmId===ST.user.lawFirmId);
+    body.innerHTML=`<div class="fgrid"><div class="inp ffull"><label>Title *</label><input type="text" id="editTaskTitle" value="${task.title.replace(/"/g,'&quot;')}" required></div><div class="inp ffull"><label>Description</label><textarea id="editTaskDesc" rows="2">${task.description||''}</textarea></div><div class="inp"><label>Due Date</label><input type="date" id="editTaskDue" value="${task.dueDate||''}"></div><div class="inp"><label>Priority</label><select id="editTaskPriority"><option value="low" ${task.priority==='low'?'selected':''}>Low</option><option value="medium" ${task.priority==='medium'?'selected':''}>Medium</option><option value="high" ${task.priority==='high'?'selected':''}>High</option><option value="urgent" ${task.priority==='urgent'?'selected':''}>Urgent</option></select></div><div class="inp"><label>Status</label><select id="editTaskStatus"><option value="pending" ${task.status==='pending'?'selected':''}>Pending</option><option value="in_progress" ${task.status==='in_progress'?'selected':''}>In Progress</option><option value="completed" ${task.status==='completed'?'selected':''}>Completed</option></select></div><div class="inp"><label>Case</label><select id="editTaskCase"><option value="">None</option>${cases.map(c=>`<option value="${c.id}" ${task.caseId===c.id?'selected':''}>${c.caseName}</option>`).join('')}</select></div><div class="inp ffull"><label>Assignees</label><select id="editTaskAssignees" multiple style="min-height:100px;">${users.map(u=>`<option value="${u.id}" ${(task.assigneeIds||[]).includes(u.id)?'selected':''}>${u.firstName} ${u.lastName}</option>`).join('')}</select></div><div class="inp ffull"><label>Tags (comma separated)</label><input type="text" id="editTaskTags" value="${(task.tags||[]).join(', ')}"></div><div class="inp ffull"><label>Notes</label><textarea id="editTaskNotes" rows="2">${task.notes||''}</textarea></div></div>`;
   }
 }
-// TASK DETAIL MODAL - FULLY MOBILE RESPONSIVE with INFO ROWS
 function taskDetailModalHtml(){return `<div class="modal-overlay" id="taskModalOverlay"><div class="modal task-detail-modal"><div class="modal-head"><h2><i class="fas fa-tasks"></i> Task Details</h2><button class="modal-close" id="closeTaskModalBtn">✕</button></div><div class="modal-body" id="taskModalBody"></div><div class="modal-foot"><button class="btn btn-o" id="editTaskFromDetailBtn"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-d" id="deleteTaskBtn"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-p" id="closeTaskModalFootBtn">Close</button></div></div></div>`;}
 async function renderTaskDetailModal(){
-  const body = document.getElementById('taskModalBody');
-  if(!body || !ST.selT) return;
-  const task = ST.selT;
-  const users = await DS.allU();
-  const assignees = (task.assigneeIds||[]).map(id=>users.find(u=>u.id===id)).filter(Boolean);
-  const timeLogs = await DS.getTimeLogsByTask(task.id);
-  const totalMinutes = timeLogs.reduce((s,l)=>s+l.durationMinutes,0);
-  const allTasks = await DS.tasks(ST.user.lawFirmId);
-  const subtasks = allTasks.filter(st=>st.parentTaskId===task.id);
-  const caseInfo = task.caseId ? (await DS.cases(ST.user.lawFirmId)).find(c=>c.id===task.caseId) : null;
-  
-  body.innerHTML = `
-    <div class="task-detail-section">
-      <h4>Basic Information</h4>
-      <div class="info-row"><span class="info-label">Title:</span><span class="info-value">${task.title}</span></div>
-      <div class="info-row"><span class="info-label">Status:</span><span class="info-value"><span class="badge-s ${task.status}">${task.status||'pending'}</span></span></div>
-      <div class="info-row"><span class="info-label">Priority:</span><span class="info-value"><span class="badge-s">${task.priority||'medium'}</span></span></div>
-      <div class="info-row"><span class="info-label">Due Date:</span><span class="info-value">${task.dueDate ? formatDate(task.dueDate) : 'Not set'}</span></div>
-      <div class="info-row"><span class="info-label">Created:</span><span class="info-value">${formatDate(task.createdAt)}</span></div>
-      <div class="info-row"><span class="info-label">Last Updated:</span><span class="info-value">${formatDate(task.updatedAt)}</span></div>
-    </div>
-    <div class="task-detail-section">
-      <h4>Description</h4>
-      <div class="info-value">${task.description || 'No description provided.'}</div>
-    </div>
-    <div class="task-detail-section">
-      <h4>Assignees</h4>
-      <div class="info-value">${assignees.length ? assignees.map(a=>`${a.firstName} ${a.lastName}`).join(', ') : 'None'}</div>
-    </div>
-    ${caseInfo ? `<div class="task-detail-section"><h4>Related Case</h4><div class="info-value"><a href="#" onclick="selectCase('${caseInfo.id}'); return false;">${caseInfo.caseName}</a></div></div>` : ''}
-    <div class="task-detail-section">
-      <h4>Tags</h4>
-      <div class="info-value">${(task.tags||[]).join(', ') || 'None'}</div>
-    </div>
-    <div class="task-detail-section">
-      <h4>Notes</h4>
-      <div class="info-value">${task.notes || 'None'}</div>
-    </div>
-    <div class="task-detail-section">
-      <h4>Time Logged <button class="btn btn-o btn-sm" id="addTimeToTaskBtn" style="margin-left:8px;"><i class="fas fa-clock"></i> Log Time</button></h4>
-      <div class="info-row"><span class="info-label">Total:</span><span class="info-value">${Math.floor(totalMinutes/60)}h ${totalMinutes%60}m</span></div>
-      ${timeLogs.length ? `<div style="margin-top:12px;">${timeLogs.map(l=>`<div class="time-entry-item"><div class="time-entry-info"><strong>${l.date}</strong> - ${l.durationMinutes} min ${l.billable?'(Billable)':''}</div><button class="btn btn-d btn-sm delete-time-log-task" data-id="${l.id}">✕</button></div>`).join('')}</div>` : '<div class="info-value">No time entries yet.</div>'}
-    </div>
-    <div class="task-detail-section">
-      <h4>Subtasks <button class="btn btn-o btn-sm" id="addSubtaskBtn"><i class="fas fa-plus"></i> Add Subtask</button></h4>
-      ${subtasks.length ? subtasks.map(st=>`<div class="subtask-item"><div class="subtask-info"><span class="subtask-status" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${st.status==='completed'?'#10b981':'#f59e0b'};margin-right:8px;"></span> ${st.title} <span class="badge-s">${st.status||'pending'}</span></div><button class="btn btn-o btn-sm view-subtask" data-id="${st.id}">View</button></div>`).join('') : '<div class="info-value">No subtasks.</div>'}
-    </div>
-  `;
-  
-  // Attach event listeners
-  document.getElementById('addTimeToTaskBtn')?.addEventListener('click', async()=>{ 
-    const mins=prompt('Enter minutes worked:'); 
-    if(mins && !isNaN(parseInt(mins))){ 
-      await DS.addTimeLog({taskId:task.id,userId:ST.user.id,lawFirmId:ST.user.lawFirmId,date:new Date().toISOString().slice(0,10),durationMinutes:parseInt(mins),billable:true,notes:''}); 
-      ST.taskDetailModal=false; 
-      render(); 
-      setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); 
-    } 
-  });
-  
-  document.querySelectorAll('.delete-time-log-task').forEach(btn=>btn.addEventListener('click', async(e)=>{ 
-    e.stopPropagation(); 
-    if(confirm('Delete this time entry?')){ 
-      await DS.deleteTimeLog(btn.dataset.id); 
-      ST.taskDetailModal=false; 
-      render(); 
-      setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); 
-    } 
-  }));
-  
-  document.getElementById('addSubtaskBtn')?.addEventListener('click', async()=>{ 
-    const title=prompt('Subtask title:'); 
-    if(title){ 
-      await DS.addTask({title,parentTaskId:task.id,isSubTask:true,lawFirmId:ST.user.lawFirmId,status:'pending',priority:task.priority||'medium',createdById:ST.user.id}); 
-      ST.taskDetailModal=false; 
-      render(); 
-      setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100); 
-    } 
-  });
-  
-  document.querySelectorAll('.view-subtask').forEach(btn=>btn.addEventListener('click', async()=>{ 
-    const subtaskId=btn.dataset.id; 
-    const subtask=allTasks.find(t=>t.id===subtaskId); 
-    if(subtask){ 
-      ST.selT=subtask; 
-      ST.taskDetailModal=true; 
-      render(); 
-    } 
-  }));
-  
-  document.getElementById('editTaskFromDetailBtn')?.addEventListener('click', () => {
-    ST.taskDetailModal = false;
-    ST.editTaskData = task;
-    ST.modalMode = 'editTask';
-    ST.modal = true;
-    render();
-  });
-  
-  document.getElementById('deleteTaskBtn')?.addEventListener('click', async()=>{ 
-    if(confirm(`Delete task "${task.title}"? This will also delete all subtasks and time entries.`)){ 
-      await DS.delTask(task.id); 
-      ST.taskDetailModal=false; 
-      ST.selT=null; 
-      render(); 
-    } 
-  });
+  const body=document.getElementById('taskModalBody'); if(!body||!ST.selT) return;
+  const task=ST.selT, users=await DS.allU(), assignees=(task.assigneeIds||[]).map(id=>users.find(u=>u.id===id)).filter(Boolean);
+  const timeLogs=await DS.getTimeLogsByTask(task.id), totalMinutes=timeLogs.reduce((s,l)=>s+l.durationMinutes,0);
+  const allTasks=await DS.tasks(ST.user.lawFirmId), subtasks=allTasks.filter(st=>st.parentTaskId===task.id);
+  const caseInfo=task.caseId?(await DS.cases(ST.user.lawFirmId)).find(c=>c.id===task.caseId):null;
+  body.innerHTML=`<div class="task-detail-section"><h4>Basic Information</h4><div class="info-row"><span class="info-label">Title:</span><span class="info-value">${task.title}</span></div><div class="info-row"><span class="info-label">Status:</span><span class="info-value"><span class="badge-s ${task.status}">${task.status||'pending'}</span></span></div><div class="info-row"><span class="info-label">Priority:</span><span class="info-value"><span class="badge-s">${task.priority||'medium'}</span></span></div><div class="info-row"><span class="info-label">Due Date:</span><span class="info-value">${task.dueDate?formatDate(task.dueDate):'Not set'}</span></div><div class="info-row"><span class="info-label">Created:</span><span class="info-value">${formatDate(task.createdAt)}</span></div><div class="info-row"><span class="info-label">Last Updated:</span><span class="info-value">${formatDate(task.updatedAt)}</span></div></div><div class="task-detail-section"><h4>Description</h4><div class="info-value">${task.description||'No description provided.'}</div></div><div class="task-detail-section"><h4>Assignees</h4><div class="info-value">${assignees.length?assignees.map(a=>`${a.firstName} ${a.lastName}`).join(', '):'None'}</div></div>${caseInfo?`<div class="task-detail-section"><h4>Related Case</h4><div class="info-value"><a href="#" onclick="selectCase('${caseInfo.id}'); return false;">${caseInfo.caseName}</a></div></div>`:''}<div class="task-detail-section"><h4>Tags</h4><div class="info-value">${(task.tags||[]).join(', ')||'None'}</div></div><div class="task-detail-section"><h4>Notes</h4><div class="info-value">${task.notes||'None'}</div></div><div class="task-detail-section"><h4>Time Logged <button class="btn btn-o btn-sm" id="addTimeToTaskBtn" style="margin-left:8px;"><i class="fas fa-clock"></i> Log Time</button></h4><div class="info-row"><span class="info-label">Total:</span><span class="info-value">${Math.floor(totalMinutes/60)}h ${totalMinutes%60}m</span></div>${timeLogs.length?`<div style="margin-top:12px;">${timeLogs.map(l=>`<div class="time-entry-item"><div><strong>${l.date}</strong> - ${l.durationMinutes} min ${l.billable?'(Billable)':''}</div><button class="btn btn-d btn-sm delete-time-log-task" data-id="${l.id}">✕</button></div>`).join('')}</div>`:'<div>No time entries yet.</div>'}</div><div class="task-detail-section"><h4>Subtasks <button class="btn btn-o btn-sm" id="addSubtaskBtn"><i class="fas fa-plus"></i> Add Subtask</button></h4>${subtasks.length?subtasks.map(st=>`<div class="subtask-item"><div><span class="subtask-status" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${st.status==='completed'?'#10b981':'#f59e0b'};margin-right:8px;"></span> ${st.title} <span class="badge-s">${st.status||'pending'}</span></div><button class="btn btn-o btn-sm view-subtask" data-id="${st.id}">View</button></div>`).join(''):'<div>No subtasks.</div>'}</div>`;
+  document.getElementById('addTimeToTaskBtn')?.addEventListener('click',async()=>{const mins=prompt('Minutes worked:');if(mins&&!isNaN(parseInt(mins))){await DS.addTimeLog({taskId:task.id,userId:ST.user.id,lawFirmId:ST.user.lawFirmId,date:new Date().toISOString().slice(0,10),durationMinutes:parseInt(mins),billable:true});ST.taskDetailModal=false;render();setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100);}});
+  document.querySelectorAll('.delete-time-log-task').forEach(btn=>btn.addEventListener('click',async(e)=>{e.stopPropagation();if(confirm('Delete this time entry?')){await DS.deleteTimeLog(btn.dataset.id);ST.taskDetailModal=false;render();setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100);}}));
+  document.getElementById('addSubtaskBtn')?.addEventListener('click',async()=>{const title=prompt('Subtask title:');if(title){await DS.addTask({title,parentTaskId:task.id,isSubTask:true,lawFirmId:ST.user.lawFirmId,status:'pending',priority:task.priority||'medium',createdById:ST.user.id});ST.taskDetailModal=false;render();setTimeout(()=>{ST.taskDetailModal=true;ST.selT=task;render();},100);}});
+  document.querySelectorAll('.view-subtask').forEach(btn=>btn.addEventListener('click',async()=>{const id=btn.dataset.id;const subtask=allTasks.find(t=>t.id===id);if(subtask){ST.selT=subtask;ST.taskDetailModal=true;render();}}));
+  document.getElementById('editTaskFromDetailBtn')?.addEventListener('click',()=>{ST.taskDetailModal=false;ST.editTaskData=task;ST.modalMode='editTask';ST.modal=true;render();});
+  document.getElementById('deleteTaskBtn')?.addEventListener('click',async()=>{if(confirm(`Delete task "${task.title}"?`)){await DS.delTask(task.id);ST.taskDetailModal=false;ST.selT=null;render();}});
 }
+window.selectCase=async function(id){const cases=await DS.cases(ST.user.lawFirmId);ST.selC=cases.find(c=>c.id===id);ST.activeTab='overview';ST.view='cases';render();};
+window.openTaskDetail=async function(id){const tasks=await DS.tasks(ST.user.lawFirmId);const t=tasks.find(t=>t.id===id);if(t){ST.selT=t;ST.taskDetailModal=true;render();}};
 
-// Global functions
-window.selectCase = async function(caseId){ const cases = await DS.cases(ST.user.lawFirmId); ST.selC = cases.find(c => c.id === caseId); ST.activeTab = 'overview'; ST.view = 'cases'; render(); };
-window.openTaskDetail = async function(taskId){ const tasks = await DS.tasks(ST.user.lawFirmId); const task = tasks.find(t=>t.id===taskId); if(task){ ST.selT = task; ST.taskDetailModal = true; render(); } };
-
-// Bind all event listeners
+// ========== BIND ALL EVENT LISTENERS ==========
 function bind(){
   document.getElementById('menu-btn')?.addEventListener('click',()=>{document.getElementById('sidebar').classList.add('open');document.getElementById('bd').classList.add('show');});
   document.getElementById('sb-close')?.addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('bd').classList.remove('show');});
@@ -771,59 +603,166 @@ function bind(){
   document.querySelectorAll('.nav-item[data-view]').forEach(item=>item.addEventListener('click',function(){ST.view=this.dataset.view;ST.selC=null;ST.selT=null;ST.modal=false;render();}));
   document.querySelectorAll('.case-tab').forEach(tab=>tab.addEventListener('click',function(){ST.activeTab=this.dataset.tab;render();}));
   document.getElementById('newCaseBtn')?.addEventListener('click',()=>{ST.modalMode='newCase';ST.modal=true;render();});
+  document.getElementById('editCaseBtn')?.addEventListener('click',()=>{ST.modalMode='editCase';ST.modal=true;render();});
   document.getElementById('addHearingBtn')?.addEventListener('click',()=>{ST.modalMode='hearing';ST.modal=true;render();});
-  document.getElementById('syncAllHearingsBtn')?.addEventListener('click',async()=>{if(ST.selC && ST.selC.hearings){for(let h of ST.selC.hearings){await syncToGoogleCalendar(ST.selC, h);}ST.suc='Hearings synced to calendar';render();}});
-  document.getElementById('addUpdateBtn')?.addEventListener('click',async()=>{const input=document.getElementById('newUpdateInput');if(input && input.value.trim()){const updates=ST.selC.updates||[];updates.unshift({date:new Date().toISOString(),message:input.value.trim()});await DS.updCase(ST.selC.id,{updates});ST.selC.updates=updates;input.value='';render();}});
+  document.getElementById('syncAllHearingsBtn')?.addEventListener('click',async()=>{if(ST.selC&&ST.selC.hearings){for(let h of ST.selC.hearings){await syncToGoogleCalendar(ST.selC,h);}ST.suc='Hearings synced';render();}});
+  document.getElementById('addUpdateBtn')?.addEventListener('click',async()=>{const inp=document.getElementById('newUpdateInput');if(inp&&inp.value.trim()){const up=ST.selC.updates||[];up.unshift({date:new Date().toISOString(),message:inp.value.trim()});await DS.updCase(ST.selC.id,{updates:up});ST.selC.updates=up;inp.value='';render();}});
   document.getElementById('newTaskForCaseBtn')?.addEventListener('click',()=>{ST.modalMode='task';ST.modal=true;render();});
-  document.getElementById('newTaskBtn')?.addEventListener('click',()=>{ST.modalMode='task';ST.modal=true;render();});
+  document.getElementById('newTaskBtnHeader')?.addEventListener('click',()=>{ST.modalMode='task';ST.modal=true;render();});
   document.getElementById('newTeamBtn')?.addEventListener('click',async()=>{const name=prompt('Team name:');if(name){await DS.addTeam({name,lawFirmId:ST.user.lawFirmId,memberIds:[]});render();}});
-  document.getElementById('addTimeBtn')?.addEventListener('click',()=>{const taskId=prompt('Task ID:');const mins=parseInt(prompt('Minutes worked:'));if(taskId && mins){DS.addTimeLog({taskId,userId:ST.user.id,lawFirmId:ST.user.lawFirmId,date:new Date().toISOString().slice(0,10),durationMinutes:mins,billable:true,notes:''}).then(()=>render());}});
+  document.getElementById('addTimeBtn')?.addEventListener('click',()=>{const taskId=prompt('Task ID:');const mins=parseInt(prompt('Minutes:'));if(taskId&&mins) DS.addTimeLog({taskId,userId:ST.user.id,lawFirmId:ST.user.lawFirmId,date:new Date().toISOString().slice(0,10),durationMinutes:mins,billable:true}).then(()=>render());});
   document.getElementById('saveProfileBtn')?.addEventListener('click',async()=>{ST.user.firstName=document.getElementById('pfn')?.value;ST.user.lastName=document.getElementById('pln')?.value;ST.user.email=document.getElementById('pem')?.value;ST.user.phone=document.getElementById('pph')?.value;ST.user.hourlyRate=parseFloat(document.getElementById('phr')?.value||0);ST.user.description=document.getElementById('pde')?.value;await DS.sprofile(ST.user.id,ST.user);ST.suc='Profile updated!';render();});
-  document.getElementById('taskFilter')?.addEventListener('change',function(){ST.filt.status=this.value;render();});
-  document.querySelectorAll('.delete-team').forEach(btn=>btn.addEventListener('click',async(e)=>{e.stopPropagation();if(confirm('Delete this team?')){await DS.delTeam(btn.dataset.id);render();}}));
-  document.querySelectorAll('.delete-time-log').forEach(btn=>btn.addEventListener('click',async(e)=>{e.stopPropagation();await DS.deleteTimeLog(btn.dataset.id);render();}));
-  document.querySelectorAll('.sync-hearing').forEach(btn=>btn.addEventListener('click',async(e)=>{const idx=parseInt(btn.dataset.idx);const hearing=ST.selC.hearings[idx];await syncToGoogleCalendar(ST.selC,hearing);ST.suc='Hearing synced to calendar';render();}));
+  const tsi=document.getElementById('taskSearchInput'); if(tsi) tsi.addEventListener('input',e=>{ST.filt.search=e.target.value;render();});
+  const fs=document.getElementById('filterStatus'); if(fs) fs.addEventListener('change',e=>{ST.filt.status=e.target.value;render();});
+  const fp=document.getElementById('filterPriority'); if(fp) fp.addEventListener('change',e=>{ST.filt.priority=e.target.value;render();});
+  const sb=document.getElementById('sortBy'); if(sb) sb.addEventListener('change',e=>{ST.filt.sortBy=e.target.value;render();});
+  const sd=document.getElementById('sortDir'); if(sd) sd.addEventListener('change',e=>{ST.filt.sortDir=e.target.value;render();});
+  const cs=document.getElementById('caseSearchInput'); if(cs) cs.addEventListener('input',e=>{ST.filt.caseSearch=e.target.value;render();});
+  const csf=document.getElementById('caseStatusFilter'); if(csf) csf.addEventListener('change',e=>{ST.filt.caseStatus=e.target.value;render();});
+  document.querySelectorAll('.task-card').forEach(c=>c.addEventListener('click',function(e){if(!e.target.classList.contains('task-status-btn')){const tid=this.dataset.taskId;openTaskDetail(tid);}}));
+  document.querySelectorAll('.task-status-btn').forEach(btn=>btn.addEventListener('click',async function(e){e.stopPropagation();const tid=this.dataset.taskId;const ns=prompt('Status (pending/in_progress/completed):',this.dataset.status);if(ns&&['pending','in_progress','completed'].includes(ns)){await DS.updTask(tid,{status:ns});render();}}));
+  document.querySelectorAll('.sync-hearing').forEach(btn=>btn.addEventListener('click',async(e)=>{const idx=parseInt(btn.dataset.idx);const h=ST.selC.hearings[idx];await syncToGoogleCalendar(ST.selC,h);ST.suc='Hearing synced';render();}));
   document.querySelectorAll('.approve-btn').forEach(btn=>btn.addEventListener('click',async()=>{await DS.approveJoin(btn.dataset.uid);render();}));
   document.querySelectorAll('.reject-btn').forEach(btn=>btn.addEventListener('click',async()=>{await DS.rejectJoin(btn.dataset.uid);render();}));
+  document.querySelectorAll('.delete-team').forEach(btn=>btn.addEventListener('click',async(e)=>{e.stopPropagation();if(confirm('Delete team?')){await DS.delTeam(btn.dataset.id);render();}}));
+  document.querySelectorAll('.delete-time-log').forEach(btn=>btn.addEventListener('click',async(e)=>{e.stopPropagation();await DS.deleteTimeLog(btn.dataset.id);render();}));
   document.querySelectorAll('.view-case-client').forEach(btn=>btn.addEventListener('click',async()=>{const cases=await DS.cases(ST.user.lawFirmId);const c=cases.find(cx=>cx.id===btn.dataset.id);if(c){ST.selC=c;ST.activeTab='overview';ST.view='cases';render();}}));
+  document.getElementById('casesGrid')?.addEventListener('click',(e)=>{const card=e.target.closest('.case-card');if(card&&!e.target.classList.contains('case-details-btn')){const id=card.dataset.caseId;if(id)selectCase(id);}if(e.target.classList.contains('case-details-btn')){const id=e.target.dataset.id;if(id)selectCase(id);}});
   document.getElementById('closeModalBtn')?.addEventListener('click',()=>{ST.modal=false;render();});
   document.getElementById('modalCancelBtn')?.addEventListener('click',()=>{ST.modal=false;render();});
   document.getElementById('modalSaveBtn')?.addEventListener('click',async()=>{
-    if(ST.modalMode === 'hearing'){
-      const date=document.getElementById('hearingDate')?.value; const time=document.getElementById('hearingTime')?.value; const desc=document.getElementById('hearingDesc')?.value; const reminder=parseInt(document.getElementById('hearingReminder')?.value||30);
-      if(date){ const newHearing={date,time:time||'09:00',description:desc,reminderMinutes:reminder}; const hearings=[...(ST.selC.hearings||[]),newHearing]; await DS.updCase(ST.selC.id,{hearings}); await syncToGoogleCalendar(ST.selC,newHearing); ST.suc='Hearing added and synced'; ST.modal=false; render(); }
-    } else if(ST.modalMode === 'task'){
-      const title=document.getElementById('taskTitle')?.value; if(title){ const as=document.getElementById('taskAssignees'); await DS.addTask({title, description:document.getElementById('taskDesc')?.value, dueDate:document.getElementById('taskDue')?.value, priority:document.getElementById('taskPriority')?.value, status:document.getElementById('taskStatus')?.value, assigneeIds:as?Array.from(as.selectedOptions).map(o=>o.value):[], caseId:ST.selC?.id||null, lawFirmId:ST.user.lawFirmId, createdById:ST.user.id }); ST.modal=false; render(); }
-    } else if(ST.modalMode === 'newCase'){
-      const name=document.getElementById('caseName')?.value; if(name){ await DS.addCase({caseName:name, clientName:document.getElementById('clientName')?.value, caseRef:document.getElementById('caseRef')?.value, status:document.getElementById('caseStatus')?.value, details:document.getElementById('caseDetails')?.value, lawFirmId:ST.user.lawFirmId, hearings:[], updates:[] }); ST.modal=false; render(); }
-    } else if(ST.modalMode === 'editTask' && ST.editTaskData){
-      const title=document.getElementById('editTaskTitle')?.value; if(title){ const as=document.getElementById('editTaskAssignees'); const tags=document.getElementById('editTaskTags')?.value.split(',').map(s=>s.trim()).filter(Boolean); await DS.updTask(ST.editTaskData.id, { title, description:document.getElementById('editTaskDesc')?.value, dueDate:document.getElementById('editTaskDue')?.value, priority:document.getElementById('editTaskPriority')?.value, status:document.getElementById('editTaskStatus')?.value, caseId:document.getElementById('editTaskCase')?.value||null, assigneeIds:as?Array.from(as.selectedOptions).map(o=>o.value):[], tags:tags||[], notes:document.getElementById('editTaskNotes')?.value }); ST.modal=false; ST.editTaskData=null; render(); }
+    if(ST.modalMode==='hearing'){
+      const date=document.getElementById('hearingDate')?.value,time=document.getElementById('hearingTime')?.value,desc=document.getElementById('hearingDesc')?.value,rem=parseInt(document.getElementById('hearingReminder')?.value||30);
+      if(date){const nh={date,time:time||'09:00',description:desc,reminderMinutes:rem};const h=[...(ST.selC.hearings||[]),nh];await DS.updCase(ST.selC.id,{hearings:h});await syncToGoogleCalendar(ST.selC,nh);ST.suc='Hearing added';ST.modal=false;render();}
+    } else if(ST.modalMode==='task'){
+      const title=document.getElementById('taskTitle')?.value;if(title){const as=document.getElementById('taskAssignees');await DS.addTask({title,description:document.getElementById('taskDesc')?.value,dueDate:document.getElementById('taskDue')?.value,priority:document.getElementById('taskPriority')?.value,status:document.getElementById('taskStatus')?.value,assigneeIds:as?Array.from(as.selectedOptions).map(o=>o.value):[],caseId:ST.selC?.id||null,lawFirmId:ST.user.lawFirmId,createdById:ST.user.id});ST.modal=false;render();}
+    } else if(ST.modalMode==='newCase'){
+      const name=document.getElementById('caseName')?.value;if(name){await DS.addCase({caseName:name,clientName:document.getElementById('clientName')?.value,caseRef:document.getElementById('caseRef')?.value,status:document.getElementById('caseStatus')?.value,details:document.getElementById('caseDetails')?.value,lawFirmId:ST.user.lawFirmId,hearings:[],updates:[]});ST.modal=false;render();}
+    } else if(ST.modalMode==='editCase'&&ST.selC){
+      const name=document.getElementById('editCaseName')?.value;if(name){const at=Array.from(document.getElementById('editAssignedTeam')?.selectedOptions||[]).map(o=>o.value);await DS.updCase(ST.selC.id,{caseName:name,caseRef:document.getElementById('editCaseRef')?.value,clientName:document.getElementById('editClientName')?.value,clientId:document.getElementById('editClientId')?.value||null,handlingLawyer:document.getElementById('editHandlingLawyer')?.value||null,assignedTeam:at,status:document.getElementById('editCaseStatus')?.value,details:document.getElementById('editCaseDetails')?.value,billingAmount:parseFloat(document.getElementById('editBillingAmount')?.value||0),billingNotes:document.getElementById('editBillingNotes')?.value});ST.modal=false;const updated=(await DS.cases(ST.user.lawFirmId)).find(c=>c.id===ST.selC.id);ST.selC=updated;render();}
+    } else if(ST.modalMode==='editTask'&&ST.editTaskData){
+      const title=document.getElementById('editTaskTitle')?.value;if(title){const as=document.getElementById('editTaskAssignees');const tags=document.getElementById('editTaskTags')?.value.split(',').map(s=>s.trim()).filter(Boolean);await DS.updTask(ST.editTaskData.id,{title,description:document.getElementById('editTaskDesc')?.value,dueDate:document.getElementById('editTaskDue')?.value,priority:document.getElementById('editTaskPriority')?.value,status:document.getElementById('editTaskStatus')?.value,caseId:document.getElementById('editTaskCase')?.value||null,assigneeIds:as?Array.from(as.selectedOptions).map(o=>o.value):[],tags:tags||[],notes:document.getElementById('editTaskNotes')?.value});ST.modal=false;ST.editTaskData=null;render();}
     }
   });
   document.getElementById('closeTaskModalBtn')?.addEventListener('click',()=>{ST.taskDetailModal=false;render();});
   document.getElementById('closeTaskModalFootBtn')?.addEventListener('click',()=>{ST.taskDetailModal=false;render();});
   document.getElementById('taskModalOverlay')?.addEventListener('click',function(e){if(e.target===this){ST.taskDetailModal=false;render();}});
 }
-// Authentication handlers
+// ========== AUTHENTICATION ==========
 async function handleEmailLogin(){
-  const em=document.getElementById('le')?.value; const pw=document.getElementById('lp')?.value;
+  const em=document.getElementById('le')?.value;
+  const pw=document.getElementById('lp')?.value;
   if(!em||!pw){ST.err='Fill all fields';render();return;}
-  if(useFB){ try{ const cred=await auth.signInWithEmailAndPassword(em,pw); const p=await DS.uprofile(cred.user.uid); if(p){ST.user=p;ST.view='dashboard';render();} else{ST.err='Account not found';await auth.signOut();render();} }catch(err){ST.err=err.message;render();} }
-  else{ const u=g(LS.U).find(x=>x.email===em&&x.password===pw); if(u){ST.user=u;ST.view='dashboard';render();} else{ST.err='Invalid credentials';render();} }
+  if(useFB){
+    try{
+      const cred=await auth.signInWithEmailAndPassword(em,pw);
+      const p=await DS.uprofile(cred.user.uid);
+      if(p){
+        ST.user=p;
+        ST.view='dashboard';
+        render();
+      } else {
+        const pending=await DS.getPendingStatus(cred.user.uid);
+        if(pending){
+          ST.err='Your account is pending approval.';
+          await auth.signOut();
+          render();
+        } else {
+          ST.err='Account not found. Register first.';
+          await auth.signOut();
+          render();
+        }
+      }
+    }catch(err){ST.err=err.message;render();}
+  } else {
+    const u=g(LS.U).find(x=>x.email===em&&x.password===pw);
+    if(u){ST.user=u;ST.view='dashboard';render();}
+    else{ST.err='Invalid credentials';render();}
+  }
 }
-async function handleGoogleLogin(){if(!useFB)return;const prov=new firebase.auth.GoogleAuthProvider();try{const res=await auth.signInWithPopup(prov);const p=await DS.uprofile(res.user.uid);if(p){ST.user=p;ST.view='dashboard';render();}else{ST.err='No account linked';await auth.signOut();render();}}catch(err){ST.err=err.message;render();}}
+async function handleGoogleLogin(){
+  if(!useFB)return;
+  const prov=new firebase.auth.GoogleAuthProvider();
+  try{
+    const res=await auth.signInWithPopup(prov);
+    const p=await DS.uprofile(res.user.uid);
+    if(p){
+      ST.user=p;
+      ST.view='dashboard';
+      render();
+    } else {
+      const pending=await DS.getPendingStatus(res.user.uid);
+      if(pending){
+        ST.err='Your account is pending approval.';
+        await auth.signOut();
+        render();
+      } else {
+        ST.err='No account linked. Register first.';
+        await auth.signOut();
+        render();
+      }
+    }
+  }catch(err){if(err.code!=='auth/popup-closed-by-user'){ST.err=err.message;render();}}
+}
 async function handleRegister(){
-  const fn=document.getElementById('rfn')?.value; const fi=document.getElementById('rfi')?.value; const la=document.getElementById('rla')?.value; const em=document.getElementById('re')?.value; const pw=document.getElementById('rp')?.value; const hr=parseFloat(document.getElementById('rhr')?.value||0);
-  if(!fn||!fi||!la||!em||pw.length<6){ST.err='All fields required';render();return;}
-  if(useFB){ try{ const cr=await auth.createUserWithEmailAndPassword(em,pw); const fid=DS.genId(); const profile={email:em,firstName:fi,lastName:la,role:'managing_partner',lawFirmId:fid,hourlyRate:hr}; await DS.sprofile(cr.user.uid,profile); await DS.addFirm({firmId:fid,firmName:fn}); ST.user=profile; ST.suc='Firm created! ID: '+fid; render(); }catch(err){ST.err=err.message;render();} }
-  else{ const fid=DS.genId(); const u={id:'U'+Date.now(),email:em,password:pw,firstName:fi,lastName:la,role:'managing_partner',lawFirmId:fid,hourlyRate:hr}; const users=g(LS.U); users.push(u); s(LS.U,users); await DS.addFirm({firmId:fid,firmName:fn}); ST.user=u; ST.view='dashboard'; render(); }
+  const fn=document.getElementById('rfn')?.value;
+  const fi=document.getElementById('rfi')?.value;
+  const la=document.getElementById('rla')?.value;
+  const em=document.getElementById('re')?.value;
+  const pw=document.getElementById('rp')?.value;
+  const hr=parseFloat(document.getElementById('rhr')?.value||0);
+  if(!fn||!fi||!la||!em||pw.length<6){ST.err='All fields required, password min 6';render();return;}
+  if(useFB){
+    try{
+      const cr=await auth.createUserWithEmailAndPassword(em,pw);
+      const fid=DS.genId();
+      const profile={email:em,firstName:fi,lastName:la,role:'managing_partner',lawFirmId:fid,hourlyRate:hr};
+      await DS.sprofile(cr.user.uid,profile);
+      await DS.addFirm({firmId:fid,firmName:fn,createdBy:cr.user.uid});
+      ST.user=profile;
+      ST.suc='Firm created! Your Firm ID: '+fid;
+      render();
+    }catch(err){ST.err=err.message;render();}
+  } else {
+    const fid=DS.genId();
+    const u={id:'U'+Date.now(),email:em,password:pw,firstName:fi,lastName:la,role:'managing_partner',lawFirmId:fid,hourlyRate:hr};
+    const users=g(LS.U);
+    users.push(u);
+    s(LS.U,users);
+    await DS.addFirm({firmId:fid,firmName:fn,createdBy:u.id});
+    ST.user=u;
+    s(LS.CUR,u);
+    ST.view='dashboard';
+    render();
+  }
 }
 async function handleJoin(){
-  const fid=document.getElementById('jfi')?.value; const fi=document.getElementById('jfn')?.value; const la=document.getElementById('jln')?.value; const em=document.getElementById('je')?.value; const pw=document.getElementById('jp')?.value; const role=document.getElementById('jr')?.value; const hr=parseFloat(document.getElementById('jhr')?.value||0);
+  const fid=document.getElementById('jfi')?.value;
+  const fi=document.getElementById('jfn')?.value;
+  const la=document.getElementById('jln')?.value;
+  const em=document.getElementById('je')?.value;
+  const pw=document.getElementById('jp')?.value;
+  const role=document.getElementById('jr')?.value;
+  const hr=parseFloat(document.getElementById('jhr')?.value||0);
   if(!fid||!fi||!la||!em||pw.length<6){ST.err='All fields required';render();return;}
-  const firm=await DS.findFirm(fid); if(!firm){ST.err='Firm not found';render();return;}
-  if(useFB){ try{ const cr=await auth.createUserWithEmailAndPassword(em,pw); await DS.createJoinRequest(cr.user.uid,fid,{email:em,firstName:fi,lastName:la,role,hourlyRate:hr}); ST.suc='Join request sent!'; await auth.signOut(); render(); }catch(err){ST.err=err.message;render();} }
-  else{ const uid='U'+Date.now(); await DS.createJoinRequest(uid,fid,{email:em,firstName:fi,lastName:la,role,password:pw,hourlyRate:hr}); ST.suc='Join request sent!'; ST.user=null; render(); }
+  const firm=await DS.findFirm(fid);
+  if(!firm){ST.err='Firm not found';render();return;}
+  if(useFB){
+    try{
+      const cr=await auth.createUserWithEmailAndPassword(em,pw);
+      await DS.createJoinRequest(cr.user.uid,fid,{email:em,firstName:fi,lastName:la,role,hourlyRate:hr});
+      ST.suc='Join request sent! Wait for approval.';
+      await auth.signOut();
+      render();
+    }catch(err){ST.err=err.message;render();}
+  } else {
+    const uid='U'+Date.now();
+    await DS.createJoinRequest(uid,fid,{email:em,firstName:fi,lastName:la,role,password:pw,hourlyRate:hr});
+    ST.suc='Join request sent! Wait for approval.';
+    ST.user=null;
+    s(LS.CUR,null);
+    render();
+  }
 }
 render();
 })();
