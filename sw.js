@@ -1,55 +1,40 @@
-// Service Worker for LexHRIS
-const CACHE_NAME = 'lexhris-cache-v1';
-const urlsToCache = [
+// LexHRIS Service Worker – caches core files for offline use
+const CACHE_NAME = 'lexhris-v1';
+const ASSETS_TO_CACHE = [
   './',
-  './index.html'  // replace with your actual HTML file name if different
+  './index.html',
+  './manifest.json',
+  './sw.js'
+  // Add additional assets (images, fonts, CSS) as needed
 ];
 
-// Install event – cache critical resources
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activate event – clean up old caches
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    )).then(() => self.clients.claim())
   );
 });
 
-// Fetch event – serve from cache, then network
-self.addEventListener('fetch', event => {
-  // For Google Firebase scripts and APIs, always go network first
-  if (event.request.url.includes('firebase') || event.request.url.includes('googleapis')) {
-    return;
+self.addEventListener('fetch', (event) => {
+  // Network-first strategy for navigation; cache-first for assets
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match('./index.html'))
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request)
+        .then(cached => cached || fetch(event.request))
+    );
   }
-
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).then(fetchResponse => {
-        // Cache dynamic resources (but avoid caching Firebase dynamic stuff)
-        if (!event.request.url.includes('firebase') && !event.request.url.includes('googleapis')) {
-          const responseClone = fetchResponse.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return fetchResponse;
-      });
-    }).catch(() => {
-      // Offline fallback – you can return a custom page if desired
-    })
-  );
 });

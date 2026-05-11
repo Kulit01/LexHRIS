@@ -3,18 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-  <title>LexHRIS - Philippine Law Firm Task Management</title>
+  <title>LexHRIS – Philippine Law Firm Task Management</title>
+  <link rel="manifest" href="./manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif','system-ui','sans-serif'],display:['Outfit','ui-sans-serif','system-ui','sans-serif']}}}}</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.5.1/mammoth.browser.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <style>
     html{font-size:16px}
-    body{font-family:'Inter',sans-serif;background-color:#f8fafc;color:#0f172a;-webkit-font-smoothing:antialiased;overscroll-behavior:contain;min-height:100vh}
+    body{font-family:'Inter',sans-serif;background-color:#f8fafc;color:#0f172a;-webkit-font-smoothing:antialiased;overscroll-behavior:contain;min-height:100vh;margin:0;padding:0}
     h1,h2,h3,h4,h5,h6{font-family:'Outfit',sans-serif;letter-spacing:-0.025em}
     .sidebar-transition{transition:transform 0.3s ease,width 0.3s ease}
     .sidebar-mobile{transform:translateX(-100%)}
@@ -42,26 +44,17 @@
     #app-container{min-height:100vh}
     @media(min-width:1024px){#app-container{max-height:100vh;overflow:hidden}}
     @media(max-width:1023px){#app-container{overflow-y:auto}}
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+    }
   </style>
-
-<!-- PWA Manifest -->
-<link rel="manifest" href="./manifest.json">
-
-<!-- Service Worker Registration -->
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker registered'))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  }
-</script>
-
 </head>
 <body class="bg-slate-50 text-slate-900">
 
 <div id="toast-container" class="fixed top-4 right-4 sm:top-6 sm:right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
-<!-- Auth Container -->
 <div id="auth-container" class="min-h-screen flex items-center justify-center p-4 bg-slate-50 overflow-y-auto">
   <div class="w-full max-w-md">
     <div class="text-center mb-6">
@@ -82,7 +75,7 @@
         <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Full Name</label><input type="text" id="reg-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="Atty. Juan Dela Cruz"></div>
         <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Email</label><input type="email" id="reg-email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="attorney@lawfirm.ph"></div>
         <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Password</label><input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="Min. 6 characters"></div>
-        <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Role</label><select id="reg-role" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white"><option value="paralegal">Paralegal</option><option value="associate">Associate</option><option value="partner">Partner</option><option value="managing_partner">Managing Partner</option><option value="client">Client</option></select></div>
+        <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Role</label><select id="reg-role" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white"><option value="paralegal">Paralegal</option><option value="associate">Associate</option><option value="partner">Partner</option><option value="managing_partner">Managing Partner</option><option value="finance">Finance</option><option value="client">Client</option></select></div>
         <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Law Firm Name <span class="text-amber-500">(New Firm)</span></label><input type="text" id="reg-firm-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="Dela Cruz & Associates"><p class="text-[10px] text-slate-400 mt-1">Leave blank and enter a Firm ID below to join an existing firm.</p></div>
         <div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Law Firm ID <span class="text-slate-400">(to join existing)</span></label><input type="text" id="reg-firm-id" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="LEX-XXXX"></div>
         <button type="submit" id="reg-btn" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-xl text-sm font-bold mt-2">Register</button>
@@ -91,8 +84,7 @@
   </div>
 </div>
 
-<!-- Main App -->
-<div id="app-container" class="flex overflow-hidden relative bg-slate-50">
+<div id="app-container" class="hidden flex overflow-hidden relative bg-slate-50">
   <div id="sidebar-overlay" class="fixed inset-0 z-30 overlay hidden lg:hidden"></div>
   <aside id="sidebar" class="sidebar-transition fixed lg:sticky inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 shadow-2xl transform -translate-x-full lg:translate-x-0 sidebar-mobile" style="top:0; bottom:0;">
     <div class="p-5 border-b border-slate-700/50 flex items-center justify-between">
@@ -117,6 +109,7 @@
     <div id="view-teams" class="hidden p-3 sm:p-4 md:p-6 lg:p-8 max-w-7xl mx-auto"></div>
     <div id="view-approvals" class="hidden p-3 sm:p-4 md:p-6 lg:p-8 max-w-7xl mx-auto"></div>
     <div id="view-users" class="hidden p-3 sm:p-4 md:p-6 lg:p-8 max-w-7xl mx-auto"></div>
+    <div id="view-clients" class="hidden p-3 sm:p-4 md:p-6 lg:p-8 max-w-7xl mx-auto"></div>
     <div id="view-profile" class="hidden p-3 sm:p-4 md:p-6 lg:p-8 max-w-3xl mx-auto"></div>
   </main>
 </div>
@@ -126,17 +119,20 @@
 </div>
 
 <script>
-(async function(){
-  // Firebase config
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(() => console.log('SW registered')).catch(err => console.error('SW error:', err));
+  }
+</script>
+
+<script>
+(function(){
   const firebaseConfig={apiKey:"AIzaSyCfp5qv6QCa54px38JlDpoTu9uP4IUfCbc",authDomain:"lexhris-dcc4c.firebaseapp.com",projectId:"lexhris-dcc4c",storageBucket:"lexhris-dcc4c.firebasestorage.app",messagingSenderId:"840222259015",appId:"1:840222259015:web:43fd684b9bdf5ef43e7e62"};
   firebase.initializeApp(firebaseConfig);
   const auth=firebase.auth();
   const db=firebase.firestore();
 
-  // Ensure session persistence before we listen to auth changes
-  await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
-  // ---- Global constants & helpers ----
   const PT=[{v:'todo',l:'To Do'},{v:'in_progress',l:'In Progress'},{v:'review',l:'Review'},{v:'done',l:'Done'}];
   const PC=[{v:'active',l:'Active'},{v:'pending',l:'Pending'},{v:'closed',l:'Closed'},{v:'archived',l:'Archived'}];
 
@@ -159,7 +155,36 @@
   function clm(){sb.classList.remove('open');ov.classList.add('hidden');mo=false}
   window.addEventListener('resize',()=>{if(window.matchMedia('(min-width:1024px)').matches&&mo)clm()});
 
-  let cud=null,fc=[],uc=[],tc=[],cc=[],tmc=[];
+  let cud=null,fc=[],uc=[],tc=[],cc=[],tmc=[],clc=[],dcb=[];
+
+  const DEFAULT_BILLING_TEMPLATE = `
+    <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px;">
+      <p style="text-align: right;">{{date}}</p>
+      <h1 style="text-align: center; text-decoration: underline;">BILLING STATEMENT</h1>
+      <p><strong>{{clientName}}</strong></p>
+      <p>{{clientAddress}}</p>
+      <h2 style="text-decoration: underline;">PARTICULARS</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid #ddd; padding: 8px;">Date</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Description</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Reference</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{billingRows}}
+        </tbody>
+      </table>
+      <p style="font-weight: bold; text-align: right;">Total: {{total}}</p>
+      <p style="font-size: 0.9em;">Should you find it more convenient to pay through check, kindly indicate "<strong>{{firmName}}</strong>" as payee. If opted through bank transfer, the payment may be made to the firm's Metrobank Account with Account No. <strong><u>522-7-522-91119-0</u></strong>.</p>
+      <blockquote style="font-style: italic; color: #555;">Note: Please be advised that the Firm is not subject to withholding tax under Sec. 26, Chapter III of the National Internal Revenue Code.</blockquote>
+      <p style="margin-top: 40px;">For the Firm:</p>
+      <p><strong>ATTY. FREDRICK RODEL V. ATIENZA</strong></p>
+      <p><em>Partner</em></p>
+    </div>
+  `;
 
   function gmts(){const f=fc[0];const c=f?.taskStatuses||[];const m=[...PT];c.forEach(c=>{if(!m.find(s=>s.v===c.v))m.push(c)});return m}
   function gmcs(){const f=fc[0];const c=f?.caseStatuses||[];const m=[...PC];c.forEach(c=>{if(!m.find(s=>s.v===c.v))m.push(c)});return m}
@@ -167,79 +192,218 @@
   const sbd=(s,tp)=>{if(tp==='task'){const a=gmts();const f=a.find(x=>x.v===s);const l=f?f.l:s;const cs={todo:'bg-slate-100 text-slate-600',in_progress:'bg-amber-100 text-amber-600',review:'bg-blue-100 text-blue-600',done:'bg-emerald-100 text-emerald-600'};return`<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${cs[s]||'bg-slate-100 text-slate-600'}">${l}</span>`}if(tp==='case'){const a=gmcs();const f=a.find(x=>x.v===s);const l=f?f.l:s;const cs={active:'bg-emerald-100 text-emerald-600',pending:'bg-amber-100 text-amber-600',closed:'bg-slate-100 text-slate-600',archived:'bg-slate-200 text-slate-500'};return`<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${cs[s]||'bg-slate-100 text-slate-600'}">${l}</span>`}return''};
   const avh=(u,sz='w-10 h-10')=>u?.profilePhoto?`<img src="${esc(u.profilePhoto)}" class="${sz} rounded-full object-cover">`:`<span class="avatar-initials bg-amber-500 ${sz}">${ifn(u?.name)}</span>`;
 
-  async function wfud(uid){for(let i=0;i<10;i++){const snap=await db.collection('users').doc(uid).get();if(snap.exists){const data=snap.data();if(data.approved===true)return{...data,id:uid};if(data.approved===false)throw new Error('Your account is pending approval.')}await new Promise(r=>setTimeout(r,1000))}throw new Error('Could not load your account. Please try again later.')}
+  const totalBilling = (billings) => (billings||[]).reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const renderBillingList = (billings=[]) => {
+    if(!billings.length) return '<p class="text-xs text-slate-400">No billing entries yet.</p>';
+    return billings.map((b,i)=>`<div class="flex items-center gap-2 text-xs p-2 bg-slate-50 rounded-lg"><span class="font-semibold text-emerald-600">₱${parseFloat(b.amount).toLocaleString()}</span><span>${esc(b.description||'')}</span><span class="text-slate-400 ml-auto">${b.date||''}</span><button class="remove-billing-btn text-rose-400 p-1" data-index="${i}">✕</button></div>`).join('');
+  };
 
-  async function lad(uid){cud=await wfud(uid);const fid=cud.firmId;if(!fid)throw new Error('Account missing firm ID.');const sf=await db.collection('firms').doc(fid).get();fc=sf.exists?[sf.data()]:[];const su=await db.collection('users').where('firmId','==',fid).get();uc=su.docs.map(d=>({...d.data(),id:d.id}));const st=await db.collection('tasks').where('firmId','==',fid).get();tc=st.docs.map(d=>({...d.data(),id:d.id}));const sc=await db.collection('cases').where('firmId','==',fid).get();cc=sc.docs.map(d=>({...d.data(),id:d.id}));const stm=await db.collection('teams').where('firmId','==',fid).get();tmc=stm.docs.map(d=>({...d.data(),id:d.id}))}
+  function fillTemplate(template, data) {
+    return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+      return data[key] !== undefined ? esc(data[key]) : match;
+    });
+  }
 
-  // ---- UI rendering functions ----
+  function getUnpaidAmount(b) {
+    const amount = parseFloat(b.amount) || 0;
+    if (b.status === 'paid') return 0;
+    if (b.status === 'partial') {
+      const partials = b.partialPayments || [];
+      const paidSum = partials.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+      return amount - paidSum;
+    }
+    return amount;
+  }
+
+  // ========== DELETE BILLING FUNCTION ==========
+  async function deleteBilling(parentType, parentId, billingId) {
+    if (parentType === 'client') {
+      try {
+        if (!confirm('Delete this billing entry?')) return;
+        await db.collection('clientBillings').doc(billingId).delete();
+        dcb = dcb.filter(b => b.id !== billingId);
+        tst('Billing deleted.', 'info');
+        return true;
+      } catch(e) {
+        console.error(e);
+        tst('Failed to delete billing.', 'error');
+        return false;
+      }
+    }
+    
+    const col = parentType === 'task' ? 'tasks' : 'cases';
+    try {
+      if (!confirm('Delete this billing entry?')) return false;
+      const docRef = db.collection(col).doc(parentId);
+      const docSnap = await docRef.get();
+      if (!docSnap.exists) return tst('Item not found.', 'error');
+      const data = docSnap.data();
+      const billings = (data.billings || []).filter(b => b.id !== billingId);
+      await docRef.update({ billings });
+      
+      // Update local array
+      if (parentType === 'task') {
+        const t = tc.find(x => x.id === parentId);
+        if (t) t.billings = billings;
+      } else {
+        const c = cc.find(x => x.id === parentId);
+        if (c) c.billings = billings;
+      }
+      tst('Billing deleted.', 'info');
+      return true;
+    } catch (e) {
+      console.error(e);
+      tst('Failed to delete billing.', 'error');
+      return false;
+    }
+  }
+
+  async function wfud(uid){for(let i=0;i<10;i++){const snap=await db.collection('users').doc(uid).get();if(snap.exists){const data=snap.data();if(data.approved===true)return{...data,id:uid};if(data.approved===false)throw new Error('Your account is pending approval.')}await new Promise(r=>setTimeout(r,1000))}throw new Error('Could not load your account.')}
+
+  async function lad(uid){
+    cud=await wfud(uid);
+    const fid=cud.firmId;if(!fid)throw new Error('Account missing firm ID.');
+    const sf=await db.collection('firms').doc(fid).get();fc=sf.exists?[sf.data()]:[];
+    const su=await db.collection('users').where('firmId','==',fid).get();uc=su.docs.map(d=>({...d.data(),id:d.id}));
+    const st=await db.collection('tasks').where('firmId','==',fid).get();tc=st.docs.map(d=>({...d.data(),id:d.id}));
+    const sc=await db.collection('cases').where('firmId','==',fid).get();cc=sc.docs.map(d=>({...d.data(),id:d.id}));
+    const stm=await db.collection('teams').where('firmId','==',fid).get();tmc=stm.docs.map(d=>({...d.data(),id:d.id}));
+    const scl=await db.collection('clients').where('firmId','==',fid).get();clc=scl.docs.map(d=>({...d.data(),id:d.id}));
+    const sdcb = await db.collection('clientBillings').where('firmId','==',fid).get();
+    dcb = sdcb.docs.map(d=>({...d.data(), id: d.id, parentType: 'client', parentTitle: 'General Billing'}));
+  }
 
   function sh(){document.getElementById('auth-container').classList.remove('hidden');document.getElementById('app-container').classList.add('hidden');}
-  function sa(){document.getElementById('auth-container').classList.add('hidden');document.getElementById('app-container').classList.remove('hidden');rs();us();sv('dashboard');}
+  function sa(){
+    document.getElementById('auth-container').classList.add('hidden');
+    document.getElementById('app-container').classList.remove('hidden');
+    document.getElementById('app-container').style.display = 'flex';
+    rs(); us(); sv(cud.role==='finance'?'clients':'dashboard');
+  }
 
-  function rs(){const u=cud;const cl=u.role==='client';const isPartnerOrMP=u.role==='partner'||u.role==='managing_partner';document.getElementById('sidebar-nav').innerHTML=`
-    <button data-view="dashboard" class="sidebar-item active w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="sidebar-text">Dashboard</span></button>
-    <button data-view="tasks" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg><span class="sidebar-text">Tasks</span></button>
-    <button data-view="cases" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><span class="sidebar-text">Cases</span></button>
-    <button data-view="chat" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="sidebar-text">Chat</span></button>
-    ${!cl?`
-    <button data-view="teams" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="sidebar-text">Teams</span></button>
-    <button data-view="approvals" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3 relative"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/></svg><span class="sidebar-text">Approvals</span><span id="approval-badge" class="hidden absolute right-2 top-1/2 -translate-y-1/2 bg-rose-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span></button>`:''}
-    ${isPartnerOrMP?`<button data-view="users" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Users</span></button>`:''}
-    <button data-view="profile" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Profile</span></button>`;
+  function rs(){
+    const u=cud;const isFinance=u.role==='finance';const isStaff=!isFinance&&u.role!=='client';const isPartnerOrMP=u.role==='partner'||u.role==='managing_partner';
+    if(isFinance){
+      document.getElementById('sidebar-nav').innerHTML=`
+        <button data-view="clients" class="sidebar-item active w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Clients</span></button>
+        <button data-view="profile" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Profile</span></button>`;
+    }else{
+      document.getElementById('sidebar-nav').innerHTML=`
+        <button data-view="dashboard" class="sidebar-item active w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="sidebar-text">Dashboard</span></button>
+        <button data-view="tasks" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg><span class="sidebar-text">Tasks</span></button>
+        <button data-view="cases" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><span class="sidebar-text">Cases</span></button>
+        <button data-view="chat" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="sidebar-text">Chat</span></button>
+        <button data-view="clients" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Clients</span></button>
+        ${isStaff?`
+        <button data-view="teams" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="sidebar-text">Teams</span></button>
+        <button data-view="approvals" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3 relative"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/></svg><span class="sidebar-text">Approvals</span><span id="approval-badge" class="hidden absolute right-2 top-1/2 -translate-y-1/2 bg-rose-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span></button>`:''}
+        ${isPartnerOrMP?`<button data-view="users" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Users</span></button>`:''}
+        <button data-view="profile" class="sidebar-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="sidebar-text">Profile</span></button>`;
+    }
     document.querySelectorAll('.sidebar-item[data-view]').forEach(b=>b.addEventListener('click',()=>sv(b.dataset.view)));
   }
-  function us(){document.getElementById('sidebar-firm-name').textContent=(fc[0]?.name)||'Law Firm';document.getElementById('sidebar-username').textContent=cud.name;document.getElementById('sidebar-role').textContent=cud.role.replace('_',' ');document.getElementById('sidebar-avatar').innerHTML=cud.profilePhoto?`<img src="${esc(cud.profilePhoto)}" class="w-10 h-10 rounded-full object-cover">`:`<span class="avatar-initials bg-amber-500 w-10 h-10">${ifn(cud.name)}</span>`;const bd=document.getElementById('approval-badge');if(bd&&(cud.role==='managing_partner'||cud.role==='partner')){const p=uc.filter(u=>u.firmId===cud.firmId&&!u.approved).length;bd.textContent=p;bd.classList.toggle('hidden',p===0)}else if(bd)bd.classList.add('hidden')}
-  function sv(v){if(mo)clm();document.querySelectorAll('[id^="view-"]').forEach(el=>el.classList.add('hidden'));const ve=document.getElementById('view-'+v);if(ve)ve.classList.remove('hidden');document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active'));const sbb=document.querySelector(`[data-view="${v}"]`);if(sbb)sbb.classList.add('active');if(v==='cases')ci=false;const fns={dashboard:rd,tasks:rtv,cases:rcv,chat:rchv,teams:rtmv,approvals:rap,users:ru,profile:rp};if(fns[v])fns[v]()}
 
-  // ---- Dashboard ----
-  function rd(){const u=cud;const cl=u.role==='client';const firmId=cud.firmId;const ts=cl?tc.filter(t=>(t.assignedUsers||[]).includes(u.id)||t.clientUserId===u.id):tc;const cs=cl?cc.filter(c=>c.clientUserId===u.id||(c.assignedUsers||[]).includes(u.id)):cc;const todoCount=ts.filter(t=>t.status==='todo'&&!t.parentTaskId).length;const inprog=ts.filter(t=>t.status==='in_progress'&&!t.parentTaskId).length;const actCases=cs.filter(c=>c.status==='active').length;const usrCount=uc.filter(u=>u.approved).length;document.getElementById('view-dashboard').innerHTML=`
-    <header class="mb-4 sm:mb-6 md:mb-8">
+  function us(){document.getElementById('sidebar-firm-name').textContent=(fc[0]?.name)||'Law Firm';document.getElementById('sidebar-username').textContent=cud.name;document.getElementById('sidebar-role').textContent=cud.role.replace('_',' ');document.getElementById('sidebar-avatar').innerHTML=cud.profilePhoto?`<img src="${esc(cud.profilePhoto)}" class="w-10 h-10 rounded-full object-cover">`:`<span class="avatar-initials bg-amber-500 w-10 h-10">${ifn(cud.name)}</span>`;const bd=document.getElementById('approval-badge');if(bd&&(cud.role==='managing_partner'||cud.role==='partner')){const p=uc.filter(u=>u.firmId===cud.firmId&&!u.approved).length;bd.textContent=p;bd.classList.toggle('hidden',p===0)}else if(bd)bd.classList.add('hidden')}
+
+  function sv(v){
+    if(mo)clm();
+    document.querySelectorAll('[id^="view-"]').forEach(el=>el.classList.add('hidden'));
+    const ve=document.getElementById('view-'+v);
+    if(ve)ve.classList.remove('hidden');
+    document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active'));
+    const sbb=document.querySelector(`[data-view="${v}"]`);
+    if(sbb)sbb.classList.add('active');
+    if(v==='cases')ci=false;
+    const fns={dashboard:rd,tasks:rtv,cases:rcv,chat:rchv,teams:rtmv,approvals:rap,users:ru,clients:rclients,profile:rp};
+    if(fns[v])fns[v]();
+  }
+
+  // ---------- Dashboard ----------
+  function rd(){
+    const u=cud;const cl=u.role==='client';const firmId=cud.firmId;
+    const ts=cl?tc.filter(t=>(t.assignedUsers||[]).includes(u.id)||t.clientProfileId&&clc.find(c=>c.id===t.clientProfileId)?.linkedUserId===u.id):tc;
+    const cs=cl?cc.filter(c=>c.clientUserId===u.id||(c.assignedUsers||[]).includes(u.id)||c.clientProfileId&&clc.find(c=>c.id===c.clientProfileId)?.linkedUserId===u.id):cc;
+    const todoCount=ts.filter(t=>t.status==='todo'&&!t.parentTaskId).length;
+    const inprog=ts.filter(t=>t.status==='in_progress'&&!t.parentTaskId).length;
+    const actCases=cs.filter(c=>c.status==='active').length;
+    const usrCount=uc.filter(u=>u.approved).length;
+    const allBilling=ts.reduce((s,t)=>s+totalBilling(t.billings),0)+cs.reduce((s,c)=>s+totalBilling(c.billings),0);
+    document.getElementById('view-dashboard').innerHTML=`
+      <header class="mb-4 sm:mb-6 md:mb-8">
         <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Dashboard</h1>
         <p class="text-slate-500 text-sm mt-1">Welcome back, ${esc(u.name)}!</p>
         <div class="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 font-medium">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            <span>Firm ID: <strong>${esc(firmId)}</strong></span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          <span>Firm ID: <strong>${esc(firmId)}</strong></span>
         </div>
-    </header>
-    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6 md:mb-8" id="dash-stats"></div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        ${allBilling>0?`<div class="mt-2 text-sm text-emerald-600 font-medium">Total Billings: ₱${allBilling.toLocaleString()}</div>`:''}
+      </header>
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6 md:mb-8" id="dash-stats"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div class="bg-white p-4 sm:p-6 rounded-2xl border shadow-sm"><h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4">Recent Tasks</h3><div id="dash-tasks" class="space-y-2"></div></div>
         <div class="bg-white p-4 sm:p-6 rounded-2xl border shadow-sm"><h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4">Active Cases</h3><div id="dash-cases" class="space-y-2"></div></div>
-    </div>`;
-  document.getElementById('dash-stats').innerHTML=`<div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-slate-900 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${todoCount}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">To Do</p></div></div></div><div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-amber-500 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${inprog}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">In Progress</p></div></div></div><div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-emerald-500 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${actCases}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Active Cases</p></div></div></div><div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-rose-500 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${cl?(ts.length+cs.length):usrCount}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">${cl?'My Items':'Team Members'}</p></div></div></div>`;
-  document.getElementById('dash-tasks').innerHTML=ts.filter(t=>!t.parentTaskId).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5).map(t=>`<div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-slate-50"><div class="w-2 h-2 rounded-full flex-shrink-0 ${t.status==='done'?'bg-emerald-400':t.status==='in_progress'?'bg-amber-400':t.status==='review'?'bg-blue-400':'bg-slate-300'}"></div><span class="flex-1 text-xs sm:text-sm font-medium text-slate-700 truncate">${esc(t.title)}</span>${pbd(t.priority)}</div>`).join('')||'<p class="text-sm text-slate-400 py-4 text-center">No tasks yet.</p>';
-  document.getElementById('dash-cases').innerHTML=cs.filter(c=>c.status==='active').slice(0,5).map(c=>`<div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-slate-50"><svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><span class="flex-1 text-xs sm:text-sm font-medium text-slate-700 truncate">${esc(c.title)}</span>${sbd(c.status,'case')}</div>`).join('')||'<p class="text-sm text-slate-400 py-4 text-center">No active cases.</p>'}
+      </div>`;
+    document.getElementById('dash-stats').innerHTML=`<div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-slate-900 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${todoCount}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">To Do</p></div></div></div><div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-amber-500 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${inprog}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">In Progress</p></div></div></div><div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-emerald-500 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${actCases}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">Active Cases</p></div></div></div><div class="bg-white p-3 sm:p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all group"><div class="flex items-center gap-4"><div class="p-3 sm:p-4 rounded-xl text-white bg-rose-500 group-hover:scale-110 transition-transform"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><h3 class="text-2xl sm:text-3xl font-bold">${cl?(ts.length+cs.length):usrCount}</h3><p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase">${cl?'My Items':'Team Members'}</p></div></div></div>`;
+    document.getElementById('dash-tasks').innerHTML=ts.filter(t=>!t.parentTaskId).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5).map(t=>{const tb=totalBilling(t.billings);const client=t.clientProfileId?clc.find(c=>c.id===t.clientProfileId):null;return`<div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-slate-50"><div class="w-2 h-2 rounded-full flex-shrink-0 ${t.status==='done'?'bg-emerald-400':t.status==='in_progress'?'bg-amber-400':t.status==='review'?'bg-blue-400':'bg-slate-300'}"></div><span class="flex-1 text-xs sm:text-sm font-medium text-slate-700 truncate">${esc(t.title)}</span>${pbd(t.priority)} ${client?`<span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">${esc(client.name)}</span>`:''} ${tb>0?`<span class="text-[10px] text-emerald-600">₱${tb.toLocaleString()}</span>`:''}</div>`}).join('')||'<p class="text-sm text-slate-400 py-4 text-center">No tasks yet.</p>';
+    document.getElementById('dash-cases').innerHTML=cs.filter(c=>c.status==='active').slice(0,5).map(c=>{const cb=totalBilling(c.billings);const client=c.clientProfileId?clc.find(cl=>cl.id===c.clientProfileId):null;return`<div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-slate-50"><svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><span class="flex-1 text-xs sm:text-sm font-medium text-slate-700 truncate">${esc(c.title)}</span>${sbd(c.status,'case')} ${client?`<span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">${esc(client.name)}</span>`:''} ${cb>0?`<span class="text-[10px] text-emerald-600">₱${cb.toLocaleString()}</span>`:''}</div>`}).join('')||'<p class="text-sm text-slate-400 py-4 text-center">No active cases.</p>';
+  }
 
-  // ---- Tasks ----
+  // ---------- Tasks ----------
   let tfl='all';
-  function rtv(){const u=cud;if(!u)return;const fid=u.firmId;const cl=u.role==='client';const at=cl?tc.filter(t=>(t.assignedUsers||[]).includes(u.id)||t.clientUserId===u.id):tc;const pt=at.filter(t=>!t.parentTaskId);const st=at.filter(t=>t.parentTaskId);const ss=gmts();let fl=pt;if(tfl!=='all')fl=pt.filter(t=>t.status===tfl);document.getElementById('view-tasks').innerHTML=`<header class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"><div><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Tasks</h1></div><div class="flex gap-2 flex-wrap">${!cl?`${u.role==='managing_partner'||u.role==='partner'?`<button id="btn-mts" class="px-3 sm:px-4 py-2 bg-slate-100 rounded-xl text-xs sm:text-sm">Statuses</button>`:''}<button id="btn-at" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-amber-500 text-slate-900 rounded-xl text-xs sm:text-sm font-bold">+ New Task</button>`:''}</div></header><div class="flex flex-wrap gap-2 mb-4" id="task-filters"><button data-filter="all" class="filter-btn active px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-slate-900 text-white">All</button>${ss.map(s=>`<button data-filter="${s.v}" class="filter-btn px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-slate-100 text-slate-600">${s.l}</button>`).join('')}</div><div id="tasks-list" class="space-y-3"></div>`;if(!cl){document.getElementById('btn-at').addEventListener('click',()=>ontm(fid));if(u.role==='managing_partner'||u.role==='partner')document.getElementById('btn-mts').addEventListener('click',omts)}btf();const cn=document.getElementById('tasks-list');if(!fl.length&&!st.length)cn.innerHTML='<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No tasks</p></div>';else cn.innerHTML=fl.map(t=>{const ch=st.filter(s=>s.parentTaskId===t.id);const as=(t.assignedUsers||[]).map(uid=>uc.find(u=>u.id===uid)).filter(Boolean);const clientUser=t.clientUserId?uc.find(u=>u.id===t.clientUserId):null;let chh=ch.length?`<div class="ml-4 sm:ml-8 mt-2 space-y-2 border-l-2 border-slate-100 pl-3 sm:pl-4">${ch.map(c=>{const cu=(c.assignedUsers||[]).map(uid=>uc.find(u=>u.id===uid)).filter(Boolean);return`<div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 rounded-xl bg-slate-50 cursor-pointer" data-task-id="${c.id}"><span class="text-xs sm:text-sm truncate">${esc(c.title)}</span><span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100">${c.status}</span>${!cl?`<button class="ml-auto text-rose-400 p-1 delete-task-btn" data-task-id="${c.id}">✕</button>`:''}</div>`}).join('')}</div>`:'';return`<div class="bg-white p-3 sm:p-4 rounded-2xl border shadow-sm group"><div class="flex items-center gap-3 sm:gap-4"><div class="flex-1 cursor-pointer" data-task-id="${t.id}"><h4 class="text-xs sm:text-sm font-semibold truncate">${esc(t.title)}</h4><div class="flex flex-wrap gap-1 mt-1">${sbd(t.status,'task')} ${pbd(t.priority)} ${as.length?`<span class="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded">${as.map(u=>u.name).join(', ')}</span>`:''} ${clientUser?`<span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Client: ${esc(clientUser.name)}</span>`:''}</div></div>${!cl?`<div class="flex gap-1 opacity-0 group-hover:opacity-100"><button class="p-2 text-slate-400 add-subtask-btn" data-task-id="${t.id}">+</button><button class="p-2 text-slate-400 edit-task-btn" data-task-id="${t.id}">✎</button><button class="p-2 text-slate-400 delete-task-btn" data-task-id="${t.id}">✕</button></div>`:''}</div>${chh}</div>`}).join('');bte(fid,cl)}
+  function rtv(){const u=cud;if(!u)return;const fid=u.firmId;const cl=u.role==='client';const at=cl?tc.filter(t=>(t.assignedUsers||[]).includes(u.id)||t.clientProfileId&&clc.find(c=>c.id===t.clientProfileId)?.linkedUserId===u.id):tc;const pt=at.filter(t=>!t.parentTaskId);const st=at.filter(t=>t.parentTaskId);const ss=gmts();let fl=pt;if(tfl!=='all')fl=pt.filter(t=>t.status===tfl);document.getElementById('view-tasks').innerHTML=`<header class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"><div><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Tasks</h1></div><div class="flex gap-2 flex-wrap">${!cl?`${u.role==='managing_partner'||u.role==='partner'?`<button id="btn-mts" class="px-3 sm:px-4 py-2 bg-slate-100 rounded-xl text-xs sm:text-sm">Statuses</button>`:''}<button id="btn-at" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-amber-500 text-slate-900 rounded-xl text-xs sm:text-sm font-bold">+ New Task</button>`:''}</div></header><div class="flex flex-wrap gap-2 mb-4" id="task-filters"><button data-filter="all" class="filter-btn active px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-slate-900 text-white">All</button>${ss.map(s=>`<button data-filter="${s.v}" class="filter-btn px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-slate-100 text-slate-600">${s.l}</button>`).join('')}</div><div id="tasks-list" class="space-y-3"></div>`;if(!cl){document.getElementById('btn-at').addEventListener('click',()=>ontm(fid));if(u.role==='managing_partner'||u.role==='partner')document.getElementById('btn-mts').addEventListener('click',omts)}btf();const cn=document.getElementById('tasks-list');if(!fl.length&&!st.length)cn.innerHTML='<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No tasks</p></div>';else cn.innerHTML=fl.map(t=>{const ch=st.filter(s=>s.parentTaskId===t.id);const as=(t.assignedUsers||[]).map(uid=>uc.find(u=>u.id===uid)).filter(Boolean);const client=t.clientProfileId?clc.find(c=>c.id===t.clientProfileId):null;const tb=totalBilling(t.billings);let chh=ch.length?`<div class="ml-4 sm:ml-8 mt-2 space-y-2 border-l-2 border-slate-100 pl-3 sm:pl-4">${ch.map(c=>{return`<div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 rounded-xl bg-slate-50 cursor-pointer" data-task-id="${c.id}"><span class="text-xs sm:text-sm truncate">${esc(c.title)}</span><span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100">${c.status}</span>${!cl?`<button class="ml-auto text-rose-400 p-1 delete-task-btn" data-task-id="${c.id}">✕</button>`:''}</div>`}).join('')}</div>`:'';return`<div class="bg-white p-3 sm:p-4 rounded-2xl border shadow-sm group"><div class="flex items-center gap-3 sm:gap-4"><div class="flex-1 cursor-pointer" data-task-id="${t.id}"><h4 class="text-xs sm:text-sm font-semibold truncate">${esc(t.title)}</h4><div class="flex flex-wrap gap-1 mt-1">${sbd(t.status,'task')} ${pbd(t.priority)} ${as.length?`<span class="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded">${as.map(u=>u.name).join(', ')}</span>`:''} ${client?`<span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">${esc(client.name)}</span>`:''} ${tb>0?`<span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded">₱${tb.toLocaleString()}</span>`:''}</div></div>${!cl?`<div class="flex gap-1 opacity-0 group-hover:opacity-100"><button class="p-2 text-slate-400 add-subtask-btn" data-task-id="${t.id}">+</button><button class="p-2 text-slate-400 edit-task-btn" data-task-id="${t.id}">✎</button><button class="p-2 text-slate-400 delete-task-btn" data-task-id="${t.id}">✕</button></div>`:''}</div>${chh}</div>`}).join('');bte(fid,cl)}
   function btf(){document.querySelectorAll('#task-filters .filter-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#task-filters .filter-btn').forEach(x=>{x.classList.remove('bg-slate-900','text-white');x.classList.add('bg-slate-100','text-slate-600')});this.classList.remove('bg-slate-100','text-slate-600');this.classList.add('bg-slate-900','text-white');tfl=this.dataset.filter;rtv()}))}
   function bte(fid,cl){document.querySelectorAll('[data-task-id]').forEach(el=>el.addEventListener('click',function(e){if(e.target.closest('button'))return;if(cl)otvm(this.dataset.taskId);else otem(this.dataset.taskId,fid)}));if(!cl){document.querySelectorAll('.edit-task-btn').forEach(btn=>btn.addEventListener('click',function(e){e.stopPropagation();otem(this.dataset.taskId,fid)}));document.querySelectorAll('.add-subtask-btn').forEach(btn=>btn.addEventListener('click',function(e){e.stopPropagation();ostm(this.dataset.taskId,fid)}));document.querySelectorAll('.delete-task-btn').forEach(btn=>btn.addEventListener('click',function(e){e.stopPropagation();if(confirm('Delete task?'))dlt(this.dataset.taskId)}))}}
   async function dlt(tid){const ts=tc;const si=ts.filter(t=>t.parentTaskId===tid).map(t=>t.id);await db.collection('tasks').doc(tid).delete();for(const s of si)await db.collection('tasks').doc(s).delete();tc=tc.filter(t=>![tid,...si].includes(t.id));rtv();tst('Task deleted.','info')}
   function ucb(sel=[],excludeRoles=[]){return uc.filter(u=>u.approved&&!excludeRoles.includes(u.role)).map(u=>`<label class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 cursor-pointer"><input type="checkbox" value="${u.id}" ${sel.includes(u.id)?'checked':''} class="rounded border-slate-300 text-amber-500"><span class="text-xs sm:text-sm">${esc(u.name)}</span></label>`).join('')}
 
-  function ontm(fid){const ss=gmts();const tms=tmc.filter(t=>t.firmId===fid);const clients=uc.filter(u=>u.role==='client'&&u.approved);om(`<h3 class="text-lg sm:text-xl font-bold mb-4">New Task</h3><form id="add-task-form" class="space-y-4"><div><label>Title</label><input type="text" id="att" required class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Description</label><textarea id="atd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="ats" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}">${s.l}</option>`).join('')}</select></div><div><label>Priority</label><select id="atp" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></div></div><div><label>Client</label><select id="atcl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Team</label><select id="attm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></div><div><label>Assigned Members</label><div class="user-checkbox-grid border rounded-xl p-3 max-h-48 overflow-y-auto">${ucb([],['client'])}</div></div><div><label>Due Date</label><input type="date" id="atdd" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Create</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);document.getElementById('add-task-form').addEventListener('submit',async function(e){e.preventDefault();const td={title:document.getElementById('att').value.trim(),description:document.getElementById('atd').value.trim(),status:document.getElementById('ats').value,priority:document.getElementById('atp').value,clientUserId:document.getElementById('atcl').value||null,assignedTeam:document.getElementById('attm').value||null,dueDate:document.getElementById('atdd').value||null,parentTaskId:null,firmId:fid,createdAt:new Date().toISOString(),assignedUsers:Array.from(document.querySelectorAll('#add-task-form input[type="checkbox"]:checked')).map(cb=>cb.value)};const ref=await db.collection('tasks').add(td);td.id=ref.id;tc.push(td);cm();rtv();tst('Task created!','success')})}
-  function ostm(pid,fid){const ss=gmts();const tms=tmc.filter(t=>t.firmId===fid);const clients=uc.filter(u=>u.role==='client'&&u.approved);om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Add Sub-task</h3><form id="add-subtask-form" class="space-y-4"><input type="hidden" id="spi" value="${pid}"><div><label>Title</label><input type="text" id="stt" required class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Description</label><textarea id="std" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="sts" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}">${s.l}</option>`).join('')}</select></div><div><label>Priority</label><select id="stp" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></div></div><div><label>Client</label><select id="stcl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Team</label><select id="sttm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></div><div><label>Assigned Members</label><div class="user-checkbox-grid border rounded-xl p-3 max-h-48 overflow-y-auto">${ucb([],['client'])}</div></div><div><label>Due Date</label><input type="date" id="stdd" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Add</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);document.getElementById('add-subtask-form').addEventListener('submit',async function(e){e.preventDefault();const td={title:document.getElementById('stt').value.trim(),description:document.getElementById('std').value.trim(),status:document.getElementById('sts').value,priority:document.getElementById('stp').value,clientUserId:document.getElementById('stcl').value||null,assignedTeam:document.getElementById('sttm').value||null,dueDate:document.getElementById('stdd').value||null,parentTaskId:pid,firmId:fid,createdAt:new Date().toISOString(),assignedUsers:Array.from(document.querySelectorAll('#add-subtask-form input[type="checkbox"]:checked')).map(cb=>cb.value)};const ref=await db.collection('tasks').add(td);td.id=ref.id;tc.push(td);cm();rtv();tst('Sub-task added!','success')})}
-  function otem(tid,fid){const t=tc.find(x=>x.id===tid);if(!t)return;const ss=gmts();const tms=tmc.filter(t=>t.firmId===fid);const clients=uc.filter(u=>u.role==='client'&&u.approved);const so=ss.map(s=>`<option value="${s.v}" ${t.status===s.v?'selected':''}>${s.l}</option>`).join('');const to=tms.map(tm=>`<option value="${tm.id}" ${t.assignedTeam===tm.id?'selected':''}>${esc(tm.name)}</option>`).join('');om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Edit Task</h3><form id="edit-task-form" class="space-y-4"><input type="hidden" id="eti" value="${t.id}"><div><label>Title</label><input type="text" id="ett" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(t.title)}"></div><div><label>Description</label><textarea id="etd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm">${esc(t.description||'')}</textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="ets" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${so}</select></div><div><label>Priority</label><select id="etp" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="normal" ${t.priority==='normal'?'selected':''}>Normal</option><option value="high" ${t.priority==='high'?'selected':''}>High</option><option value="urgent" ${t.priority==='urgent'?'selected':''}>Urgent</option></select></div></div><div><label>Client</label><select id="etcl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}" ${t.clientUserId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div><div><label>Team</label><select id="ettm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${to}</select></div><div><label>Assigned Members</label><div class="user-checkbox-grid border rounded-xl p-3 max-h-48 overflow-y-auto">${ucb(t.assignedUsers||[],['client'])}</div></div><div><label>Due Date</label><input type="date" id="etdd" class="w-full px-4 py-3 rounded-xl border text-sm" value="${t.dueDate||''}"></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);document.getElementById('edit-task-form').addEventListener('submit',async function(e){e.preventDefault();const idx=tc.findIndex(x=>x.id===tid);if(idx>=0){tc[idx].title=document.getElementById('ett').value.trim();tc[idx].description=document.getElementById('etd').value.trim();tc[idx].status=document.getElementById('ets').value;tc[idx].priority=document.getElementById('etp').value;tc[idx].clientUserId=document.getElementById('etcl').value||null;tc[idx].assignedTeam=document.getElementById('ettm').value||null;tc[idx].dueDate=document.getElementById('etdd').value||null;tc[idx].assignedUsers=Array.from(document.querySelectorAll('#edit-task-form input[type="checkbox"]:checked')).map(cb=>cb.value);await db.collection('tasks').doc(tid).update(tc[idx]);cm();rtv();tst('Task updated.','success')}})}
-  function otvm(tid){const t=tc.find(x=>x.id===tid);if(!t)return;const clientUser=t.clientUserId?uc.find(u=>u.id===t.clientUserId):null;om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Task Details</h3><div class="space-y-3"><p><strong>${esc(t.title)}</strong></p><p>${esc(t.description||'No description')}</p><p>Status: ${sbd(t.status,'task')} Priority: ${pbd(t.priority)}</p>${t.dueDate?`<p>Due: ${t.dueDate}</p>`:''}${clientUser?`<p>Client: ${esc(clientUser.name)}</p>`:''}</div><button onclick="cm()" class="mt-4 px-6 py-2 bg-slate-100 rounded-xl text-sm">Close</button>`)}
+  function ontm(fid){const ss=gmts();const tms=tmc.filter(t=>t.firmId===fid);const clients=clc;om(`<h3 class="text-lg sm:text-xl font-bold mb-4">New Task</h3><form id="add-task-form" class="space-y-4"><div><label>Title</label><input type="text" id="att" required class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Description</label><textarea id="atd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="ats" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}">${s.l}</option>`).join('')}</select></div><div><label>Priority</label><select id="atp" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></div></div><div><label>Client</label><select id="atcl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Team</label><select id="attm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></div><div><label>Assigned Members</label><div class="user-checkbox-grid border rounded-xl p-3 max-h-48 overflow-y-auto">${ucb([],['client'])}</div></div><div class="border-t pt-3"><h4 class="text-sm font-bold mb-2">Billing Entries</h4><div id="billing-entries" class="space-y-2 mb-3"></div><div class="grid grid-cols-3 gap-2"><input type="number" id="ba-amount" step="0.01" placeholder="Amount" class="px-3 py-2 rounded-xl border text-sm"><input type="text" id="ba-desc" placeholder="Description" class="px-3 py-2 rounded-xl border text-sm"><input type="date" id="ba-date" class="px-3 py-2 rounded-xl border text-sm"></div><button type="button" id="btn-add-billing" class="mt-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold">+ Add Billing</button></div><div><label>Due Date</label><input type="date" id="atdd" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Create</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);let tempBillings=[];function updateUI(){document.getElementById('billing-entries').innerHTML=renderBillingList(tempBillings);document.querySelectorAll('.remove-billing-btn').forEach(b=>b.addEventListener('click',function(){tempBillings.splice(parseInt(this.dataset.index),1);updateUI();}));}updateUI();document.getElementById('btn-add-billing').addEventListener('click',()=>{const amt=document.getElementById('ba-amount').value;const desc=document.getElementById('ba-desc').value.trim();const date=document.getElementById('ba-date').value;if(!amt||parseFloat(amt)<=0)return tst('Enter a valid amount.','error');tempBillings.push({id:gi(),amount:amt,description:desc,date:date,status:'pending',partialPayments:[],createdAt:new Date().toISOString()});document.getElementById('ba-amount').value='';document.getElementById('ba-desc').value='';document.getElementById('ba-date').value='';updateUI();});document.getElementById('add-task-form').addEventListener('submit',async function(e){e.preventDefault();const td={title:document.getElementById('att').value.trim(),description:document.getElementById('atd').value.trim(),status:document.getElementById('ats').value,priority:document.getElementById('atp').value,clientProfileId:document.getElementById('atcl').value||null,assignedTeam:document.getElementById('attm').value||null,billings:tempBillings,dueDate:document.getElementById('atdd').value||null,parentTaskId:null,firmId:fid,createdAt:new Date().toISOString(),assignedUsers:Array.from(document.querySelectorAll('#add-task-form input[type="checkbox"]:checked')).map(cb=>cb.value)};const ref=await db.collection('tasks').add(td);td.id=ref.id;tc.push(td);cm();rtv();tst('Task created!','success')})}
+  function ostm(pid,fid){const ss=gmts();const tms=tmc.filter(t=>t.firmId===fid);const clients=clc;om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Add Sub-task</h3><form id="add-subtask-form" class="space-y-4"><input type="hidden" id="spi" value="${pid}"><div><label>Title</label><input type="text" id="stt" required class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Description</label><textarea id="std" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="sts" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}">${s.l}</option>`).join('')}</select></div><div><label>Priority</label><select id="stp" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></div></div><div><label>Client</label><select id="stcl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Team</label><select id="sttm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></div><div><label>Assigned Members</label><div class="user-checkbox-grid border rounded-xl p-3 max-h-48 overflow-y-auto">${ucb([],['client'])}</div></div><div class="border-t pt-3"><h4 class="text-sm font-bold mb-2">Billing Entries</h4><div id="billing-entries" class="space-y-2 mb-3"></div><div class="grid grid-cols-3 gap-2"><input type="number" id="ba-amount" step="0.01" placeholder="Amount" class="px-3 py-2 rounded-xl border text-sm"><input type="text" id="ba-desc" placeholder="Description" class="px-3 py-2 rounded-xl border text-sm"><input type="date" id="ba-date" class="px-3 py-2 rounded-xl border text-sm"></div><button type="button" id="btn-add-billing" class="mt-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold">+ Add Billing</button></div><div><label>Due Date</label><input type="date" id="stdd" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Add</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);let tempBillings=[];function updateUI(){document.getElementById('billing-entries').innerHTML=renderBillingList(tempBillings);document.querySelectorAll('.remove-billing-btn').forEach(b=>b.addEventListener('click',function(){tempBillings.splice(parseInt(this.dataset.index),1);updateUI();}));}updateUI();document.getElementById('btn-add-billing').addEventListener('click',()=>{const amt=document.getElementById('ba-amount').value;const desc=document.getElementById('ba-desc').value.trim();const date=document.getElementById('ba-date').value;if(!amt||parseFloat(amt)<=0)return tst('Enter a valid amount.','error');tempBillings.push({id:gi(),amount:amt,description:desc,date:date,status:'pending',partialPayments:[],createdAt:new Date().toISOString()});document.getElementById('ba-amount').value='';document.getElementById('ba-desc').value='';document.getElementById('ba-date').value='';updateUI();});document.getElementById('add-subtask-form').addEventListener('submit',async function(e){e.preventDefault();const td={title:document.getElementById('stt').value.trim(),description:document.getElementById('std').value.trim(),status:document.getElementById('sts').value,priority:document.getElementById('stp').value,clientProfileId:document.getElementById('stcl').value||null,assignedTeam:document.getElementById('sttm').value||null,billings:tempBillings,dueDate:document.getElementById('stdd').value||null,parentTaskId:pid,firmId:fid,createdAt:new Date().toISOString(),assignedUsers:Array.from(document.querySelectorAll('#add-subtask-form input[type="checkbox"]:checked')).map(cb=>cb.value)};const ref=await db.collection('tasks').add(td);td.id=ref.id;tc.push(td);cm();rtv();tst('Sub-task added!','success')})}
+  function otem(tid,fid){const t=tc.find(x=>x.id===tid);if(!t)return;const ss=gmts();const tms=tmc.filter(t=>t.firmId===fid);const clients=clc;const so=ss.map(s=>`<option value="${s.v}" ${t.status===s.v?'selected':''}>${s.l}</option>`).join('');const to=tms.map(tm=>`<option value="${tm.id}" ${t.assignedTeam===tm.id?'selected':''}>${esc(tm.name)}</option>`).join('');let tempBillings=[...(t.billings||[])];om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Edit Task</h3><form id="edit-task-form" class="space-y-4"><input type="hidden" id="eti" value="${t.id}"><div><label>Title</label><input type="text" id="ett" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(t.title)}"></div><div><label>Description</label><textarea id="etd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm">${esc(t.description||'')}</textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="ets" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${so}</select></div><div><label>Priority</label><select id="etp" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="normal" ${t.priority==='normal'?'selected':''}>Normal</option><option value="high" ${t.priority==='high'?'selected':''}>High</option><option value="urgent" ${t.priority==='urgent'?'selected':''}>Urgent</option></select></div></div><div><label>Client</label><select id="etcl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}" ${t.clientProfileId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div><div><label>Team</label><select id="ettm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${to}</select></div><div><label>Assigned Members</label><div class="user-checkbox-grid border rounded-xl p-3 max-h-48 overflow-y-auto">${ucb(t.assignedUsers||[],['client'])}</div></div><div class="border-t pt-3"><h4 class="text-sm font-bold mb-2">Billing Entries</h4><div id="billing-entries" class="space-y-2 mb-3"></div><div class="grid grid-cols-3 gap-2"><input type="number" id="ba-amount" step="0.01" placeholder="Amount" class="px-3 py-2 rounded-xl border text-sm"><input type="text" id="ba-desc" placeholder="Description" class="px-3 py-2 rounded-xl border text-sm"><input type="date" id="ba-date" class="px-3 py-2 rounded-xl border text-sm"></div><button type="button" id="btn-add-billing" class="mt-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold">+ Add Billing</button></div><div><label>Due Date</label><input type="date" id="etdd" class="w-full px-4 py-3 rounded-xl border text-sm" value="${t.dueDate||''}"></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);function updateUI(){document.getElementById('billing-entries').innerHTML=renderBillingList(tempBillings);document.querySelectorAll('.remove-billing-btn').forEach(b=>b.addEventListener('click',function(){tempBillings.splice(parseInt(this.dataset.index),1);updateUI();}));}updateUI();document.getElementById('btn-add-billing').addEventListener('click',()=>{const amt=document.getElementById('ba-amount').value;const desc=document.getElementById('ba-desc').value.trim();const date=document.getElementById('ba-date').value;if(!amt||parseFloat(amt)<=0)return tst('Enter a valid amount.','error');tempBillings.push({id:gi(),amount:amt,description:desc,date:date,status:'pending',partialPayments:[],createdAt:new Date().toISOString()});document.getElementById('ba-amount').value='';document.getElementById('ba-desc').value='';document.getElementById('ba-date').value='';updateUI();});document.getElementById('edit-task-form').addEventListener('submit',async function(e){e.preventDefault();const idx=tc.findIndex(x=>x.id===tid);if(idx>=0){tc[idx].title=document.getElementById('ett').value.trim();tc[idx].description=document.getElementById('etd').value.trim();tc[idx].status=document.getElementById('ets').value;tc[idx].priority=document.getElementById('etp').value;tc[idx].clientProfileId=document.getElementById('etcl').value||null;tc[idx].assignedTeam=document.getElementById('ettm').value||null;tc[idx].billings=tempBillings;tc[idx].dueDate=document.getElementById('etdd').value||null;tc[idx].assignedUsers=Array.from(document.querySelectorAll('#edit-task-form input[type="checkbox"]:checked')).map(cb=>cb.value);await db.collection('tasks').doc(tid).update(tc[idx]);cm();rtv();tst('Task updated.','success')}})}
+  function otvm(tid){const t=tc.find(x=>x.id===tid);if(!t)return;const client=t.clientProfileId?clc.find(c=>c.id===t.clientProfileId):null;const tb=totalBilling(t.billings);om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Task Details</h3><div class="space-y-3"><p><strong>${esc(t.title)}</strong></p><p>${esc(t.description||'No description')}</p><p>Status: ${sbd(t.status,'task')} Priority: ${pbd(t.priority)}</p>${t.dueDate?`<p>Due: ${t.dueDate}</p>`:''}${client?`<p>Client: ${esc(client.name)}</p>`:''}${tb>0?`<p class="text-emerald-600 font-semibold">Total Billing: ₱${tb.toLocaleString()}</p><div class="text-xs space-y-1">${(t.billings||[]).map(b=>`<div>₱${parseFloat(b.amount).toLocaleString()} - ${esc(b.description||'')} (${b.date||''}) [${b.status||'pending'}] <button class="delete-billing-inline text-rose-400 ml-1" data-billing-id="${b.id}">✕</button></div>`).join('')}</div>`:''}</div><button onclick="cm()" class="mt-4 px-6 py-2 bg-slate-100 rounded-xl text-sm">Close</button>`);
+    // Add delete billing handlers
+    document.querySelectorAll('.delete-billing-inline').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const billingId = this.dataset.billingId;
+        if (await deleteBilling('task', tid, billingId)) {
+          cm();
+          otvm(tid);
+        }
+      });
+    });
+  }
   function omts(){const f=fc[0];const cus=f?.taskStatuses||[];om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Manage Task Statuses</h3><div class="space-y-3"><div class="flex gap-2"><input type="text" id="nts" placeholder="New status name" class="flex-1 px-4 py-2 rounded-xl border text-sm"><button id="atsb" class="px-4 py-2 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Add</button></div><div id="cuss" class="space-y-2">${cus.map(s=>`<div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg"><span>${esc(s.l)}</span><button data-value="${s.v}" class="rms text-rose-500">✕</button></div>`).join('')||'<p class="text-sm text-slate-400">No custom statuses.</p>'}</div><button onclick="cm()" class="mt-4 px-6 py-2 bg-slate-100 rounded-xl text-sm">Close</button></div>`);document.getElementById('atsb').addEventListener('click',async()=>{const v=document.getElementById('nts').value.trim();if(!v)return;const vl=v.toLowerCase().replace(/\s+/g,'_');if(PT.find(s=>s.v===vl)||cus.find(s=>s.v===vl)){tst('Status exists.','error');return}cus.push({v:vl,l:v});await db.collection('firms').doc(cud.firmId).update({taskStatuses:cus});if(fc[0])fc[0].taskStatuses=cus;cm();rtv();tst('Status added.','success')});document.querySelectorAll('.rms').forEach(btn=>btn.addEventListener('click',async function(){const v=this.dataset.value;const i=cus.findIndex(s=>s.v===v);if(i>=0){cus.splice(i,1);await db.collection('firms').doc(cud.firmId).update({taskStatuses:cus});if(fc[0])fc[0].taskStatuses=cus;cm();rtv();tst('Status removed.','info')}}))}
 
-  // ---- Cases (unchanged) ----
+  // ---------- Cases ----------
   let ci=false,cfl='all',cst='';
   function rcv(){const u=cud;if(!u)return;const fid=u.firmId;const cl=u.role==='client';const ss=gmcs();if(!ci){document.getElementById('view-cases').innerHTML=`<div id="chd"></div><div id="csc" class="mb-4"></div><div id="cfc" class="flex flex-wrap gap-2 mb-4"></div><div id="clist" class="space-y-3"></div>`;document.getElementById('chd').innerHTML=`<header class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"><div><h1 class="text-xl sm:text-2xl font-bold">Cases</h1></div><div class="flex gap-2">${!cl?`${u.role==='managing_partner'||u.role==='partner'?`<button id="bmcs" class="px-3 sm:px-4 py-2 bg-slate-100 rounded-xl text-xs sm:text-sm">Statuses</button>`:''}<button id="bac" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-amber-500 text-slate-900 rounded-xl text-xs sm:text-sm font-bold">+ New Case</button>`:''}</div></header>`;document.getElementById('csc').innerHTML=`<div class="relative"><input type="text" id="csi" placeholder="Search cases..." class="w-full pl-10 pr-4 py-3 rounded-xl border text-sm" value="${esc(cst)}"><button id="ccs" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 ${cst?'':'hidden'}">✕</button></div><p id="csi2" class="text-xs text-slate-500 mt-1 hidden"></p>`;document.getElementById('cfc').innerHTML=`<button id="cfa" class="cfilter-btn active px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-slate-900 text-white">All</button>${ss.map(s=>`<button id="cf-${s.v}" class="cfilter-btn px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-slate-100 text-slate-600">${s.l}</button>`).join('')}`;const si=document.getElementById('csi'),cb=document.getElementById('ccs'),sif=document.getElementById('csi2');si.addEventListener('input',function(){cst=this.value.trim();cb.classList.toggle('hidden',!cst);sif.classList.toggle('hidden',!cst);rcl(fid)});cb.addEventListener('click',function(){cst='';si.value='';cb.classList.add('hidden');sif.classList.add('hidden');rcl(fid)});document.getElementById('cfa').addEventListener('click',()=>{cfl='all';saf('all');rcl(fid)});ss.forEach(s=>{document.getElementById(`cf-${s.v}`).addEventListener('click',()=>{cfl=s.v;saf(s.v);rcl(fid)})});if(!cl){document.getElementById('bac').addEventListener('click',()=>oncm(fid));if(u.role==='managing_partner'||u.role==='partner')document.getElementById('bmcs').addEventListener('click',omcs)}ci=true}rcl(fid)}
   function saf(fv){cfl=fv;document.querySelectorAll('.cfilter-btn').forEach(b=>{b.classList.remove('bg-slate-900','text-white');b.classList.add('bg-slate-100','text-slate-600')});const ab=fv==='all'?document.getElementById('cfa'):document.getElementById(`cf-${fv}`);if(ab){ab.classList.remove('bg-slate-100','text-slate-600');ab.classList.add('bg-slate-900','text-white')}}
-  function rcl(fid){const u=cud;const cl=u.role==='client';const ac=cl?cc.filter(c=>c.clientUserId===u.id||(c.assignedUsers||[]).includes(u.id)):cc;let fl=ac;if(cfl!=='all')fl=fl.filter(c=>c.status===cfl);if(cst){const q=cst.toLowerCase();fl=fl.filter(c=>(c.title&&c.title.toLowerCase().includes(q))||(c.caseNumber&&c.caseNumber.toLowerCase().includes(q))||(c.clientName&&c.clientName.toLowerCase().includes(q))||(c.location&&c.location.toLowerCase().includes(q)))}const si=document.getElementById('csi2');if(si&&cst)si.textContent=`Found ${fl.length} case${fl.length!==1?'s':''} matching "${esc(cst)}"`;const lc=document.getElementById('clist');if(!fl.length)lc.innerHTML=`<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">${cst?'No cases match your search.':'No cases found'}</p></div>`;else lc.innerHTML=fl.map(c=>{const cu=c.clientUserId?uc.find(u=>u.id===c.clientUserId):null;return`<div class="bg-white p-3 sm:p-5 rounded-2xl border shadow-sm group cursor-pointer" data-case-id="${c.id}"><div class="flex items-start gap-3 sm:gap-4"><div class="flex-1"><h4 class="text-xs sm:text-sm font-semibold">${hl(c.title,cst)}</h4>${c.caseNumber?`<p class="text-xs text-slate-500">Case No: ${hl(c.caseNumber,cst)}</p>`:''}<div class="flex flex-wrap gap-1 mt-2">${sbd(c.status,'case')} ${cu?`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-500">Client: ${esc(cu.name)}</span>`:c.clientName?`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-500">Client: ${hl(c.clientName,cst)}</span>`:''} ${c.location?`<span class="px-2 py-0.5 rounded-full text-[10px] bg-teal-50">📍 ${hl(c.location,cst)}</span>`:''}</div></div>${!cl?`<div class="flex gap-1 opacity-0 group-hover:opacity-100"><button class="p-2 text-slate-400 edit-case-btn" data-case-id="${c.id}">✎</button><button class="p-2 text-slate-400 delete-case-btn" data-case-id="${c.id}">✕</button></div>`:''}</div></div>`}).join('');bce(fid,cl)}
+  function rcl(fid){const u=cud;const cl=u.role==='client';const ac=cl?cc.filter(c=>c.clientUserId===u.id||(c.assignedUsers||[]).includes(u.id)||c.clientProfileId&&clc.find(c=>c.id===c.clientProfileId)?.linkedUserId===u.id):cc;let fl=ac;if(cfl!=='all')fl=fl.filter(c=>c.status===cfl);if(cst){const q=cst.toLowerCase();fl=fl.filter(c=>(c.title&&c.title.toLowerCase().includes(q))||(c.caseNumber&&c.caseNumber.toLowerCase().includes(q))||(c.clientName&&c.clientName.toLowerCase().includes(q))||(c.location&&c.location.toLowerCase().includes(q)))}const si=document.getElementById('csi2');if(si&&cst)si.textContent=`Found ${fl.length} case${fl.length!==1?'s':''} matching "${esc(cst)}"`;const lc=document.getElementById('clist');if(!fl.length)lc.innerHTML=`<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">${cst?'No cases match your search.':'No cases found'}</p></div>`;else lc.innerHTML=fl.map(c=>{const client=c.clientProfileId?clc.find(cl=>cl.id===c.clientProfileId):null;const cb=totalBilling(c.billings);return`<div class="bg-white p-3 sm:p-5 rounded-2xl border shadow-sm group cursor-pointer" data-case-id="${c.id}"><div class="flex items-start gap-3 sm:gap-4"><div class="flex-1"><h4 class="text-xs sm:text-sm font-semibold">${hl(c.title,cst)}</h4>${c.caseNumber?`<p class="text-xs text-slate-500">Case No: ${hl(c.caseNumber,cst)}</p>`:''}<div class="flex flex-wrap gap-1 mt-2">${sbd(c.status,'case')} ${client?`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-500">${esc(client.name)}</span>`:c.clientName?`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-500">${hl(c.clientName,cst)}</span>`:''} ${c.location?`<span class="px-2 py-0.5 rounded-full text-[10px] bg-teal-50">📍 ${hl(c.location,cst)}</span>`:''} ${cb>0?`<span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded">₱${cb.toLocaleString()}</span>`:''}</div></div>${!cl?`<div class="flex gap-1 opacity-0 group-hover:opacity-100"><button class="p-2 text-slate-400 edit-case-btn" data-case-id="${c.id}">✎</button><button class="p-2 text-slate-400 delete-case-btn" data-case-id="${c.id}">✕</button></div>`:''}</div></div>`}).join('');bce(fid,cl)}
   function bce(fid,cl){document.querySelectorAll('[data-case-id]').forEach(el=>el.addEventListener('click',function(e){if(e.target.closest('button'))return;if(cl)ocvm(this.dataset.caseId);else ocem(this.dataset.caseId,fid)}));if(!cl){document.querySelectorAll('.edit-case-btn').forEach(btn=>btn.addEventListener('click',function(e){e.stopPropagation();ocem(this.dataset.caseId,fid)}));document.querySelectorAll('.delete-case-btn').forEach(btn=>btn.addEventListener('click',async function(e){e.stopPropagation();if(confirm('Delete case?')){await db.collection('cases').doc(this.dataset.caseId).delete();cc=cc.filter(c=>c.id!==this.dataset.caseId);rcl(fid);tst('Case deleted.','info')}}))}}
-  function oncm(fid){const tms=tmc.filter(t=>t.firmId===fid);const lws=uc.filter(u=>u.firmId===fid&&['associate','partner','managing_partner'].includes(u.role));const cls=uc.filter(u=>u.firmId===fid&&u.role==='client');const ss=gmcs();om(`<h3 class="text-lg sm:text-xl font-bold mb-4">New Case</h3><form id="acf" class="space-y-4"><div><label>Case Title</label><input type="text" id="actt" required class="w-full px-4 py-3 rounded-xl border text-sm"></div><div class="grid grid-cols-2 gap-4"><div><label>Case Number</label><input type="text" id="acn" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Location</label><input type="text" id="acl" class="w-full px-4 py-3 rounded-xl border text-sm"></div></div><div><label>Client Name</label><input type="text" id="accn" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Registered Client</label><select id="accu" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${cls.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Description</label><textarea id="acd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="acs" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}">${s.l}</option>`).join('')}</select></div><div><label>Assigned Lawyer</label><select id="aclw" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${lws.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select></div></div><div><label>Assigned Team</label><select id="actm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Create</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);document.getElementById('acf').addEventListener('submit',async function(e){e.preventDefault();const cd={title:document.getElementById('actt').value.trim(),caseNumber:document.getElementById('acn').value.trim(),location:document.getElementById('acl').value.trim(),clientName:document.getElementById('accn').value.trim(),clientUserId:document.getElementById('accu').value||null,description:document.getElementById('acd').value.trim(),status:document.getElementById('acs').value,assignedTeam:document.getElementById('actm').value||null,assignedLawyer:document.getElementById('aclw').value||null,firmId:fid,createdAt:new Date().toISOString(),updates:[],hearings:[]};const ref=await db.collection('cases').add(cd);cd.id=ref.id;cc.push(cd);cm();rcl(fid);tst('Case created!','success')})}
-  function ocem(cid,fid){ /* ...unchanged... */ }
-  function ocvm(cid){ /* ...unchanged... */ }
-  function omcs(){ /* ...unchanged... */ }
+  function oncm(fid){const tms=tmc.filter(t=>t.firmId===fid);const lws=uc.filter(u=>u.firmId===fid&&['associate','partner','managing_partner'].includes(u.role));const clients=clc;const ss=gmcs();om(`<h3 class="text-lg sm:text-xl font-bold mb-4">New Case</h3><form id="acf" class="space-y-4"><div><label>Case Title</label><input type="text" id="actt" required class="w-full px-4 py-3 rounded-xl border text-sm"></div><div class="grid grid-cols-2 gap-4"><div><label>Case Number</label><input type="text" id="acn" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Location</label><input type="text" id="acl" class="w-full px-4 py-3 rounded-xl border text-sm"></div></div><div><label>Client Profile</label><select id="accl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Client Name (manual)</label><input type="text" id="accn" class="w-full px-4 py-3 rounded-xl border text-sm"></div><div><label>Description</label><textarea id="acd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="acs" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}">${s.l}</option>`).join('')}</select></div><div><label>Assigned Lawyer</label><select id="aclw" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${lws.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select></div></div><div><label>Assigned Team</label><select id="actm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select></div><div class="border-t pt-3"><h4 class="text-sm font-bold mb-2">Billing Entries</h4><div id="billing-entries" class="space-y-2 mb-3"></div><div class="grid grid-cols-3 gap-2"><input type="number" id="ba-amount" step="0.01" placeholder="Amount" class="px-3 py-2 rounded-xl border text-sm"><input type="text" id="ba-desc" placeholder="Description" class="px-3 py-2 rounded-xl border text-sm"><input type="date" id="ba-date" class="px-3 py-2 rounded-xl border text-sm"></div><button type="button" id="btn-add-billing" class="mt-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold">+ Add Billing</button></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Create</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);let tempBillings=[];function updateUI(){document.getElementById('billing-entries').innerHTML=renderBillingList(tempBillings);document.querySelectorAll('.remove-billing-btn').forEach(b=>b.addEventListener('click',function(){tempBillings.splice(parseInt(this.dataset.index),1);updateUI();}));}updateUI();document.getElementById('btn-add-billing').addEventListener('click',()=>{const amt=document.getElementById('ba-amount').value;const desc=document.getElementById('ba-desc').value.trim();const date=document.getElementById('ba-date').value;if(!amt||parseFloat(amt)<=0)return tst('Enter a valid amount.','error');tempBillings.push({id:gi(),amount:amt,description:desc,date:date,status:'pending',partialPayments:[],createdAt:new Date().toISOString()});document.getElementById('ba-amount').value='';document.getElementById('ba-desc').value='';document.getElementById('ba-date').value='';updateUI();});document.getElementById('acf').addEventListener('submit',async function(e){e.preventDefault();const cd={title:document.getElementById('actt').value.trim(),caseNumber:document.getElementById('acn').value.trim(),location:document.getElementById('acl').value.trim(),clientName:document.getElementById('accn').value.trim(),clientProfileId:document.getElementById('accl').value||null,description:document.getElementById('acd').value.trim(),status:document.getElementById('acs').value,assignedTeam:document.getElementById('actm').value||null,assignedLawyer:document.getElementById('aclw').value||null,billings:tempBillings,firmId:fid,createdAt:new Date().toISOString(),updates:[],hearings:[]};const ref=await db.collection('cases').add(cd);cd.id=ref.id;cc.push(cd);cm();rcl(fid);tst('Case created!','success')})}
+  function ocem(cid,fid){const c=cc.find(x=>x.id===cid);if(!c)return;const tms=tmc.filter(t=>t.firmId===fid);const lws=uc.filter(u=>u.firmId===fid&&['associate','partner','managing_partner'].includes(u.role));const clients=clc;const ss=gmcs();const uh=(c.updates||[]).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(up=>{const usr=uc.find(u=>u.id===up.userId);return`<div class="flex gap-3"><span class="avatar-initials bg-amber-500 w-8 h-8 text-xs">${ifn(usr?.name)}</span><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="text-xs font-semibold">${esc(usr?.name||'Unknown')}</span><span class="text-[10px] text-slate-400">${fdt(up.createdAt)}</span></div><p class="text-sm">${esc(up.text)}</p></div></div>`}).join('')||'<p class="text-sm text-slate-400">No updates yet.</p>';const hh=(c.hearings||[]).sort((a,b)=>new Date(a.date)-new Date(b.date)).map(h=>{const usr=uc.find(u=>u.id===h.userId);const ip=new Date(h.date)<new Date();return`<div class="flex gap-3 ${ip?'opacity-60':''}"><span class="avatar-initials bg-indigo-500 w-8 h-8 text-xs">${ifn(usr?.name)}</span><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="text-xs font-semibold">${esc(usr?.name||'Unknown')}</span><span class="text-[10px] text-slate-400">${fdt(h.createdAt)}</span></div><p class="text-sm font-bold">📅 ${fdt(h.date)}</p>${h.description?`<p class="text-sm mt-1">${esc(h.description)}</p>`:''}</div></div>`}).join('')||'<p class="text-sm text-slate-400">No hearings scheduled.</p>';let tempBillings=[...(c.billings||[])];om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Edit Case</h3><form id="ecf" class="space-y-4"><input type="hidden" id="eci" value="${c.id}"><div><label>Case Title</label><input type="text" id="ect" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(c.title)}"></div><div class="grid grid-cols-2 gap-4"><div><label>Case Number</label><input type="text" id="ecn" class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(c.caseNumber||'')}"></div><div><label>Location</label><input type="text" id="ecl" class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(c.location||'')}"></div></div><div><label>Client Profile</label><select id="eccl" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${clients.map(cl=>`<option value="${cl.id}" ${c.clientProfileId===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}</select></div><div><label>Client Name (manual)</label><input type="text" id="eccn" class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(c.clientName||'')}"></div><div><label>Description</label><textarea id="ecd" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm">${esc(c.description||'')}</textarea></div><div class="grid grid-cols-2 gap-4"><div><label>Status</label><select id="ecs" class="w-full px-4 py-3 rounded-xl border text-sm bg-white">${ss.map(s=>`<option value="${s.v}" ${c.status===s.v?'selected':''}>${s.l}</option>`).join('')}</select></div><div><label>Assigned Lawyer</label><select id="eclw" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${lws.map(l=>`<option value="${l.id}" ${c.assignedLawyer===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</select></div></div><div><label>Assigned Team</label><select id="ectm" class="w-full px-4 py-3 rounded-xl border text-sm bg-white"><option value="">-- None --</option>${tms.map(t=>`<option value="${t.id}" ${c.assignedTeam===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div><div class="border-t pt-3"><h4 class="text-sm font-bold mb-2">Billing Entries</h4><div id="billing-entries" class="space-y-2 mb-3"></div><div class="grid grid-cols-3 gap-2"><input type="number" id="ba-amount" step="0.01" placeholder="Amount" class="px-3 py-2 rounded-xl border text-sm"><input type="text" id="ba-desc" placeholder="Description" class="px-3 py-2 rounded-xl border text-sm"><input type="date" id="ba-date" class="px-3 py-2 rounded-xl border text-sm"></div><button type="button" id="btn-add-billing" class="mt-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold">+ Add Billing</button></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form><div class="mt-6 pt-4 border-t"><h4 class="text-sm font-bold mb-2">Updates</h4><div class="space-y-2 mb-3 max-h-36 overflow-y-auto">${uh}</div><div class="flex gap-2"><input type="text" id="ncu" placeholder="Write an update..." class="flex-1 px-3 py-2 rounded-xl border text-sm"><button id="acub" class="px-3 py-2 bg-amber-500 text-slate-900 rounded-xl text-sm">Post</button></div></div><div class="mt-4 pt-4 border-t"><h4 class="text-sm font-bold mb-2">📅 Hearings</h4><div class="space-y-2 mb-3 max-h-36 overflow-y-auto">${hh}</div><div class="flex gap-2"><input type="datetime-local" id="nhd" class="flex-1 px-3 py-2 rounded-xl border text-sm"><input type="text" id="nhdesc" placeholder="Description" class="flex-1 px-3 py-2 rounded-xl border text-sm"><button id="ahb" class="px-3 py-2 bg-indigo-500 text-white rounded-xl text-sm">Add</button></div></div>`);function updateUI(){document.getElementById('billing-entries').innerHTML=renderBillingList(tempBillings);document.querySelectorAll('.remove-billing-btn').forEach(b=>b.addEventListener('click',function(){tempBillings.splice(parseInt(this.dataset.index),1);updateUI();}));}updateUI();document.getElementById('btn-add-billing').addEventListener('click',()=>{const amt=document.getElementById('ba-amount').value;const desc=document.getElementById('ba-desc').value.trim();const date=document.getElementById('ba-date').value;if(!amt||parseFloat(amt)<=0)return tst('Enter a valid amount.','error');tempBillings.push({id:gi(),amount:amt,description:desc,date:date,status:'pending',partialPayments:[],createdAt:new Date().toISOString()});document.getElementById('ba-amount').value='';document.getElementById('ba-desc').value='';document.getElementById('ba-date').value='';updateUI();});document.getElementById('ecf').addEventListener('submit',async function(e){e.preventDefault();const idx=cc.findIndex(x=>x.id===cid);if(idx>=0){cc[idx].title=document.getElementById('ect').value.trim();cc[idx].caseNumber=document.getElementById('ecn').value.trim();cc[idx].location=document.getElementById('ecl').value.trim();cc[idx].clientName=document.getElementById('eccn').value.trim();cc[idx].clientProfileId=document.getElementById('eccl').value||null;cc[idx].description=document.getElementById('ecd').value.trim();cc[idx].status=document.getElementById('ecs').value;cc[idx].assignedTeam=document.getElementById('ectm').value||null;cc[idx].assignedLawyer=document.getElementById('eclw').value||null;cc[idx].billings=tempBillings;await db.collection('cases').doc(cid).update(cc[idx]);cm();rcl(fid);tst('Case updated.','success')}});document.getElementById('acub').addEventListener('click',async function(){const tx=document.getElementById('ncu').value.trim();if(!tx)return;const idx=cc.findIndex(x=>x.id===cid);if(idx<0)return;if(!cc[idx].updates)cc[idx].updates=[];cc[idx].updates.push({id:gi(),userId:cud.id,text:tx,createdAt:new Date().toISOString()});await db.collection('cases').doc(cid).update({updates:cc[idx].updates});cm();ocem(cid,fid);tst('Update posted.','success')});document.getElementById('ahb').addEventListener('click',async function(){const dt=document.getElementById('nhd').value;const ds=document.getElementById('nhdesc').value.trim();if(!dt){tst('Select date and time.','error');return}const idx=cc.findIndex(x=>x.id===cid);if(idx<0)return;if(!cc[idx].hearings)cc[idx].hearings=[];cc[idx].hearings.push({id:gi(),date:dt,description:ds,userId:cud.id,createdAt:new Date().toISOString()});await db.collection('cases').doc(cid).update({hearings:cc[idx].hearings});cm();ocem(cid,fid);tst('Hearing added.','success')})}
+  function ocvm(cid){const c=cc.find(x=>x.id===cid);if(!c)return;const client=c.clientProfileId?clc.find(cl=>cl.id===c.clientProfileId):null;const cb=totalBilling(c.billings);om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Case Details</h3><div class="space-y-2"><p><strong>${esc(c.title)}</strong></p><p>Case No: ${esc(c.caseNumber||'N/A')}</p><p>Client: ${client?esc(client.name):esc(c.clientName||'N/A')}</p><p>Location: ${esc(c.location||'N/A')}</p><p>Status: ${c.status}</p>${cb>0?`<p class="text-emerald-600 font-semibold">Total Billing: ₱${cb.toLocaleString()}</p><div class="text-xs space-y-1">${(c.billings||[]).map(b=>`<div>₱${parseFloat(b.amount).toLocaleString()} - ${esc(b.description||'')} (${b.date||''}) [${b.status||'pending'}] <button class="delete-billing-inline text-rose-400 ml-1" data-billing-id="${b.id}">✕</button></div>`).join('')}</div>`:''}</div><button onclick="cm()" class="mt-4 px-6 py-2 bg-slate-100 rounded-xl text-sm">Close</button>`);
+    // Add delete billing handlers for cases
+    document.querySelectorAll('.delete-billing-inline').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const billingId = this.dataset.billingId;
+        if (await deleteBilling('case', cid, billingId)) {
+          cm();
+          ocvm(cid);
+        }
+      });
+    });
+  }
+  function omcs(){const f=fc[0];const cus=f?.caseStatuses||[];om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Manage Case Statuses</h3><div class="space-y-3"><div class="flex gap-2"><input type="text" id="ncs" placeholder="New status name" class="flex-1 px-4 py-2 rounded-xl border text-sm"><button id="acsb" class="px-4 py-2 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Add</button></div><div id="cuss" class="space-y-2">${cus.map(s=>`<div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg"><span>${esc(s.l)}</span><button data-value="${s.v}" class="rms text-rose-500">✕</button></div>`).join('')||'<p class="text-sm text-slate-400">No custom statuses.</p>'}</div><button onclick="cm()" class="mt-4 px-6 py-2 bg-slate-100 rounded-xl text-sm">Close</button></div>`);document.getElementById('acsb').addEventListener('click',async()=>{const v=document.getElementById('ncs').value.trim();if(!v)return;const vl=v.toLowerCase().replace(/\s+/g,'_');if(PC.find(s=>s.v===vl)||cus.find(s=>s.v===vl)){tst('Status exists.','error');return}cus.push({v:vl,l:v});await db.collection('firms').doc(cud.firmId).update({caseStatuses:cus});if(fc[0])fc[0].caseStatuses=cus;cm();rcl(cud.firmId);tst('Status added.','success')});document.querySelectorAll('.rms').forEach(btn=>btn.addEventListener('click',async function(){const v=this.dataset.value;const i=cus.findIndex(s=>s.v===v);if(i>=0){cus.splice(i,1);await db.collection('firms').doc(cud.firmId).update({caseStatuses:cus});if(fc[0])fc[0].caseStatuses=cus;cm();rcl(cud.firmId);tst('Status removed.','info')}}))}
 
-  // ---- Chat (with clear button) ----
+  // ---------- CHAT ----------
   let ccri='general';
   let allowedRoomIds = new Set();
   function gcr(){const u=cud;const rm=[];allowedRoomIds.clear();if(u.role!=='client'){allowedRoomIds.add('general');rm.push({id:'general',name:'General Chat'});tmc.filter(t=>(t.members||[]).includes(u.id)).forEach(t=>{const rid=`team_${t.id}`;allowedRoomIds.add(rid);rm.push({id:rid,name:`Team: ${t.name}`});});uc.filter(v=>v.id!==u.id&&v.approved).forEach(v=>{const rid=`dm_${[u.id,v.id].sort().join('_')}`;allowedRoomIds.add(rid);rm.push({id:rid,name:`DM: ${v.name}`});});}cc.forEach(c=>{let access=false;if(c.clientUserId===u.id)access=true;if(c.assignedLawyer===u.id)access=true;if(c.assignedUsers&&c.assignedUsers.includes(u.id))access=true;if(c.assignedTeam){const team=tmc.find(t=>t.id===c.assignedTeam);if(team&&team.members&&team.members.includes(u.id))access=true;}if(access){const rid=`case_${c.id}`;allowedRoomIds.add(rid);rm.push({id:rid,name:`Case: ${c.title}`});}});tc.filter(t=>!t.parentTaskId).forEach(t=>{let access=false;if(t.assignedUsers&&t.assignedUsers.includes(u.id))access=true;if(t.assignedTeam){const team=tmc.find(tm=>tm.id===t.assignedTeam);if(team&&team.members&&team.members.includes(u.id))access=true;}if(t.clientUserId===u.id)access=true;if(access){const rid=`task_${t.id}`;allowedRoomIds.add(rid);rm.push({id:rid,name:`Task: ${t.title}`});}});return rm;}
-  function rchv(){const rm=gcr();if(!allowedRoomIds.has(ccri)){ccri=rm.length?rm[0].id:'general';tst('You do not have access to that room.','error');}const canClear=cud.role==='partner'||cud.role==='managing_partner';document.getElementById('view-chat').innerHTML=`
+  function rchv(){
+    if(cud.role==='finance') return;
+    const rm=gcr();if(!allowedRoomIds.has(ccri)){ccri=rm.length?rm[0].id:'general';tst('You do not have access to that room.','error');}const canClear=cud.role==='partner'||cud.role==='managing_partner';document.getElementById('view-chat').innerHTML=`
     <div class="w-full md:w-64 border-r bg-white flex-shrink-0 md:flex md:flex-col h-auto md:h-full">
       <div class="p-3 font-bold text-sm flex items-center justify-between">
         <span>Chats</span>
@@ -266,10 +430,11 @@
     document.getElementById('csend').addEventListener('click',async()=>{const inp=document.getElementById('cinput');const tx=inp.value.trim();if(!tx||!ccri)return;const mg={roomId:ccri,senderId:cud.id,text:tx,firmId:cud.firmId,createdAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('messages').add(mg);inp.value=''});
     if(canClear){document.getElementById('clear-chat-btn').addEventListener('click',async()=>{if(!confirm('Delete all messages in this chat room?'))return;const snap=await db.collection('messages').where('roomId','==',ccri).get();const batch=db.batch();snap.forEach(doc=>batch.delete(doc.ref));await batch.commit();tst('Chat cleared.','success');});}
     if(window._chatUnsub)window._chatUnsub();
-    window._chatUnsub=db.collection('messages').where('roomId','==',ccri).onSnapshot(snap=>{const ms=[];snap.forEach(d=>ms.push({...d.data(),id:d.id}));ms.sort((a,b)=>{const ta=a.createdAt?.toDate?.()||a.createdAt;const tb=b.createdAt?.toDate?.()||b.createdAt;return new Date(ta)-new Date(tb)});const container=document.getElementById('cmsgs');if(container){container.innerHTML=ms.map(m=>{const isMine=m.senderId===cud.id;const snd=uc.find(u=>u.id===m.senderId);const time=m.createdAt?fdt(m.createdAt.toDate?.()||m.createdAt):'';if(isMine)return`<div class="chat-msg-right"><div class="chat-bubble max-w-[85%] sm:max-w-[75%] px-4 py-2 text-sm"><p>${esc(m.text)}</p><span class="text-[10px] opacity-70 block text-right mt-1">${time}</span></div></div>`;return`<div class="chat-msg-left flex items-start gap-2"><div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs flex-shrink-0">${ifn(snd?.name)}</div><div><span class="text-xs font-semibold">${esc(snd?.name||'?')}</span><div class="chat-bubble max-w-[85%] sm:max-w-[75%] px-4 py-2 text-sm mt-1"><p>${esc(m.text)}</p><span class="text-[10px] opacity-70 block text-right mt-1">${time}</span></div></div></div>`}).join('');container.scrollTop=container.scrollHeight;}},err=>console.error('Chat snapshot error:',err));}
+    window._chatUnsub=db.collection('messages').where('roomId','==',ccri).onSnapshot(snap=>{const ms=[];snap.forEach(d=>ms.push({...d.data(),id:d.id}));ms.sort((a,b)=>{const ta=a.createdAt?.toDate?.()||a.createdAt;const tb=b.createdAt?.toDate?.()||b.createdAt;return new Date(ta)-new Date(tb)});const container=document.getElementById('cmsgs');if(container){container.innerHTML=ms.map(m=>{const isMine=m.senderId===cud.id;const snd=uc.find(u=>u.id===m.senderId);const time=m.createdAt?fdt(m.createdAt.toDate?.()||m.createdAt):'';if(isMine)return`<div class="chat-msg-right"><div class="chat-bubble max-w-[85%] sm:max-w-[75%] px-4 py-2 text-sm"><p>${esc(m.text)}</p><span class="text-[10px] opacity-70 block text-right mt-1">${time}</span></div></div>`;return`<div class="chat-msg-left flex items-start gap-2"><div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs flex-shrink-0">${ifn(snd?.name)}</div><div><span class="text-xs font-semibold">${esc(snd?.name||'?')}</span><div class="chat-bubble max-w-[85%] sm:max-w-[75%] px-4 py-2 text-sm mt-1"><p>${esc(m.text)}</p><span class="text-[10px] opacity-70 block text-right mt-1">${time}</span></div></div></div>`}).join('');container.scrollTop=container.scrollHeight;}},err=>console.error('Chat snapshot error:',err));
+  }
 
-  // ---- Teams (with edit) ----
-  function rtmv(){const u=cud;if(!u||u.role==='client')return;const ts=tmc.filter(t=>t.firmId===u.firmId);const canEdit=u.role==='partner'||u.role==='managing_partner';document.getElementById('view-teams').innerHTML=`
+  // ---------- TEAMS ----------
+  function rtmv(){if(cud.role==='finance'||cud.role==='client')return;const u=cud;const ts=tmc.filter(t=>t.firmId===u.firmId);const canEdit=u.role==='partner'||u.role==='managing_partner';document.getElementById('view-teams').innerHTML=`
     <header class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
       <div><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Teams</h1></div>
       <button id="btn-add-team" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-500/20">+ New Team</button>
@@ -282,16 +447,754 @@
   function openNewTeamModal(){const users=uc.filter(u=>u.approved);const checkboxes=users.map(u=>`<label class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 cursor-pointer"><input type="checkbox" value="${u.id}" class="rounded border-slate-300 text-amber-500"><span class="text-sm">${esc(u.name)}</span></label>`).join('');om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Create New Team</h3><form id="add-team-form" class="space-y-4"><div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Team Name</label><input type="text" id="team-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm"></div><div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Members</label><div class="max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-3 space-y-1">${checkboxes}</div></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-xl text-sm font-bold">Create</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);document.getElementById('add-team-form').addEventListener('submit',async function(e){e.preventDefault();const name=document.getElementById('team-name').value.trim();const members=Array.from(document.querySelectorAll('#add-team-form input[type="checkbox"]:checked')).map(cb=>cb.value);const td={name,members,firmId:cud.firmId,createdAt:new Date().toISOString()};const ref=await db.collection('teams').add(td);td.id=ref.id;tmc.push(td);cm();rtmv();tst('Team created!','success')});}
   function editTeam(tid){const team=tmc.find(t=>t.id===tid);if(!team)return;const users=uc.filter(u=>u.approved);const checkboxes=users.map(u=>`<label class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 cursor-pointer"><input type="checkbox" value="${u.id}" ${(team.members||[]).includes(u.id)?'checked':''} class="rounded border-slate-300 text-amber-500"><span class="text-sm">${esc(u.name)}</span></label>`).join('');om(`<h3 class="text-lg sm:text-xl font-bold mb-4">Edit Team</h3><form id="edit-team-form" class="space-y-4"><input type="hidden" id="edit-team-id" value="${tid}"><div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Team Name</label><input type="text" id="edit-team-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" value="${esc(team.name)}"></div><div><label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Members</label><div class="max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-3 space-y-1">${checkboxes}</div></div><div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save Changes</button><button type="button" onclick="cm()" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button></div></form>`);document.getElementById('edit-team-form').addEventListener('submit',async function(e){e.preventDefault();const id=document.getElementById('edit-team-id').value;const name=document.getElementById('edit-team-name').value.trim();const members=Array.from(document.querySelectorAll('#edit-team-form input[type="checkbox"]:checked')).map(cb=>cb.value);const idx=tmc.findIndex(t=>t.id===id);if(idx>=0){tmc[idx].name=name;tmc[idx].members=members;await db.collection('teams').doc(id).update({name,members});cm();rtmv();tst('Team updated.','success');}});}
 
-  // ---- Approvals ----
-  function rap(){const u=cud;if(!u||u.role==='client'||!(u.role==='managing_partner'||u.role==='partner')){document.getElementById('view-approvals').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Approvals</h1></header><div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No approval privileges.</p></div>`;return}const pd=uc.filter(u=>u.firmId===cud.firmId&&!u.approved);document.getElementById('view-approvals').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Approvals</h1></header><div class="space-y-3">${pd.length?pd.map(p=>`<div class="bg-white p-4 sm:p-5 rounded-2xl border flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">${avh(p,'w-10 h-10')}<div class="flex-1 min-w-0"><h4 class="text-sm font-semibold">${esc(p.name)}</h4><p class="text-xs text-slate-500">${esc(p.email)}</p></div><div class="flex gap-2"><button class="app-btn px-3 sm:px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs" data-user-id="${p.id}">Approve</button><button class="rej-btn px-3 sm:px-4 py-2 bg-rose-100 text-rose-600 rounded-xl text-xs" data-user-id="${p.id}">Reject</button></div></div>`).join(''):'<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No pending approvals</p></div>'}</div>`;document.querySelectorAll('.app-btn').forEach(b=>b.addEventListener('click',async function(){const uid=this.dataset.userId;await db.collection('users').doc(uid).update({approved:true});const idx=uc.findIndex(u=>u.id===uid);if(idx>=0)uc[idx].approved=true;rap();us();tst('User approved!','success')}));document.querySelectorAll('.rej-btn').forEach(b=>b.addEventListener('click',async function(){const uid=this.dataset.userId;await db.collection('users').doc(uid).delete();uc=uc.filter(u=>u.id!==uid);rap();us();tst('User rejected.','info')}))}
+  // ---------- APPROVALS ----------
+  function rap(){if(cud.role==='finance'||cud.role==='client'){document.getElementById('view-approvals').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Approvals</h1></header><div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No approval privileges.</p></div>`;return}const u=cud;if(!u||u.role==='client'||!(u.role==='managing_partner'||u.role==='partner')){document.getElementById('view-approvals').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Approvals</h1></header><div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No approval privileges.</p></div>`;return}const pd=uc.filter(u=>u.firmId===cud.firmId&&!u.approved);document.getElementById('view-approvals').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Approvals</h1></header><div class="space-y-3">${pd.length?pd.map(p=>`<div class="bg-white p-4 sm:p-5 rounded-2xl border flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">${avh(p,'w-10 h-10')}<div class="flex-1 min-w-0"><h4 class="text-sm font-semibold">${esc(p.name)}</h4><p class="text-xs text-slate-500">${esc(p.email)}</p></div><div class="flex gap-2"><button class="app-btn px-3 sm:px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs" data-user-id="${p.id}">Approve</button><button class="rej-btn px-3 sm:px-4 py-2 bg-rose-100 text-rose-600 rounded-xl text-xs" data-user-id="${p.id}">Reject</button></div></div>`).join(''):'<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No pending approvals</p></div>'}</div>`;document.querySelectorAll('.app-btn').forEach(b=>b.addEventListener('click',async function(){const uid=this.dataset.userId;await db.collection('users').doc(uid).update({approved:true});const idx=uc.findIndex(u=>u.id===uid);if(idx>=0)uc[idx].approved=true;rap();us();tst('User approved!','success')}));document.querySelectorAll('.rej-btn').forEach(b=>b.addEventListener('click',async function(){const uid=this.dataset.userId;await db.collection('users').doc(uid).delete();uc=uc.filter(u=>u.id!==uid);rap();us();tst('User rejected.','info')}))}
 
-  // ---- Users management ----
-  function ru(){const u=cud;if(!u||(u.role!=='partner'&&u.role!=='managing_partner')){document.getElementById('view-users').innerHTML='<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">You do not have access to manage users.</p></div>';return;}const firmUsers=uc.filter(u=>u.firmId===u.firmId&&u.approved);const roles=['paralegal','associate','partner','managing_partner','client'];document.getElementById('view-users').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Users</h1><p class="text-slate-500 text-sm mt-1">Manage roles of approved firm members.</p></header><div class="space-y-3">${firmUsers.length?firmUsers.map(user=>`<div class="bg-white p-4 sm:p-5 rounded-2xl border flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">${avh(user,'w-10 h-10')}<div class="flex-1 min-w-0"><h4 class="text-sm font-semibold">${esc(user.name)}</h4><p class="text-xs text-slate-500">${esc(user.email)}</p></div><div class="flex items-center gap-2"><select class="role-select bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium" data-user-id="${user.id}" ${user.id===cud.id?'disabled':''}>${roles.map(r=>`<option value="${r}" ${user.role===r?'selected':''}>${r.replace('_',' ')}</option>`).join('')}</select>${user.id!==cud.id?`<button class="save-role-btn px-3 py-2 bg-amber-500 text-slate-900 rounded-xl text-xs font-bold hidden" data-user-id="${user.id}">Save</button>`:''}</div></div>`).join(''):'<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No approved users yet.</p></div>'}</div>`;document.querySelectorAll('.role-select').forEach(select=>{const userId=select.dataset.userId;const saveBtn=document.querySelector(`.save-role-btn[data-user-id="${userId}"]`);if(!saveBtn)return;select.addEventListener('change',()=>{saveBtn.classList.remove('hidden')});saveBtn.addEventListener('click',async()=>{const newRole=select.value;const idx=uc.findIndex(u=>u.id===userId);if(idx>=0){uc[idx].role=newRole;await db.collection('users').doc(userId).update({role:newRole});tst(`Role updated to ${newRole.replace('_',' ')}.`,'success');saveBtn.classList.add('hidden')}})})}
+  // ---------- USERS MANAGEMENT ----------
+  function ru(){if(cud.role==='finance'){document.getElementById('view-users').innerHTML='<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">You do not have access to manage users.</p></div>';return;}const u=cud;if(!u||(u.role!=='partner'&&u.role!=='managing_partner')){document.getElementById('view-users').innerHTML='<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">You do not have access to manage users.</p></div>';return;}const firmUsers=uc.filter(u=>u.firmId===u.firmId&&u.approved);const roles=['paralegal','associate','partner','managing_partner','finance','client'];document.getElementById('view-users').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Users</h1><p class="text-slate-500 text-sm mt-1">Manage roles of approved firm members.</p></header><div class="space-y-3">${firmUsers.length?firmUsers.map(user=>`<div class="bg-white p-4 sm:p-5 rounded-2xl border flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">${avh(user,'w-10 h-10')}<div class="flex-1 min-w-0"><h4 class="text-sm font-semibold">${esc(user.name)}</h4><p class="text-xs text-slate-500">${esc(user.email)}</p></div><div class="flex items-center gap-2"><select class="role-select bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium" data-user-id="${user.id}" ${user.id===cud.id?'disabled':''}>${roles.map(r=>`<option value="${r}" ${user.role===r?'selected':''}>${r.replace('_',' ')}</option>`).join('')}</select>${user.id!==cud.id?`<button class="save-role-btn px-3 py-2 bg-amber-500 text-slate-900 rounded-xl text-xs font-bold hidden" data-user-id="${user.id}">Save</button>`:''}</div></div>`).join(''):'<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No approved users yet.</p></div>'}</div>`;document.querySelectorAll('.role-select').forEach(select=>{const userId=select.dataset.userId;const saveBtn=document.querySelector(`.save-role-btn[data-user-id="${userId}"]`);if(!saveBtn)return;select.addEventListener('change',()=>{saveBtn.classList.remove('hidden')});saveBtn.addEventListener('click',async()=>{const newRole=select.value;const idx=uc.findIndex(u=>u.id===userId);if(idx>=0){uc[idx].role=newRole;await db.collection('users').doc(userId).update({role:newRole});tst(`Role updated to ${newRole.replace('_',' ')}.`,'success');saveBtn.classList.add('hidden')}})})}
 
-  // ---- Profile ----
-  function rp(){const u=cud;if(!u)return;document.getElementById('view-profile').innerHTML=`<header class="mb-4 sm:mb-6"><h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Profile</h1></header><div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border"><form id="pf" class="space-y-4 sm:space-y-5"><div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 mb-4 sm:mb-6"><div id="pav" class="avatar-initials bg-amber-500 w-16 h-16 text-xl flex-shrink-0">${ifn(u.name)}</div><div class="w-full"><label class="text-xs font-bold text-slate-400 uppercase block mb-1">Profile Photo URL</label><input type="text" id="ppu" class="w-full px-4 py-2.5 rounded-xl border text-sm" value="${esc(u.profilePhoto||'')}"></div></div><div><label>Full Name</label><input type="text" id="pnm" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(u.name)}"></div><div><label>Contact Number</label><input type="text" id="pcn" class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(u.contactNumber||'')}"></div><div><label>Email</label><input type="email" id="pem" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(u.email)}"></div><div><label>Description</label><textarea id="pds" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm">${esc(u.description||'')}</textarea></div><div><label>New Password</label><input type="password" id="ppw" class="w-full px-4 py-3 rounded-xl border text-sm"></div><button type="submit" class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save Changes</button></form></div>`;document.getElementById('pf').addEventListener('submit',async function(e){e.preventDefault();const upd={name:document.getElementById('pnm').value.trim(),contactNumber:document.getElementById('pcn').value.trim(),email:document.getElementById('pem').value.trim().toLowerCase(),description:document.getElementById('pds').value.trim(),profilePhoto:document.getElementById('ppu').value.trim()};const np=document.getElementById('ppw').value;if(np&&np.length>=6){const user=auth.currentUser;if(user)await user.updatePassword(np)}await db.collection('users').doc(u.id).update(upd);Object.assign(cud,upd);us();tst('Profile updated.','success')});document.getElementById('ppu').addEventListener('input',function(){const pv=document.getElementById('pav');const url=this.value.trim();if(url)pv.innerHTML=`<img src="${esc(url)}" class="w-16 h-16 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="avatar-initials bg-amber-500 w-16 h-16 text-xl" style="display:none">${ifn(cud.name)}</span>`;else pv.innerHTML=`<span class="avatar-initials bg-amber-500 w-16 h-16 text-xl">${ifn(cud.name)}</span>`})}
+  // ---------- CLIENTS ----------
+  function rclients(){
+    const u=cud; const fid=u.firmId; const clientsList = clc;
+    const registeredClients = uc.filter(u=>u.role==='client' && u.approved);
+    const isFinance = u.role==='finance';
+    document.getElementById('view-clients').innerHTML = `
+      <header class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Clients</h1>
+          <p class="text-slate-500 text-sm mt-1">${isFinance?'View client profiles and billings':'Manage client profiles and view their cases/tasks'}</p>
+        </div>
+        ${!isFinance?`<button id="btn-add-client" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-amber-500 text-slate-900 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-500/20">+ New Client</button>`:''}
+      </header>
+      <div class="space-y-3" id="clients-list">
+        ${clientsList.length ? clientsList.map(cl=>{
+          const linkedUser = cl.linkedUserId ? uc.find(u=>u.id===cl.linkedUserId) : null;
+          const taskCount = tc.filter(t=>t.clientProfileId===cl.id).length;
+          const caseCount = cc.filter(c=>c.clientProfileId===cl.id).length;
+          const taskUnpaid = tc.filter(t=>t.clientProfileId===cl.id).reduce((s,t)=>s+(t.billings||[]).reduce((sub,b)=>sub+getUnpaidAmount(b),0),0);
+          const caseUnpaid = cc.filter(c=>c.clientProfileId===cl.id).reduce((s,c)=>s+(c.billings||[]).reduce((sub,b)=>sub+getUnpaidAmount(b),0),0);
+          const directUnpaid = dcb.filter(b=>b.clientProfileId===cl.id).reduce((s,b)=>s+getUnpaidAmount(b),0);
+          const totalUnpaid = taskUnpaid + caseUnpaid + directUnpaid;
+          return `<div class="bg-white p-4 sm:p-5 rounded-2xl border shadow-sm flex items-center justify-between cursor-pointer hover:bg-slate-50 transition" data-client-id="${cl.id}">
+            <div class="flex-1">
+              <h4 class="text-sm font-bold">${esc(cl.name)}</h4>
+              <p class="text-xs text-slate-500">${esc(cl.email||'No email')} • ${esc(cl.contactNumber||'No contact')}</p>
+              ${linkedUser ? `<p class="text-xs text-amber-600 mt-1">Linked to: ${esc(linkedUser.name)}</p>` : `<p class="text-xs text-slate-400 mt-1">Not linked to a user</p>`}
+              <div class="flex gap-3 mt-2">
+                <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">${taskCount} task${taskCount!==1?'s':''}</span>
+                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">${caseCount} case${caseCount!==1?'s':''}</span>
+                ${totalUnpaid>0?`<span class="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded">Outstanding: ₱${totalUnpaid.toLocaleString()}</span>`:''}
+              </div>
+            </div>
+            ${!isFinance?`<button class="edit-client-btn p-2 text-slate-400 hover:text-amber-600 ml-3" data-client-id="${cl.id}">✎</button>`:''}
+          </div>`;
+        }).join('') : '<div class="bg-white p-10 rounded-2xl border text-center"><p class="text-slate-500">No client profiles yet.</p></div>'}
+      </div>`;
+    if(!isFinance) document.getElementById('btn-add-client').addEventListener('click', ()=> openNewClientModal(fid, registeredClients));
+    document.querySelectorAll('[data-client-id]').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('button')) return;
+        viewClientDetails(this.dataset.clientId);
+      });
+    });
+    if(!isFinance) {
+      document.querySelectorAll('.edit-client-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          editClient(this.dataset.clientId, fid, registeredClients);
+        });
+      });
+    }
+  }
 
-  // ---- Auth listener and forms ----
+  // ---------- NEW CLIENT MODAL FUNCTIONS ----------
+  function openNewClientModal(fid, registeredClients) {
+    om(`
+      <h3 class="text-lg sm:text-xl font-bold mb-4">New Client Profile</h3>
+      <form id="new-client-form" class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Name *</label>
+          <input type="text" id="ncf-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="Juan Dela Cruz">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Email</label>
+          <input type="email" id="ncf-email" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="client@example.com">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Contact Number</label>
+          <input type="text" id="ncf-contact" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="+63 912 345 6789">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Address</label>
+          <input type="text" id="ncf-address" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" placeholder="Manila, Philippines">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Link to System User (optional)</label>
+          <select id="ncf-linked-user" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white">
+            <option value="">-- None --</option>
+            ${registeredClients.map(u => `<option value="${u.id}">${esc(u.name)} (${esc(u.email)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-xl text-sm font-bold">Create Client</button>
+          <button type="button" id="btn-cancel-new-client" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button>
+        </div>
+      </form>
+    `);
+
+    document.getElementById('btn-cancel-new-client').addEventListener('click', cm);
+    document.getElementById('new-client-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('ncf-name').value.trim();
+      if (!name) return tst('Client name is required.', 'error');
+      const clientData = {
+        firmId: fid,
+        name: name,
+        email: document.getElementById('ncf-email').value.trim(),
+        contactNumber: document.getElementById('ncf-contact').value.trim(),
+        address: document.getElementById('ncf-address').value.trim(),
+        linkedUserId: document.getElementById('ncf-linked-user').value || null,
+        createdAt: new Date().toISOString()
+      };
+      try {
+        const ref = await db.collection('clients').add(clientData);
+        clientData.id = ref.id;
+        clc.push(clientData);
+        cm();
+        rclients();
+        tst('Client profile created!', 'success');
+      } catch (err) {
+        tst('Failed to create client: ' + err.message, 'error');
+      }
+    });
+  }
+
+  function editClient(cid, fid, registeredClients) {
+    const client = clc.find(c => c.id === cid);
+    if (!client) return tst('Client not found.', 'error');
+
+    om(`
+      <h3 class="text-lg sm:text-xl font-bold mb-4">Edit Client Profile</h3>
+      <form id="edit-client-form" class="space-y-4">
+        <input type="hidden" id="ecf-id" value="${cid}">
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Name *</label>
+          <input type="text" id="ecf-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" value="${esc(client.name)}">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Email</label>
+          <input type="email" id="ecf-email" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" value="${esc(client.email || '')}">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Contact Number</label>
+          <input type="text" id="ecf-contact" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" value="${esc(client.contactNumber || '')}">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Address</label>
+          <input type="text" id="ecf-address" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" value="${esc(client.address || '')}">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Link to System User</label>
+          <select id="ecf-linked-user" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white">
+            <option value="">-- None --</option>
+            ${registeredClients.map(u => `<option value="${u.id}" ${client.linkedUserId === u.id ? 'selected' : ''}>${esc(u.name)} (${esc(u.email)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save Changes</button>
+          <button type="button" id="btn-cancel-edit-client" class="px-6 py-3 bg-slate-100 rounded-xl text-sm">Cancel</button>
+        </div>
+      </form>
+    `);
+
+    document.getElementById('btn-cancel-edit-client').addEventListener('click', cm);
+    document.getElementById('edit-client-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('ecf-name').value.trim();
+      if (!name) return tst('Client name is required.', 'error');
+      const updated = {
+        name: name,
+        email: document.getElementById('ecf-email').value.trim(),
+        contactNumber: document.getElementById('ecf-contact').value.trim(),
+        address: document.getElementById('ecf-address').value.trim(),
+        linkedUserId: document.getElementById('ecf-linked-user').value || null
+      };
+      try {
+        await db.collection('clients').doc(cid).update(updated);
+        const idx = clc.findIndex(c => c.id === cid);
+        if (idx !== -1) Object.assign(clc[idx], updated);
+        cm();
+        rclients();
+        tst('Client updated.', 'success');
+      } catch (err) {
+        tst('Failed to update client: ' + err.message, 'error');
+      }
+    });
+  }
+
+  // ---------------------- DIRECT CLIENT BILLING ----------------------
+  async function addClientBilling(cid, amount, description, date) {
+    const billing = {
+      id: gi(),
+      clientProfileId: cid,
+      firmId: cud.firmId,
+      amount: amount,
+      description: description,
+      date: date,
+      status: 'pending',
+      partialPayments: [],
+      createdAt: new Date().toISOString()
+    };
+    await db.collection('clientBillings').add(billing);
+    dcb.push({...billing, parentType: 'client', parentTitle: 'General Billing'});
+    return billing;
+  }
+
+  async function addPartialPayment(billingId, parentType, parentId, amount, date) {
+    if (parentType === 'client') {
+      const docRef = db.collection('clientBillings').doc(billingId);
+      const payment = { id: gi(), amount: amount, date: date };
+      const doc = await docRef.get();
+      if (!doc.exists) return tst('Billing not found.', 'error');
+      const data = doc.data();
+      const partials = data.partialPayments || [];
+      partials.push(payment);
+      await docRef.update({ partialPayments: partials, status: 'partial' });
+      const idx = dcb.findIndex(b => b.id === billingId);
+      if (idx >= 0) {
+        dcb[idx].partialPayments = partials;
+        dcb[idx].status = 'partial';
+      }
+      tst('Partial payment recorded.', 'success');
+      return;
+    }
+    const col = parentType === 'task' ? 'tasks' : 'cases';
+    const docRef = db.collection(col).doc(parentId);
+    const doc = await docRef.get();
+    if (!doc.exists) return tst('Item not found.', 'error');
+    const data = doc.data();
+    const billings = data.billings || [];
+    const idx = billings.findIndex(b => b.id === billingId);
+    if (idx === -1) return tst('Billing entry not found.', 'error');
+    const partials = billings[idx].partialPayments || [];
+    partials.push({ id: gi(), amount: amount, date: date });
+    billings[idx].partialPayments = partials;
+    billings[idx].status = 'partial';
+    await docRef.update({ billings });
+    if (parentType === 'task') {
+      const t = tc.find(x => x.id === parentId);
+      if (t) t.billings = billings;
+    } else {
+      const c = cc.find(x => x.id === parentId);
+      if (c) c.billings = billings;
+    }
+    tst('Partial payment recorded.', 'success');
+  }
+
+  async function updateBillingEntry(parentType, parentId, billingId, newStatus, paidAmount = null) {
+    if (parentType === 'client') {
+      try {
+        const docRef = db.collection('clientBillings').doc(billingId);
+        const updateData = { status: newStatus };
+        await docRef.update(updateData);
+        const idx = dcb.findIndex(b => b.id === billingId);
+        if (idx >= 0) {
+          dcb[idx].status = newStatus;
+        }
+        tst(`Billing updated.`, 'success');
+      } catch(e) {
+        console.error(e);
+        tst('Failed to update billing.', 'error');
+      }
+      return;
+    }
+    const col = parentType === 'task' ? 'tasks' : 'cases';
+    try {
+      const docRef = db.collection(col).doc(parentId);
+      const docSnap = await docRef.get();
+      if (!docSnap.exists) return tst('Item not found.','error');
+      const data = docSnap.data();
+      const billings = data.billings || [];
+      const idx = billings.findIndex(b => b.id === billingId);
+      if (idx === -1) return tst('Billing entry not found.','error');
+      billings[idx].status = newStatus;
+      await docRef.update({ billings });
+      if (parentType === 'task') {
+        const t = tc.find(x => x.id === parentId);
+        if (t) t.billings = billings;
+      } else {
+        const c = cc.find(x => x.id === parentId);
+        if (c) c.billings = billings;
+      }
+      tst(`Billing updated.`, 'success');
+    } catch (e) {
+      console.error(e);
+      tst('Failed to update billing status.', 'error');
+    }
+  }
+
+  function viewClientDetails(cid){
+    const client = clc.find(c=>c.id===cid);
+    if(!client) return;
+    const linkedUser = client.linkedUserId ? uc.find(u=>u.id===client.linkedUserId) : null;
+    const clientTasks = tc.filter(t=>t.clientProfileId===client.id && !t.parentTaskId);
+    const clientCases = cc.filter(c=>c.clientProfileId===client.id);
+    const isFinance = cud.role==='finance';
+    const canManageBilling = isFinance || cud.role==='partner' || cud.role==='managing_partner';
+
+    let allBillings = [];
+    clientTasks.forEach(t=>{
+      (t.billings||[]).forEach(b=>{
+        allBillings.push({...b, parentType: 'task', parentId: t.id, parentTitle: t.title});
+      });
+    });
+    clientCases.forEach(c=>{
+      (c.billings||[]).forEach(b=>{
+        allBillings.push({...b, parentType: 'case', parentId: c.id, parentTitle: c.title});
+      });
+    });
+
+    const directClientBillings = dcb.filter(b => b.clientProfileId === cid);
+    allBillings = allBillings.concat(directClientBillings.map(b => ({...b, parentType: 'client', parentId: b.id, parentTitle: 'General Billing'})));
+
+    renderClientModal(client, allBillings, linkedUser, clientTasks, clientCases, isFinance, canManageBilling, cid);
+  }
+
+  function renderClientModal(client, allBillings, linkedUser, clientTasks, clientCases, isFinance, canManageBilling, cid) {
+    const totalUnpaid = allBillings.reduce((s,b)=>s+getUnpaidAmount(b),0);
+    const unpaidBillings = allBillings.filter(b => b.status !== 'paid');
+    const paidBillings = allBillings.filter(b => b.status === 'paid');
+
+    const billingEntryHtml = (b, idx) => {
+      const isPartial = b.status === 'partial';
+      const partials = b.partialPayments || [];
+      const paidSum = partials.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+      const remaining = getUnpaidAmount(b);
+      return `
+        <div class="billing-item flex flex-col gap-1 p-2 bg-slate-50 rounded-lg text-xs" data-billing-id="${b.id}" data-parent-type="${b.parentType}" data-parent-id="${b.parentId || b.id}">
+          <div class="flex items-center gap-2">
+            ${canManageBilling ? `<input type="checkbox" class="billing-checkbox" data-billing-id="${b.id}" data-parent-type="${b.parentType}" data-parent-id="${b.parentId || b.id}">` : ''}
+            <span class="font-semibold text-emerald-600">₱${parseFloat(b.amount).toLocaleString()}</span>
+            <span>${esc(b.description||'')}</span>
+            <span class="text-slate-400">${b.date||''}</span>
+            <span class="text-slate-500">(${b.parentType}: ${esc(b.parentTitle||'')})</span>
+            ${canManageBilling ? `
+              <div class="ml-auto flex items-center gap-1">
+                <select class="billing-status-select text-xs border rounded px-2 py-1" data-billing-id="${b.id}" data-parent-type="${b.parentType}" data-parent-id="${b.parentId || b.id}">
+                  <option value="pending" ${b.status==='pending'?'selected':''}>Pending</option>
+                  <option value="billed" ${b.status==='billed'?'selected':''}>Billed</option>
+                  <option value="partial" ${b.status==='partial'?'selected':''}>Partial</option>
+                  <option value="paid" ${b.status==='paid'?'selected':''}>Paid</option>
+                </select>
+                <button class="delete-billing-btn text-rose-400 hover:text-rose-600" data-billing-id="${b.id}" data-parent-type="${b.parentType}" data-parent-id="${b.parentId || b.id}">✕</button>
+              </div>
+            ` : `
+              <span class="billing-status-span ml-auto px-2 py-1 rounded-full text-[10px] font-bold ${b.status==='paid'?'bg-emerald-100 text-emerald-600':b.status==='billed'?'bg-amber-100 text-amber-600':b.status==='partial'?'bg-purple-100 text-purple-600':'bg-rose-100 text-rose-600'}" data-billing-id="${b.id}">${b.status.toUpperCase()}</span>
+            `}
+          </div>
+          ${canManageBilling ? `
+            <div class="partial-payment-section ml-6 mt-1" style="${isPartial ? '' : 'display:none;'}">
+              <div class="flex items-center gap-2 mb-1">
+                <input type="number" class="partial-amount-input text-xs border rounded px-1 py-0.5 w-24" placeholder="Amount">
+                <input type="date" class="partial-date-input text-xs border rounded px-1 py-0.5">
+                <button class="add-partial-btn px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">Add</button>
+              </div>
+              <div class="partial-list space-y-1 text-[10px]">
+                ${partials.length ? partials.map(p => `
+                  <div class="flex items-center gap-2 text-slate-500">
+                    <span>₱${parseFloat(p.amount).toLocaleString()} on ${p.date}</span>
+                    <button class="remove-partial-btn text-rose-400" data-partial-id="${p.id}">✕</button>
+                  </div>
+                `).join('') : '<span class="text-slate-400">No partial payments yet.</span>'}
+              </div>
+              <div class="text-[10px] font-semibold text-slate-600 mt-1">Paid: ₱${paidSum.toLocaleString()} | Remaining: ₱${remaining.toLocaleString()}</div>
+            </div>
+          ` : ''}
+        </div>`;
+    };
+
+    om(`<div data-client-id="${client.id}">
+      <h3 class="text-lg sm:text-xl font-bold mb-4">${esc(client.name)}</h3>
+      <div class="flex gap-2 mb-4">
+        <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-medium bg-slate-900 text-white" data-tab="overview">Overview</button>
+        <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-100 text-slate-600" data-tab="billings">Billings</button>
+      </div>
+      <div id="tab-overview" class="tab-content">
+        <div class="space-y-2 text-sm">
+          <p><strong>Address:</strong> ${esc(client.address||'N/A')}</p>
+          <p><strong>Contact:</strong> ${esc(client.contactNumber||'N/A')}</p>
+          <p><strong>Email:</strong> ${esc(client.email||'N/A')}</p>
+          <p><strong>Linked User:</strong> ${linkedUser ? esc(linkedUser.name) + ' ('+esc(linkedUser.email)+')' : 'None'}</p>
+          ${totalUnpaid>0?`<p class="text-rose-600 font-semibold text-lg mt-2">Outstanding Balance: ₱${totalUnpaid.toLocaleString()}</p>`:''}
+        </div>
+        <div class="mt-6"><h4 class="font-bold text-sm mb-2">Tasks (${clientTasks.length})</h4>
+          ${clientTasks.length ? clientTasks.map(t=>{const tb=totalBilling(t.billings);return`<div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg"><span class="text-xs">${esc(t.title)}</span> <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">${t.status}</span> ${tb>0?`<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded">₱${tb.toLocaleString()}</span>`:''}</div>`}).join('') : '<p class="text-xs text-slate-400">No tasks linked.</p>'}
+        </div>
+        <div class="mt-4"><h4 class="font-bold text-sm mb-2">Cases (${clientCases.length})</h4>
+          ${clientCases.length ? clientCases.map(c=>{const cb=totalBilling(c.billings);return`<div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg"><span class="text-xs">${esc(c.title)}</span> <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">${c.status}</span> ${cb>0?`<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded">₱${cb.toLocaleString()}</span>`:''}</div>`}).join('') : '<p class="text-xs text-slate-400">No cases linked.</p>'}
+        </div>
+      </div>
+      <div id="tab-billings" class="tab-content hidden">
+        ${canManageBilling ? `
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+            <h4 class="text-xs font-bold mb-2">Add New Billing</h4>
+            <div class="grid grid-cols-3 gap-2">
+              <input type="number" id="cb-amount" step="0.01" placeholder="Amount" class="px-2 py-1.5 rounded-lg border text-xs">
+              <input type="text" id="cb-desc" placeholder="Description" class="px-2 py-1.5 rounded-lg border text-xs">
+              <input type="date" id="cb-date" class="px-2 py-1.5 rounded-lg border text-xs">
+            </div>
+            <button id="add-cb-btn" class="mt-2 px-3 py-1.5 bg-amber-500 text-slate-900 rounded-lg text-xs font-bold">Add Billing</button>
+          </div>
+        ` : ''}
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="font-bold text-sm">Billing Entries</h4>
+          ${canManageBilling ? `<button id="print-statement-btn" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold">Print Statement</button>` : ''}
+        </div>
+        <div class="space-y-3 max-h-80 overflow-y-auto" id="billing-lists">
+          ${unpaidBillings.length > 0 ? `
+            <div class="mb-2"><span class="text-xs font-semibold text-rose-600">UNPAID BILLINGS</span></div>
+            ${unpaidBillings.map((b,i) => billingEntryHtml(b,i)).join('')}
+          ` : '<p class="text-xs text-slate-400">No unpaid billings.</p>'}
+          ${paidBillings.length > 0 ? `
+            <div class="mt-4 mb-2"><span class="text-xs font-semibold text-emerald-600">PAID BILLINGS</span></div>
+            ${paidBillings.map((b,i) => billingEntryHtml(b,i)).join('')}
+          ` : ''}
+        </div>
+      </div>
+      <button onclick="cm()" class="mt-4 px-6 py-3 bg-slate-100 rounded-xl text-sm">Close</button>
+    </div>`);
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('bg-slate-900','text-white');b.classList.add('bg-slate-100','text-slate-600');});
+        this.classList.remove('bg-slate-100','text-slate-600');
+        this.classList.add('bg-slate-900','text-white');
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
+        document.getElementById('tab-'+this.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    if (canManageBilling) {
+      // Add new billing
+      document.getElementById('add-cb-btn').addEventListener('click', async () => {
+        const amount = document.getElementById('cb-amount').value;
+        const desc = document.getElementById('cb-desc').value.trim();
+        const date = document.getElementById('cb-date').value;
+        if (!amount || parseFloat(amount) <= 0) return tst('Enter valid amount.', 'error');
+        try {
+          await addClientBilling(cid, amount, desc, date);
+          cm();
+          viewClientDetails(cid);
+          tst('Billing added.', 'success');
+        } catch(e) {
+          tst('Failed to add billing.', 'error');
+        }
+      });
+
+      // Delete billing handlers
+      document.querySelectorAll('.delete-billing-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+          e.stopPropagation();
+          const billingId = this.dataset.billingId;
+          const parentType = this.dataset.parentType;
+          const parentId = this.dataset.parentId;
+          if (await deleteBilling(parentType, parentId, billingId)) {
+            cm();
+            viewClientDetails(cid);
+          }
+        });
+      });
+
+      // Status change handler
+      document.querySelectorAll('.billing-status-select').forEach(select => {
+        select.addEventListener('change', function() {
+          const billingItem = this.closest('.billing-item');
+          const partialSection = billingItem.querySelector('.partial-payment-section');
+          const newStatus = this.value;
+          if (newStatus === 'partial') {
+            partialSection.style.display = 'block';
+          } else {
+            partialSection.style.display = 'none';
+            updateBillingEntry(
+              this.dataset.parentType,
+              this.dataset.parentId,
+              this.dataset.billingId,
+              newStatus
+            ).then(() => {
+              cm();
+              viewClientDetails(cid);
+            });
+          }
+        });
+
+        if (select.value === 'partial') {
+          select.closest('.billing-item').querySelector('.partial-payment-section').style.display = 'block';
+        }
+      });
+
+      // Add partial payment
+      document.querySelectorAll('.add-partial-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const billingItem = this.closest('.billing-item');
+          const amountInput = billingItem.querySelector('.partial-amount-input');
+          const dateInput = billingItem.querySelector('.partial-date-input');
+          const amount = parseFloat(amountInput.value);
+          const date = dateInput.value;
+          if (!amount || amount <= 0 || !date) return tst('Enter valid amount and date.', 'error');
+          const billingId = billingItem.querySelector('.billing-status-select').dataset.billingId;
+          const parentType = billingItem.querySelector('.billing-status-select').dataset.parentType;
+          const parentId = billingItem.querySelector('.billing-status-select').dataset.parentId;
+          await addPartialPayment(billingId, parentType, parentId, amount, date);
+          cm();
+          viewClientDetails(cid);
+        });
+      });
+
+      // Remove partial payment
+      document.querySelectorAll('.remove-partial-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const partialId = this.dataset.partialId;
+          const billingItem = this.closest('.billing-item');
+          const billingId = billingItem.querySelector('.billing-status-select').dataset.billingId;
+          const parentType = billingItem.querySelector('.billing-status-select').dataset.parentType;
+          const parentId = billingItem.querySelector('.billing-status-select').dataset.parentId;
+          if (!confirm('Remove this payment?')) return;
+          if (parentType === 'client') {
+            const docRef = db.collection('clientBillings').doc(billingId);
+            const doc = await docRef.get();
+            if (!doc.exists) return tst('Billing not found.', 'error');
+            const data = doc.data();
+            let partials = data.partialPayments || [];
+            partials = partials.filter(p => p.id !== partialId);
+            await docRef.update({ partialPayments: partials });
+            const idx = dcb.findIndex(b => b.id === billingId);
+            if (idx >= 0) {
+              dcb[idx].partialPayments = partials;
+              if (partials.length === 0) dcb[idx].status = 'pending';
+            }
+          } else {
+            const col = parentType === 'task' ? 'tasks' : 'cases';
+            const docRef = db.collection(col).doc(parentId);
+            const doc = await docRef.get();
+            if (!doc.exists) return tst('Item not found.', 'error');
+            const data = doc.data();
+            const billings = data.billings || [];
+            const idx = billings.findIndex(b => b.id === billingId);
+            if (idx !== -1) {
+              let partials = billings[idx].partialPayments || [];
+              partials = partials.filter(p => p.id !== partialId);
+              billings[idx].partialPayments = partials;
+              if (partials.length === 0) billings[idx].status = 'pending';
+              await docRef.update({ billings });
+              if (parentType === 'task') {
+                const t = tc.find(x => x.id === parentId);
+                if (t) t.billings = billings;
+              } else {
+                const c = cc.find(x => x.id === parentId);
+                if (c) c.billings = billings;
+              }
+            }
+          }
+          cm();
+          viewClientDetails(cid);
+          tst('Payment removed.', 'info');
+        });
+      });
+
+      document.getElementById('print-statement-btn').addEventListener('click', ()=>{
+        const selected = [];
+        document.querySelectorAll('#modal-content .billing-checkbox:checked').forEach(cb=>{
+          const billingId = cb.dataset.billingId;
+          const parentType = cb.dataset.parentType;
+          const parentId = cb.dataset.parentId;
+          const billing = allBillings.find(b => b.id === billingId && b.parentType === parentType && (b.parentId || b.id) === parentId);
+          if (billing) selected.push({...billing, parentId: parentId});
+        });
+        if(selected.length===0) return tst('Select at least one billing to print.','error');
+        printBillingStatement(client, selected);
+      });
+    }
+  }
+
+  // ---------------------- PRINT STATEMENT WITH TEMPLATE ----------------------
+  function printBillingStatement(client, billings) {
+    const total = billings.reduce((s,b)=>{
+      const amount = parseFloat(b.amount)||0;
+      if (b.status === 'paid') return s;
+      const partials = b.partialPayments || [];
+      const paidSum = partials.reduce((sum, p) => sum + (parseFloat(p.amount)||0), 0);
+      return s + (amount - paidSum);
+    },0);
+    const firm = fc[0] || {};
+    const firmName = firm.name || 'Law Firm';
+    let template = firm.billingTemplate || '';
+
+    const billingRowsHtml = billings.map(b => `
+      <tr>
+        <td>${b.date||''}</td>
+        <td>${esc(b.description||'')}</td>
+        <td>${esc(b.parentTitle||'')} (${b.parentType})</td>
+        <td>₱${parseFloat(b.amount).toLocaleString()}</td>
+      </tr>
+    `).join('');
+
+    if (template && !/<table/i.test(template)) {
+      const fullTable = `<table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+          <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid #ddd; padding: 8px;">Date</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Description</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Reference</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${billingRowsHtml}
+        </tbody>
+      </table>`;
+      template = template.replace('{{billingRows}}', fullTable);
+    } else if (template) {
+      template = template.replace('{{billingRows}}', billingRowsHtml);
+    } else {
+      template = DEFAULT_BILLING_TEMPLATE.replace('{{billingRows}}', billingRowsHtml);
+    }
+
+    const data = {
+      firmName: firmName,
+      clientName: client.name,
+      clientAddress: client.address || 'N/A',
+      date: new Date().toLocaleDateString('en-PH', {year:'numeric', month:'long', day:'numeric'}),
+      total: `₱${total.toLocaleString()}`
+    };
+
+    const printContent = fillTemplate(template, data);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`<html><head><title>Billing Statement - ${esc(client.name)}</title></head><body>${printContent}</body></html>`);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.onafterprint = () => printWindow.close();
+    printWindow.print();
+  }
+
+  // ---------- PROFILE ----------
+  function rp(){
+    const u=cud;
+    if(!u)return;
+    document.getElementById('view-profile').innerHTML=`
+      <header class="mb-4 sm:mb-6">
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Profile</h1>
+      </header>
+      <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border">
+        <form id="pf" class="space-y-4 sm:space-y-5">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 mb-4 sm:mb-6">
+            <div id="pav" class="avatar-initials bg-amber-500 w-16 h-16 text-xl flex-shrink-0">${ifn(u.name)}</div>
+            <div class="w-full">
+              <label class="text-xs font-bold text-slate-400 uppercase block mb-1">Profile Photo URL</label>
+              <input type="text" id="ppu" class="w-full px-4 py-2.5 rounded-xl border text-sm" value="${esc(u.profilePhoto||'')}">
+            </div>
+          </div>
+          <div><label>Full Name</label><input type="text" id="pnm" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(u.name)}"></div>
+          <div><label>Contact Number</label><input type="text" id="pcn" class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(u.contactNumber||'')}"></div>
+          <div><label>Email</label><input type="email" id="pem" required class="w-full px-4 py-3 rounded-xl border text-sm" value="${esc(u.email)}"></div>
+          <div><label>Description</label><textarea id="pds" rows="3" class="w-full px-4 py-3 rounded-xl border text-sm">${esc(u.description||'')}</textarea></div>
+          <div><label>New Password</label><input type="password" id="ppw" class="w-full px-4 py-3 rounded-xl border text-sm"></div>
+          <button type="submit" class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold">Save Changes</button>
+        </form>
+      </div>`;
+
+    if (cud.role === 'managing_partner' || cud.role === 'partner') {
+      const currentTemplate = (fc[0]?.billingTemplate) || '';
+      document.getElementById('view-profile').innerHTML += `
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border mt-6">
+          <h3 class="text-base font-bold mb-3">Billing Statement Template</h3>
+          <p class="text-xs text-slate-500 mb-3">
+            Upload an HTML or .docx template. Placeholders:
+            <code>{{firmName}}</code>, <code>{{clientName}}</code>, <code>{{clientAddress}}</code>,
+            <code>{{date}}</code>, <code>{{total}}</code>, <code>{{billingRows}}</code>.
+            <br>For .docx files, images are automatically embedded as base64.
+          </p>
+          <div class="space-y-3">
+            <input type="file" id="template-file" accept=".html,.docx,.doc" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+            <textarea id="template-preview" rows="6" class="w-full px-4 py-3 rounded-xl border text-xs" placeholder="Template preview will appear here...">${esc(currentTemplate)}</textarea>
+            <button id="save-template-btn" class="px-4 py-2 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold">Save Template</button>
+          </div>
+        </div>`;
+
+      const fileInput = document.getElementById('template-file');
+      const previewTextarea = document.getElementById('template-preview');
+
+      fileInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const name = file.name.toLowerCase();
+        if (name.endsWith('.docx') || name.endsWith('.doc')) {
+          try {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer}, {
+              convertImage: mammoth.images.imgElement(function(image) {
+                return image.read("base64").then(function(imageBuffer) {
+                  return {
+                    src: "data:" + image.contentType + ";base64," + imageBuffer
+                  };
+                });
+              })
+            });
+            previewTextarea.value = result.value;
+          } catch (err) {
+            tst('Failed to convert .docx file.','error');
+            console.error(err);
+          }
+        } else {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            previewTextarea.value = ev.target.result;
+          };
+          reader.readAsText(file);
+        }
+      });
+
+      document.getElementById('save-template-btn').addEventListener('click', async () => {
+        const template = previewTextarea.value.trim();
+        await db.collection('firms').doc(cud.firmId).update({ billingTemplate: template });
+        if (fc[0]) fc[0].billingTemplate = template;
+        tst('Template saved.', 'success');
+      });
+    }
+
+    document.getElementById('pf').addEventListener('submit',async function(e){
+      e.preventDefault();
+      const upd={
+        name:document.getElementById('pnm').value.trim(),
+        contactNumber:document.getElementById('pcn').value.trim(),
+        email:document.getElementById('pem').value.trim().toLowerCase(),
+        description:document.getElementById('pds').value.trim(),
+        profilePhoto:document.getElementById('ppu').value.trim()
+      };
+      const np=document.getElementById('ppw').value;
+      if(np&&np.length>=6){
+        const user=auth.currentUser;
+        if(user)await user.updatePassword(np);
+      }
+      await db.collection('users').doc(u.id).update(upd);
+      Object.assign(cud,upd);
+      us();
+      tst('Profile updated.','success');
+    });
+
+    document.getElementById('ppu').addEventListener('input',function(){
+      const pv=document.getElementById('pav');
+      const url=this.value.trim();
+      if(url){
+        pv.innerHTML=`<img src="${esc(url)}" class="w-16 h-16 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="avatar-initials bg-amber-500 w-16 h-16 text-xl" style="display:none">${ifn(cud.name)}</span>`;
+      }else{
+        pv.innerHTML=`<span class="avatar-initials bg-amber-500 w-16 h-16 text-xl">${ifn(cud.name)}</span>`;
+      }
+    });
+  }
+
+  // Auth listener
   let il=true;
   auth.onAuthStateChanged(async user=>{
     if(user){
@@ -305,7 +1208,7 @@
         il=true;
         await auth.signOut();
         sh();
-        tst(e.message||'Error loading data. Please refresh and try again.','error');
+        tst(e.message||'Error loading data.','error');
       }
     }else{
       sh();
@@ -314,7 +1217,59 @@
   });
 
   document.getElementById('login-form').addEventListener('submit',async e=>{e.preventDefault();const em=document.getElementById('login-email').value.trim().toLowerCase();const pw=document.getElementById('login-password').value;try{await auth.signInWithEmailAndPassword(em,pw)}catch(err){tst(err.message,'error')}});
-  document.getElementById('register-form').addEventListener('submit',async e=>{e.preventDefault();const nm=document.getElementById('reg-name').value.trim();const em=document.getElementById('reg-email').value.trim().toLowerCase();const pw=document.getElementById('reg-password').value;const rl=document.getElementById('reg-role').value;const fnm=document.getElementById('reg-firm-name').value.trim();const fii=document.getElementById('reg-firm-id').value.trim().toUpperCase();try{const cred=await auth.createUserWithEmailAndPassword(em,pw);const uid=cred.user.uid;let fid=null,isf=false;if(rl==='client'){if(!fii)throw new Error('Enter Firm ID to join as client.');const snap=await db.collection('firms').doc(fii).get();if(!snap.exists)throw new Error('Firm ID not found.');fid=fii}else if(fnm&&!fii){fid=gfi();let ex=await db.collection('firms').doc(fid).get();while(ex.exists){fid=gfi();ex=await db.collection('firms').doc(fid).get()}await db.collection('firms').doc(fid).set({id:fid,name:fnm,taskStatuses:[],caseStatuses:[],createdAt:new Date().toISOString()});isf=true}else if(fii&&!fnm){const snap=await db.collection('firms').doc(fii).get();if(!snap.exists)throw new Error('Firm ID not found.');fid=fii}else throw new Error('Create new firm OR join existing.');const ud={id:uid,name:nm,email:em,firmId:fid,role:isf?'managing_partner':rl,contactNumber:'',description:'',profilePhoto:'',approved:isf,createdAt:new Date().toISOString()};await db.collection('users').doc(uid).set(ud);if(isf){await new Promise(r=>setTimeout(r,2000));il=false;await lad(uid);sa();tst(`Firm "${fnm}" created! ID: ${fid}`,'success')}else{await auth.signOut();swl();tst('Registration submitted. Waiting for approval.','info')}}catch(err){tst(err.message,'error')}});
+  document.getElementById('register-form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const nm=document.getElementById('reg-name').value.trim();
+    const em=document.getElementById('reg-email').value.trim().toLowerCase();
+    const pw=document.getElementById('reg-password').value;
+    const rl=document.getElementById('reg-role').value;
+    const fnm=document.getElementById('reg-firm-name').value.trim();
+    const fii=document.getElementById('reg-firm-id').value.trim().toUpperCase();
+    try{
+      const cred=await auth.createUserWithEmailAndPassword(em,pw);
+      const uid=cred.user.uid;
+      let fid=null,isf=false;
+      if(rl==='client'){
+        if(!fii)throw new Error('Enter Firm ID to join as client.');
+        const snap=await db.collection('firms').doc(fii).get();
+        if(!snap.exists)throw new Error('Firm ID not found.');
+        fid=fii;
+      }else if(fnm&&!fii){
+        fid=gfi();
+        let ex=await db.collection('firms').doc(fid).get();
+        while(ex.exists){fid=gfi();ex=await db.collection('firms').doc(fid).get();}
+        await db.collection('firms').doc(fid).set({
+          id:fid, name:fnm, taskStatuses:[], caseStatuses:[],
+          createdAt:new Date().toISOString(),
+          billingTemplate: DEFAULT_BILLING_TEMPLATE
+        });
+        isf=true;
+      }else if(fii&&!fnm){
+        const snap=await db.collection('firms').doc(fii).get();
+        if(!snap.exists)throw new Error('Firm ID not found.');
+        fid=fii;
+      }else throw new Error('Create new firm OR join existing.');
+
+      const ud={
+        id:uid, name:nm, email:em, firmId:fid,
+        role:isf?'managing_partner':rl,
+        contactNumber:'', description:'', profilePhoto:'',
+        approved:isf, createdAt:new Date().toISOString()
+      };
+      await db.collection('users').doc(uid).set(ud);
+      if(isf){
+        await new Promise(r=>setTimeout(r,2000));
+        il=false;
+        await lad(uid);
+        sa();
+        tst(`Firm "${fnm}" created! ID: ${fid}`,'success');
+      }else{
+        await auth.signOut();
+        swl();
+        tst('Registration submitted. Waiting for approval.','info');
+      }
+    }catch(err){tst(err.message,'error')}
+  });
   document.getElementById('btn-logout').addEventListener('click',()=>auth.signOut());
 
   function swl(){document.getElementById('login-form').classList.remove('hidden');document.getElementById('register-form').classList.add('hidden')}
@@ -323,7 +1278,6 @@
 
   window.cm=cm;
 
-  // Show login screen initially if no user (session persistence already cleared)
   if(!auth.currentUser) sh();
 })();
 </script>
